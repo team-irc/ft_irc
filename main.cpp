@@ -2,6 +2,6 @@
 
 int main(int argc, char **argv)
 {
-    irc_server server(argc, argv);
+    IrcServer server(argc, argv);
     server.run();
 }
