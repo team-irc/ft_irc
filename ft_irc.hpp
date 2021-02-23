@@ -1,19 +1,18 @@
 #ifndef FT_IRC_HPP
-#define FT_IRC_HPP
+# define FT_IRC_HPP
 
 #include <iostream>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <string>
-#include <sstream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <map>
 
 #define BUF_SIZE 520
-#include "Member.hpp"
+// #include "Member.hpp"
 // #include "Channel.hpp"
 
 class IrcServer
@@ -49,7 +48,9 @@ private:
 	void				client_connect();
 	struct sockaddr_in	parsing_host_info(char **argv);
 	void				connect_to_server(char **argv);
-	void				send_msg(int my_fd, const char *msg);
+	void				send_msg(int my_fd, int except_fd, const char *msg);
+	void				send_map_data(int my_fd);
+	void				show_map_data();
 
 };
 
