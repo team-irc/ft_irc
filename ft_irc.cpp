@@ -216,7 +216,6 @@ void	IrcServer::client_msg(int fd)
 	std::cout << "is_digit: " << is_digit << std::endl;
 	if (is_digit)
 	{
-		
 		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(user_port.c_str()), fd));
 		std::map<unsigned short, int>::iterator it = _user_map.find((unsigned short)ft::atoi(user_port.c_str()));
 		//std::cout << "new user_map.port: " << it->first << std::endl;
@@ -258,7 +257,6 @@ void	IrcServer::run(int argc)
 		timeout.tv_sec = 5;
 		timeout.tv_usec = 5000;
 
-
 		tmp = _server_fds;
 		if ((fd_num = select(_fd_max+1, &tmp, 0, 0, &timeout)) == -1)
 		{
@@ -287,6 +285,31 @@ void	IrcServer::run(int argc)
 				}
 			}
 		}
+		//run(tmp, 함수포인터);
+
+		/*
+		if ((fd_num = select(_fd_max+1, &tmp, 0, 0, &timeout)) == -1)
+		{
+			std::cout << "select return -1. server_fds" << std::endl;
+			break;
+		}
+		if (fd_num != 0)
+		{
+			for (i = 0; i < _fd_max + 1; i++)
+			{
+				함수 포인터 실행
+			}
+		}
+
+		server_run
+		{
+
+		}
+		client_run
+		{
+
+		}
+		*/
 		tmp = _client_fds;
 		if((fd_num = select(_fd_max+1, &tmp, 0 ,0, &timeout)) == -1)
 		{
@@ -309,8 +332,3 @@ void	IrcServer::run(int argc)
 	close(_serv_sock);
 };
 
-void error_handling(const std::string buf)
-{
-	std::cerr << buf << std::endl;
-	exit(1);
-}

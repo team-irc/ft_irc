@@ -5,6 +5,11 @@
 
 namespace ft
 {
+	void error_handling(const std::string buf)
+	{
+		std::cerr << buf << std::endl;
+		exit(1);
+	}
 
 	int atoi(const char * nptr)
 	{
