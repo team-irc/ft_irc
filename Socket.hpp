@@ -11,20 +11,25 @@
 # include "Error.hpp"
 # include "utils.hpp"
 
+enum SockType {
+	SERVER, CLIENT, SLEEP
+};
+
 class Socket
 {
 private:
 	int					_fd;
 	struct sockaddr_in	_addr;
+	SockType			_type;
 	struct sockaddr_in	parsing_host_info(char *connect) const;
 public:
 	Socket();
 	Socket(const char *port);
 	Socket(unsigned short port);
 	Socket(Socket const &copy);
+	Socket& operator=(Socket const &copy);
 	~Socket();
 public:
-	Socket&			operator=(Socket const &copy);
 	void			bind() const;
 	void			listen() const;
 	Socket			*accept() const;
@@ -33,9 +38,11 @@ public:
 	void			show_info() const;
 	int				get_fd() const;
 	unsigned short	get_port() const;
+	void			set_type(SockType type);
+	SockType		get_type() const;
 };
 
-Socket::Socket() : _fd(0)
+Socket::Socket()
 {
 	memset(&_addr, 0, sizeof(_addr));
 }
@@ -129,6 +136,7 @@ Socket*		Socket::accept() const
 	int					client_sock;
 	socklen_t			clnt_addr_size;
 
+	clnt_addr_size = sizeof(client_addr);
 	client_sock = ::accept(_fd, (struct sockaddr*)&client_addr, &clnt_addr_size);
 	if (client_sock < 0)
 		throw (Error("socket accept error"));
@@ -148,8 +156,9 @@ void		Socket::write(char const *msg) const
 void		Socket::show_info() const
 {
 	std::cout << "==== Socket info ====" << std::endl;
-	std::cout << "sock fd: " << _fd << std::endl;
-	std::cout << "addr port: " << ntohs(_addr.sin_port) << std::endl;
+	std::cout << "fd     : " << _fd << std::endl;
+	std::cout << "type   : " << _type << std::endl;
+	std::cout << "port to: " << get_port() << std::endl;
 	std::cout << "=====================" << std::endl;
 }
 
@@ -158,6 +167,16 @@ int			Socket::get_fd() const
 
 unsigned short	Socket::get_port() const
 { return (ntohs(_addr.sin_port)); }
+
+void			Socket::set_type(SockType type)
+{
+	_type = type;
+}
+
+SockType		Socket::get_type() const
+{
+	return (_type);
+}
 
 Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
 {
