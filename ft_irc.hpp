@@ -12,23 +12,21 @@
 #include <map>
 
 #define BUF_SIZE 520
+#include "Socket.hpp"
+#include "SocketSet.hpp"
+#include "Error.hpp"
 // #include "Member.hpp"
 // #include "Channel.hpp"
 
 class IrcServer
 {
 private:
-	int					_connection_sock;
-	int					_serv_sock;
-	int					_client_sock;
-	struct	sockaddr_in _serv_adr;
-	struct	sockaddr_in _client_adr;
-	socklen_t			_client_adr_size;
-
-	fd_set				_server_fds;
-	fd_set				_client_fds;
 	
-	int					_fd_max;
+	Socket					*_listen_socket;
+	// std::vector<Socket *>	_socket_vector;
+	SocketSet				_socket_set;
+	
+	int						_fd_max;
 	
 	std::map<unsigned short, int>	_user_map;
 
@@ -48,9 +46,12 @@ private:
 	void				client_connect();
 	struct sockaddr_in	parsing_host_info(char **argv);
 	void				connect_to_server(char **argv);
+	void				send_msg(int send_fd, const char *msg);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
 	void				send_map_data(int my_fd);
 	void				show_map_data();
+	void				manage_server(struct timeval &timeout);
+	void				manage_client(struct timeval &timeout);
 
 };
 
