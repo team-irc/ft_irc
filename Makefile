@@ -14,21 +14,21 @@ SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 
-OBJS = $(SRCS:%.cpp=%.o)
+# OBJS = $(SRCS:%.cpp=%.o)
 
 ## 나중에 $(CLFAG) 추가
-$(NAME) : $(OBJS)
-	$(CC) $(OBJS) -o $(NAME) -I $(HEADER_DIR) 
+$(NAME) : $(SRCS)
+	$(CC) $(SRCS) -o $(NAME) -I $(HEADER_DIR) 
 
 %.o : %.c
 		$(CC) -o $@ -c $^ -I $(HEADER_DIR)
 
 all : $(NAME)
 
-clean :
-		rm -f $(OBJS)
+# clean :
+# 		rm -f $(OBJS)
 
-fclean : clean
-		rm -f $(NAME)
+fclean :
+	rm -f $(NAME)
 
 re : fclean all
