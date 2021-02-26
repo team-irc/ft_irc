@@ -124,7 +124,8 @@ int			Socket::get_fd() const
 { return (_fd); }
 
 unsigned short	Socket::get_port() const
-{ return (ntohs(_addr.sin_port)); }
+{
+	return (ntohs(_addr.sin_port));}
 
 void			Socket::set_type(SockType type)
 {

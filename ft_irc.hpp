@@ -14,9 +14,12 @@
 #define BUF_SIZE 520
 #include "Socket.hpp"
 #include "SocketSet.hpp"
+#include "utils.hpp"
 #include "Error.hpp"
 // #include "Member.hpp"
 // #include "Channel.hpp"
+
+#define DEBUG 1
 
 class IrcServer
 {
@@ -52,6 +55,7 @@ private:
 	void				show_map_data();
 	void				manage_server(struct timeval &timeout);
 	void				manage_client(struct timeval &timeout);
+	void				manage_listen(struct timeval &timeout);
 
 };
 

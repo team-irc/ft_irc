@@ -10,7 +10,7 @@ HEADER_DIR = .
 
 SRC_DIR = .
 
-SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp
+SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp	Error.cpp
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 

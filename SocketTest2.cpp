@@ -20,10 +20,7 @@ private:
 	
 	Socket					*_listen_socket;
 	std::vector<Socket *>	_socket_vector;
-
 	SocketSet				_socket_set;
-	// fd_set					_server_fds;
-	// fd_set					_client_fds;
 	
 	int						_fd_max;
 	

@@ -1,4 +1,5 @@
 #include "SocketSet.hpp"
+#include "Error.hpp"
 
 SocketSet::SocketSet()
 {
@@ -27,7 +28,7 @@ SocketSet::~SocketSet()
 		delete (*begin++);
 }
 
-void		SocketSet::add_socket(Socket *new_sock)
+int			SocketSet::add_socket(Socket *new_sock)
 {
 	std::vector<Socket *>::iterator begin = _vec.begin();
 	std::vector<Socket *>::iterator end = _vec.end();
@@ -39,10 +40,20 @@ void		SocketSet::add_socket(Socket *new_sock)
 		begin++;
 	}
 	_vec.push_back(new_sock);
-	if (new_sock->get_type() == SERVER)
+	if (new_sock->get_type() == SERVER) {
 		FD_SET(new_sock->get_fd(), &_server_sock);
-	else if (new_sock->get_type() == CLIENT)
+		if (FD_ISSET(new_sock->get_fd(), &_server_sock))
+			std::cout << "server socket " << new_sock->get_fd() << " add" << std::endl;
+	}
+	else if (new_sock->get_type() == CLIENT) {
 		FD_SET(new_sock->get_fd(), &_client_sock);
+		std::cout << "client socket add" << std::endl;
+	}
+	else {
+		FD_SET(new_sock->get_fd(), &_listen_sock);
+		std::cout << "listen socket add" << std::endl;
+	}
+	return (new_sock->get_fd());
 }
 
 Socket		*SocketSet::find_socket(int fd)
@@ -89,4 +100,22 @@ fd_set		&SocketSet::get_client_fds()
 fd_set const	&SocketSet::get_client_fds() const
 { return (_client_sock); }
 
-#endif
+fd_set			&SocketSet::get_listen_fds()
+{ return (_listen_sock); }
+
+fd_set const	&SocketSet::get_listen_fds() const
+{ return (_listen_sock); }
+
+void			SocketSet::show_info()
+{
+	std::vector<Socket *>::iterator begin = _vec.begin();
+	std::vector<Socket *>::iterator end = _vec.end();
+
+	while (begin != end)
+	{
+		(*begin)->show_info();
+		begin++;
+	}
+
+
+}

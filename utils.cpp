@@ -1,6 +1,6 @@
 #include "utils.hpp"
 
-int atoi(const char * nptr)
+int ft::atoi(const char * nptr)
 {
 	int i;
 	int result_num;
@@ -26,7 +26,7 @@ int atoi(const char * nptr)
 	return (minus == 0 ? result_num : -result_num);
 }
 
-std::string * split(const std::string str, char c)
+std::string * ft::split(const std::string str, char c)
 {
 	int size;
 	int str_counter;
