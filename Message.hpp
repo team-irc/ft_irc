@@ -29,12 +29,14 @@ private:
 	// SERVER
 	//param은 최대 15개
 	std::string					_param;
+	int							_size;
 	// csd.bu.edu 5 34 :BU Central Server
 	// 
 public:
 	Message(const char *msg);
 	~Message();
 	void			get_info();
+	const int		get_size();
 	const char		*get_msg();
 	void			set_prefix(const char *prefix);
 	void			inputPath(std::string path);

@@ -15,6 +15,7 @@ Message::Message(const char *msg)
 		while (idx < size)
 		{
 			param += arr[idx];
+			param += " ";
 			idx++;
 		}
 		_param = param;
@@ -25,6 +26,9 @@ Message::Message(const char *msg)
 Message::~Message()
 {
 }
+
+const int	Message::get_size()
+{ return (_size); }
 
 void		Message::get_info()
 {
@@ -58,13 +62,15 @@ const char	*Message::get_msg()
 	if (idx > 509)
 		throw (Error("msg out of range"));
 	_msg[idx++] = ' ';
-	if (_param.size() > 15)
-		throw (Error("parameter size out of range"));
+	// 파라미터 최대 15개
+	// if (_param.size() > 15)
+	// 	throw (Error("parameter size out of range"));
 	idx = insert_string(idx, _param);
 	if (idx > 509)
 		throw (Error("msg out of range"));
 	_msg[idx++] = 13;
 	_msg[idx] = 10;
+	_size = idx + 1;
 	return (_msg);
 }
 
@@ -77,5 +83,5 @@ int			Message::insert_string(int start, std::string str)
 		_msg[idx + start] = str.at(idx);
 		idx++;
 	}
-	return (idx);
+	return (idx + start);
 }

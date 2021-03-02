@@ -18,7 +18,6 @@ IrcServer::IrcServer(int argc, char **argv)
 
 IrcServer::~IrcServer()
 {
-	delete _listen_socket;
 };
 
 void	 IrcServer::connect_to_server(char **argv)
@@ -275,7 +274,8 @@ void	IrcServer::client_msg(int fd)
 	{
 		Message msg(buf);
 		msg.get_info();
-		echo_msg(fd, msg.get_msg(), str_len);
+		echo_msg(fd, msg.get_msg(), msg.get_size());
+		// echo_msg(fd, buf, str_len);
 	}
 	delete[] split_ret;
 }
