@@ -54,7 +54,7 @@ struct sockaddr_in	Socket::parsing_host_info(char *connect) const
 	struct sockaddr_in	host;
 	struct addrinfo		*result;
 
-	split_ret = ft::split(connect, ':');
+	ft::split(connect, ':', split_ret);
 	string_host = split_ret[0];
 	string_port_network = split_ret[1];
 	string_password_network = split_ret[2];

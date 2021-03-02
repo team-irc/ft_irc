@@ -26,11 +26,10 @@ int ft::atoi(const char * nptr)
 	return (minus == 0 ? result_num : -result_num);
 }
 
-std::string * ft::split(const std::string str, char c)
+int ft::split(const std::string str, char c, std::string *& ret)
 {
 	int size;
 	int str_counter;
-	std::string * ret;
 
 	size = 0;
 	str_counter = 0;
@@ -48,5 +47,5 @@ std::string * ft::split(const std::string str, char c)
 		while (str[str_counter] == c)
 			++str_counter;
 	}
-	return (ret);
+	return (size);
 }

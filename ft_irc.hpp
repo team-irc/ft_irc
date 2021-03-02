@@ -16,10 +16,11 @@
 #include "SocketSet.hpp"
 #include "utils.hpp"
 #include "Error.hpp"
+#include "Message.hpp"
 // #include "Member.hpp"
 // #include "Channel.hpp"
 
-#define DEBUG 1
+#define DEBUG 0
 
 class IrcServer
 {
@@ -44,7 +45,7 @@ public:
 
 private:
 
-	void				echo_msg(int my_fd, char *buf, int len);
+	void				echo_msg(int my_fd, const char *buf, int len);
 	void				client_msg(int fd);
 	void				client_connect();
 	struct sockaddr_in	parsing_host_info(char **argv);

@@ -8,7 +8,7 @@ namespace ft
 
 	int atoi(const char * nptr);
 
-	std::string * split(const std::string str, char c);
+	int split(const std::string str, char c, std::string *& ret);
 
 };
 

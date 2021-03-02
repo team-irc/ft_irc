@@ -4,13 +4,13 @@ NAME = server
 
 CC = clang++
 
-CFLAGS = -Wall -Werror -Wextra -std=c++98
+CFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address
 
 HEADER_DIR = .
 
 SRC_DIR = .
 
-SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp	Error.cpp
+SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp	Error.cpp	Message.cpp
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 

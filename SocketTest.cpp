@@ -125,7 +125,7 @@ struct sockaddr_in	IrcServer::parsing_host_info(char **argv)
 	struct sockaddr_in	host;
 	struct addrinfo		*result;
 
-	split_ret = ft::split(argv[1], ':');
+	ft::split(argv[1], ':', split_ret);
 	string_host = split_ret[0];
 	string_port_network = split_ret[1];
 	string_password_network = split_ret[2];
@@ -237,7 +237,8 @@ void	IrcServer::client_msg(int fd)
 	char			buf[BUF_SIZE];
 	int				str_len = read(fd, buf, BUF_SIZE);
 	bool			is_digit = false;
-	std::string *	split_ret = ft::split(std::string(buf), ':');
+	std::string *	split_ret;
+	ft::split(std::string(buf), ':', split_ret);
 	std::string		user_port = split_ret[1];
 	const char *	tmp = user_port.c_str();
 
