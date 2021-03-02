@@ -25,7 +25,10 @@ SocketSet::~SocketSet()
 	std::vector<Socket *>::iterator end = _vec.end();
 
 	while (begin != end)
-		delete (*begin++);
+	{
+		delete (*begin);
+		begin++;
+	}
 }
 
 int			SocketSet::add_socket(Socket *new_sock)

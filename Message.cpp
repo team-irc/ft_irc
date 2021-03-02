@@ -15,7 +15,8 @@ Message::Message(const char *msg)
 		while (idx < size)
 		{
 			param += arr[idx];
-			param += " ";
+			if (idx + 1 != size)
+				param += " ";
 			idx++;
 		}
 		_param = param;

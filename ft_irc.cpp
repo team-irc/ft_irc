@@ -203,12 +203,42 @@ void	IrcServer::show_map_data()
 	std::cout << "=================================\n";
 }
 
+namespace	ASCII_CONST
+{
+	const char		CR = 13;
+	const char		LF = 10;
+}
+
+static int	read_until_crlf(int fd, char *buffer)
+{
+	if (DEBUG)
+		std::cout << "read_until_crlf start\n";
+	int	i = 0;
+	char	buf[BUFFER_SIZE];
+
+	read(fd, buf, BUFFER_SIZE);
+	for (i = 0; i < BUFFER_SIZE - 1; i++)
+	{
+		if (buf[i] == ASCII_CONST::CR && buf[i + 1] == ASCII_CONST::LF)
+		{
+			strncpy(buffer, buf, i + 1);
+			for (int j = 0 ; j < i + 1 ; j++)
+			{
+				std::cout << buf[j];
+			}
+			return (i + 1);
+		}
+	}
+	strncpy(buffer, buf, i + 1);
+	return (BUFFER_SIZE);
+}
+
 void	IrcServer::client_msg(int fd)
 {
 	if (DEBUG)
 		std::cout << "client_msg function called." << std::endl;
-	char			buf[BUF_SIZE];
-	int				str_len = read(fd, buf, BUF_SIZE);
+	char			buf[BUFFER_SIZE];
+	int				str_len = read_until_crlf(fd, buf);
 	bool			is_digit = false;
 	std::string *	split_ret;
 	ft::split(std::string(buf), ':', split_ret);
@@ -375,10 +405,13 @@ void	IrcServer::run(int argc)
 	timeout.tv_usec = 5000;
 	while (1)
 	{
-		std::cout << "===============Current Info=================\n";
-		show_map_data();
-		_socket_set.show_info();
-		std::cout << "============================================\n";
+		if (DEBUG)
+		{
+			std::cout << "===============Current Info=================\n";
+			show_map_data();
+			_socket_set.show_info();
+			std::cout << "============================================\n";
+		}
 		manage_listen(timeout);
 		manage_server(timeout);
 		manage_client(timeout);
