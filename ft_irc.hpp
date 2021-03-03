@@ -20,7 +20,7 @@
 // #include "Member.hpp"
 // #include "Channel.hpp"
 
-#define DEBUG 1
+#define DEBUG 0
 
 class IrcServer
 {

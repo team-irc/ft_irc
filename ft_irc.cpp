@@ -203,12 +203,6 @@ void	IrcServer::show_map_data()
 	std::cout << "=================================\n";
 }
 
-namespace	ASCII_CONST
-{
-	const char		CR = 13;
-	const char		LF = 10;
-}
-
 /*
 ** CR 또는 LF까지만 버퍼를 읽어온다
 */
@@ -226,15 +220,11 @@ static int	read_until_crlf(int fd, char *buffer)
 		{
 			strncpy(buffer, buf, i + 1);
 			buffer[i + 1] = 0;
-			std::cout << "read crlf end\n";
-			std::cout << buffer << std::endl;
 			return (i);
 		}
 	}
 	strncpy(buffer, buf, i + 1);
 	buffer[i + 1] = 0;
-	std::cout << "read crlf end\n";
-	std::cout << buffer << std::endl;
 	return (BUFFER_SIZE);
 }
 
@@ -249,6 +239,9 @@ void	IrcServer::client_msg(int fd)
 	ft::split(std::string(buf), ':', split_ret);
 	std::string		user_port = split_ret[1];
 	const char *	tmp = user_port.c_str();
+
+	Message msg(buf);
+	msg.get_info();
 
 	// check server msg
 	std::cout << "user_port:" << user_port << std::endl;
@@ -276,7 +269,7 @@ void	IrcServer::client_msg(int fd)
 		close(fd);
 		std::cout << "closed client: " << fd << std::endl;
 	}
-	else if (str_len == 1 && buf[0] == 'S')
+	else if (str_len == 1 && buf[0] == 'S') // COMMAND SERVER
 	{
 		std::cout << "receive S msg" << std::endl;
 		Socket *tmp = _socket_set.find_socket(fd);
@@ -305,10 +298,8 @@ void	IrcServer::client_msg(int fd)
 		send_map_data(_listen_socket->get_fd());
 		// Member에서 제거도 해야 됨
 	}
-	else
+	else // CHANNEL 
 	{
-		Message msg(buf);
-		msg.get_info();
 		echo_msg(fd, msg.get_msg(), msg.get_size());
 		// echo_msg(fd, buf, str_len);
 	}

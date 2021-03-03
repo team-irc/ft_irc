@@ -49,7 +49,9 @@ void		Message::set_prefix(const char *prefix)
 
 const char	*Message::get_msg()
 {
-	// int		idx = 0;
+	std::string	*param;
+	int			param_size = 0;
+	int			idx = 0;
 
 	// // 없으면 걍 아무것도 안하면 됨
 	// if (!_prefix.empty())
@@ -78,7 +80,19 @@ const char	*Message::get_msg()
 		_msg += _prefix + " ";
 	_msg += _command;
 	if (!_param.empty())
+	{
+		int 
+		idx = ft::split(_param, ' ', param);
+		for (int i = 0; i < idx; i++)
+		{
+			param_size++;
+			if (param[i].at(0) == ':')
+				break ;
+		}
+		if (param_size > 14)
+			throw (Error("msg out of range"));
 		_msg += " " + _param;
+	}
 	if (_msg.length() > 510)
 		throw (Error("msg out of range"));
 	// _msg += 13;

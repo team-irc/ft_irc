@@ -12,4 +12,10 @@ namespace ft
 
 };
 
+namespace	ASCII_CONST
+{
+	const char		CR = 13;
+	const char		LF = 10;
+};
+
 #endif

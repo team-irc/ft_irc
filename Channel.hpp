@@ -9,6 +9,7 @@ class Channel
 {
 private:
 	const std::string				_name;
+	std::string						_key;
 	std::vector<Member>				_member;
 	//								_properties.op_members;
 	//								_properties.create_member;
@@ -16,10 +17,11 @@ private:
 	//								_properties.mode;
 	
 public:
-	Channel();
+	Channel(const std::string channel_name, const std::string key, const Member &first_member);
+	Channel(const std::string channel_name, const Member &first_member);
 	Channel(const Channel & other);
 	Channel & operator = (const Channel & other);
-	virtual ~Channel();
+	~Channel();
 public:
 	void add_member(const Member member);
 };
