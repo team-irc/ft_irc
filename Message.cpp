@@ -49,30 +49,42 @@ void		Message::set_prefix(const char *prefix)
 
 const char	*Message::get_msg()
 {
-	int		idx = 0;
+	// int		idx = 0;
 
-	// 없으면 걍 아무것도 안하면 됨
+	// // 없으면 걍 아무것도 안하면 됨
+	// if (!_prefix.empty())
+	// 	idx = insert_string(idx, _prefix);
+	// // prefix, command, param 사이는 공백 하나로 구분함
+	// if (idx > 0)
+	// 	_msg[idx++] = ' ';
+	// // 510 이상인 경우 에러
+	// idx = insert_string(idx, _command);
+	// // 15개 넘어가는 경우 / 510 이상인 경우 에러
+	// if (idx > 509)
+	// 	throw (Error("msg out of range"));
+	// _msg[idx++] = ' ';
+	// // 파라미터 최대 15개
+	// // if (_param.size() > 15)
+	// // 	throw (Error("parameter size out of range"));
+	// idx = insert_string(idx, _param);
+	// if (idx > 509)
+	// 	throw (Error("msg out of range"));
+	// _msg[idx++] = 13;
+	// _msg[idx++] = 10;
+	// _size = idx;
+	// return (_msg);
+	_msg.clear();
 	if (!_prefix.empty())
-		idx = insert_string(idx, _prefix);
-	// prefix, command, param 사이는 공백 하나로 구분함
-	if (idx > 0)
-		_msg[idx++] = ' ';
-	// 510 이상인 경우 에러
-	idx = insert_string(idx, _command);
-	// 15개 넘어가는 경우 / 510 이상인 경우 에러
-	if (idx > 509)
+		_msg += _prefix + " ";
+	_msg += _command;
+	if (!_param.empty())
+		_msg += " " + _param;
+	if (_msg.length() > 510)
 		throw (Error("msg out of range"));
-	_msg[idx++] = ' ';
-	// 파라미터 최대 15개
-	// if (_param.size() > 15)
-	// 	throw (Error("parameter size out of range"));
-	idx = insert_string(idx, _param);
-	if (idx > 509)
-		throw (Error("msg out of range"));
-	_msg[idx++] = 13;
-	_msg[idx] = 10;
-	_size = idx + 1;
-	return (_msg);
+	// _msg += 13;
+	// _msg += 10;
+	_size = _msg.length();
+	return (_msg.c_str());
 }
 
 int			Message::insert_string(int start, std::string str)

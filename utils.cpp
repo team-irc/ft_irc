@@ -39,7 +39,7 @@ int ft::split(const std::string str, char c, std::string *& ret)
 			++size;
 	}
 	++size;
-	ret = new std::string[size];
+	ret = new std::string[size + 1];
 	for (int i = 0; i < size; ++i)
 	{
 		for (; (str[str_counter] != c && str_counter < str.length()); ++str_counter)
@@ -47,5 +47,6 @@ int ft::split(const std::string str, char c, std::string *& ret)
 		while (str[str_counter] == c)
 			++str_counter;
 	}
+	ret += 0;
 	return (size);
 }

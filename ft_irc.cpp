@@ -209,6 +209,9 @@ namespace	ASCII_CONST
 	const char		LF = 10;
 }
 
+/*
+** CR 또는 LF까지만 버퍼를 읽어온다
+*/
 static int	read_until_crlf(int fd, char *buffer)
 {
 	if (DEBUG)
@@ -217,19 +220,21 @@ static int	read_until_crlf(int fd, char *buffer)
 	char	buf[BUFFER_SIZE];
 
 	read(fd, buf, BUFFER_SIZE);
-	for (i = 0; i < BUFFER_SIZE - 1; i++)
+	for (i = 0; i < BUFFER_SIZE; i++)
 	{
-		if (buf[i] == ASCII_CONST::CR && buf[i + 1] == ASCII_CONST::LF)
+		if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
 		{
 			strncpy(buffer, buf, i + 1);
-			for (int j = 0 ; j < i + 1 ; j++)
-			{
-				std::cout << buf[j];
-			}
-			return (i + 1);
+			buffer[i + 1] = 0;
+			std::cout << "read crlf end\n";
+			std::cout << buffer << std::endl;
+			return (i);
 		}
 	}
 	strncpy(buffer, buf, i + 1);
+	buffer[i + 1] = 0;
+	std::cout << "read crlf end\n";
+	std::cout << buffer << std::endl;
 	return (BUFFER_SIZE);
 }
 

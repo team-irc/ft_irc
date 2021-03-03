@@ -18,7 +18,7 @@ private:
 	std::string		_dest; //csd.bu.edu
 
 	// CR(13)-LF(10) 으로 끝나야 함
-	char			_msg[BUFFER_SIZE]; //:tolsun.oulu.fi SERVER csd.bu.edu 5 34 :BU Central Server
+	std::string					_msg; //:tolsun.oulu.fi SERVER csd.bu.edu 5 34 :BU Central Server
 	// 거쳐온 경로
 	std::vector<std::string>	_paths;
 	// 		*path;
