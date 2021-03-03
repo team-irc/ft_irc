@@ -11,6 +11,7 @@ private:
 	const std::string				_name;
 	std::string						_key;
 	std::vector<Member>				_member;
+	std::vector<char>				_mode;
 	//								_properties.op_members;
 	//								_properties.create_member;
 	//								...
@@ -24,6 +25,7 @@ public:
 	~Channel();
 public:
 	void add_member(const Member member);
+	
 };
 
 #endif
