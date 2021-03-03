@@ -220,11 +220,15 @@ static int	read_until_crlf(int fd, char *buffer)
 		{
 			strncpy(buffer, buf, i + 1);
 			buffer[i + 1] = 0;
+			std::cout << "read crlf end\n";
+			std::cout << buffer << std::endl;
 			return (i);
 		}
 	}
 	strncpy(buffer, buf, i + 1);
 	buffer[i + 1] = 0;
+	std::cout << "read crlf end\n";
+	std::cout << buffer << std::endl;
 	return (BUFFER_SIZE);
 }
 
@@ -242,7 +246,7 @@ void	IrcServer::client_msg(int fd)
 
 	Message msg(buf);
 	msg.get_info();
-
+	
 	// check server msg
 	std::cout << "user_port:" << user_port << std::endl;
 	for (int i = 0; i < user_port.length(); i++)

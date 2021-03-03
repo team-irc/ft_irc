@@ -29,7 +29,6 @@ private:
 	Socket					*_listen_socket;
 	// std::vector<Socket *>	_socket_vector;
 	SocketSet				_socket_set;
-	
 	int						_fd_max;
 	
 	std::map<unsigned short, int>	_user_map;
