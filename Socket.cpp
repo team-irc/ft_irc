@@ -127,12 +127,12 @@ unsigned short	Socket::get_port() const
 {
 	return (ntohs(_addr.sin_port));}
 
-void			Socket::set_type(SockType type)
+void			Socket::set_type(SockType::type type)
 {
 	_type = type;
 }
 
-SockType		Socket::get_type() const
+SockType::type		Socket::get_type() const
 {
 	return (_type);
 }

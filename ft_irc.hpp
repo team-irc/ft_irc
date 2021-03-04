@@ -56,6 +56,7 @@ private:
 	void				manage_server(struct timeval &timeout);
 	void				manage_client(struct timeval &timeout);
 	void				manage_listen(struct timeval &timeout);
+	const SocketSet		&get_socket_set();
 
 };
 

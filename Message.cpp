@@ -1,5 +1,9 @@
 # include "Message.hpp"
 
+Message::Message() :
+	_prefix(NULL), _command(NULL), _param(), _size(0)
+{}
+
 Message::Message(const char *msg)
 {
 	int		idx = 0;
@@ -14,12 +18,19 @@ Message::Message(const char *msg)
 		std::string param;
 		while (idx < size)
 		{
-			param += arr[idx];
-			if (idx + 1 != size)
-				param += " ";
+			param = arr[idx];
+			if (param.at(0) == ':')
+			{
+				idx++;
+				for (; idx < size; idx++)
+				{
+					param += " ";
+					param += arr[idx];
+				}
+			}
+			_param.push_back(param);
 			idx++;
 		}
-		_param = param;
 		delete[] arr;
 	}
 }
@@ -35,7 +46,15 @@ void		Message::get_info()
 {
 	std::cout << "Prefix: " << _prefix << std::endl;
 	std::cout << "Command: " << _command << std::endl;
-	std::cout << "Params: " << _param << std::endl;
+	std::vector<std::string>::iterator begin = _param.begin();
+	std::vector<std::string>::iterator end = _param.end();
+	std::cout << "param:";
+	while (begin != end)
+	{
+		std::cout << " " << *begin;
+		begin++;
+	}
+	std::cout << std::endl;
 }
 
 void		Message::set_prefix(const char *prefix)
@@ -79,19 +98,15 @@ const char	*Message::get_msg()
 	if (!_prefix.empty())
 		_msg += _prefix + " ";
 	_msg += _command;
-	if (!_param.empty())
+	if (_param.size() > 15)
+		throw (Error("msg out of range"));
+	std::vector<std::string>::iterator begin = _param.begin();
+	std::vector<std::string>::iterator end = _param.end();
+	while (begin != end)
 	{
-		int 
-		idx = ft::split(_param, ' ', param);
-		for (int i = 0; i < idx; i++)
-		{
-			param_size++;
-			if (param[i].at(0) == ':')
-				break ;
-		}
-		if (param_size > 14)
-			throw (Error("msg out of range"));
-		_msg += " " + _param;
+		_msg += " ";
+		_msg += *begin;
+		begin++;
 	}
 	if (_msg.length() > 510)
 		throw (Error("msg out of range"));

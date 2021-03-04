@@ -1,13 +1,13 @@
 #include <iostream>
 #include <string>
 
-int		main()
+int		main(int argc, char **argv)
 {
-	char	buf[10] = "abcd";
-	std::cout << buf << std::endl;
+	std::string		msg = "SERVER ";
 
-	char	buf2[10];
-	strncpy(buf2, buf, 1);
-	std::cout << buf2 <<std::endl;
+	msg += argv[1];
+	msg += " ";
+	msg += std::to_string(0);
+	std::cout << msg << std::endl;
 	return (0);
 }

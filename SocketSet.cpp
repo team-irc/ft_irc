@@ -43,12 +43,12 @@ int			SocketSet::add_socket(Socket *new_sock)
 		begin++;
 	}
 	_vec.push_back(new_sock);
-	if (new_sock->get_type() == SERVER) {
+	if (new_sock->get_type() == SockType::SERVER) {
 		FD_SET(new_sock->get_fd(), &_server_sock);
 		if (FD_ISSET(new_sock->get_fd(), &_server_sock))
 			std::cout << "server socket " << new_sock->get_fd() << " add" << std::endl;
 	}
-	else if (new_sock->get_type() == CLIENT) {
+	else if (new_sock->get_type() == SockType::CLIENT) {
 		FD_SET(new_sock->get_fd(), &_client_sock);
 		std::cout << "client socket add" << std::endl;
 	}

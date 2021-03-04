@@ -5,7 +5,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
 	_listen_socket = new Socket(htons(ft::atoi(argv[argc == 3 ? 2 : 1])));
-	_listen_socket->set_type(LISTEN);
+	_listen_socket->set_type(SockType::LISTEN);
 	_fd_max = _socket_set.add_socket(_listen_socket);
 	_user_map.insert(std::pair<unsigned short, int>(ntohs(_listen_socket->get_port()), _listen_socket->get_fd()));
 
@@ -28,7 +28,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	int				tmp;
 
 	new_socket = _listen_socket->connect(argv[1]);
-	new_socket->set_type(SERVER);
+	new_socket->set_type(SockType::SERVER);
 	std::cout << "connect to server" << std::endl;
 	tmp = _socket_set.add_socket(new_socket);
 	// _socket_vector.push_back(new_socket);
@@ -41,10 +41,21 @@ void	 IrcServer::connect_to_server(char **argv)
 	new_socket->show_info();
 
 	// 서버 연결메시지 전송
+
+
+	// SERVER <servername> 0 0 0
+	// std::string		msg = "SERVER ";
+	// msg += argv[2];
+	// msg += " ";
+	// msg += std::to_string(0);
+	// new_socket->write(msg.c_str());
+
 	new_socket->write("S");
+
 	sleep(5);
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
+	// 
 	send_map_data(_listen_socket->get_fd());
 }
 
@@ -90,7 +101,7 @@ void	IrcServer::client_connect()
 	Socket		*new_socket;
 
 	new_socket = _listen_socket->accept();
-	new_socket->set_type(CLIENT);
+	new_socket->set_type(SockType::CLIENT);
 	std::cout << "client connect" << std::endl;
 	_socket_set.add_socket(new_socket);
 	// _socket_vector.push_back(new_socket);
@@ -101,7 +112,7 @@ void	IrcServer::client_connect()
 	// test
 	std::cout << "client_sock:" << new_socket->get_fd() << std::endl;
 	new_socket->show_info();
-	
+
 	// user create 전송
 	std::string msg = "user create:" + std::to_string(new_socket->get_port());
 	std::cout << "=================================" << std::endl;
@@ -210,23 +221,37 @@ static int	read_until_crlf(int fd, char *buffer)
 {
 	if (DEBUG)
 		std::cout << "read_until_crlf start\n";
-	int	i = 0;
+	int		i = 0;
+	int		read_size = 0;
+	int		insert_idx = 0;
 	char	buf[BUFFER_SIZE];
 
-	read(fd, buf, BUFFER_SIZE);
-	for (i = 0; i < BUFFER_SIZE; i++)
+	memset(buf, 0, BUFFER_SIZE);
+	while (insert_idx < BUFFER_SIZE)
 	{
-		if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
+		read_size = read(fd, buf, BUFFER_SIZE - insert_idx);
+		for (i = 0; i < read_size; i++)
 		{
-			strncpy(buffer, buf, i + 1);
-			buffer[i + 1] = 0;
-			std::cout << "read crlf end\n";
-			std::cout << buffer << std::endl;
-			return (i);
+			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
+			{
+				std::cout << "cr lf in\n";
+				strncpy(buffer + insert_idx, buf, i + 1);
+				buffer[i + insert_idx + 1] = 0;
+				std::cout << "read crlf end\n";
+				std::cout << buffer << std::endl;
+				return (i);
+			}
 		}
+		std::cout << "eof detect: " << std::endl;
+		write(1, buf, read_size);
+		std::cout << std::endl;
+		strncpy(buffer + insert_idx, buf, read_size);
+		insert_idx += read_size;
 	}
-	strncpy(buffer, buf, i + 1);
-	buffer[i + 1] = 0;
+	// i = 512
+	// strncpy(buffer, buf, i);
+	// buffer[i] = 0;
+	buffer[insert_idx] = 0;
 	std::cout << "read crlf end\n";
 	std::cout << buffer << std::endl;
 	return (BUFFER_SIZE);
@@ -248,6 +273,11 @@ void	IrcServer::client_msg(int fd)
 	msg.get_info();
 	
 	// check server msg
+	// ./server <servername/hostaddr>:<port>:<password> <my_port>
+	// -> 
+	// prefix SERVER <servername> <hopcount> <token> <info>
+	// 
+
 	std::cout << "user_port:" << user_port << std::endl;
 	for (int i = 0; i < user_port.length(); i++)
 	{
@@ -273,13 +303,13 @@ void	IrcServer::client_msg(int fd)
 		close(fd);
 		std::cout << "closed client: " << fd << std::endl;
 	}
-	else if (str_len == 1 && buf[0] == 'S') // COMMAND SERVER
+	else if (str_len == 1 && buf[0] == 'S') // COMMAND SERVER msg.get_command() == "SERVER"
 	{
 		std::cout << "receive S msg" << std::endl;
 		Socket *tmp = _socket_set.find_socket(fd);
 		std::cout << "find Socket: "  << tmp->get_port() << std::endl;
 		_socket_set.remove_socket(tmp);
-		tmp->set_type(SERVER);
+		tmp->set_type(SockType::SERVER);
 		_socket_set.add_socket(tmp);
 
 		/*
@@ -395,6 +425,9 @@ void	IrcServer::manage_client(struct timeval &timeout)
 	}
 }
 
+const SocketSet	&IrcServer::get_socket_set()
+{ return (_socket_set); }
+
 void	IrcServer::run(int argc)
 {
 	if (DEBUG)
@@ -405,6 +438,7 @@ void	IrcServer::run(int argc)
 	timeout.tv_usec = 5000;
 	while (1)
 	{
+		// 현재 시간 값 측정
 		if (DEBUG)
 		{
 			std::cout << "===============Current Info=================\n";

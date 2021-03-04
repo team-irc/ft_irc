@@ -15,24 +15,37 @@
 class Message
 {
 private:
-	std::string		_dest; //csd.bu.edu
+	std::string					_dest; //csd.bu.edu
 
 	// CR(13)-LF(10) 으로 끝나야 함
 	std::string					_msg; //:tolsun.oulu.fi SERVER csd.bu.edu 5 34 :BU Central Server
+
 	// 거쳐온 경로
 	std::vector<std::string>	_paths;
+
 	// 		*path;
 	std::string					_prefix;
+
 	// :tolsun.oulu.fi
 	// command는 3자리 숫자거나 유효한 IRC 명령
 	std::string					_command;
+
 	// SERVER
 	//param은 최대 15개
-	std::string					_param;
+	std::vector<std::string>	_param;
 	int							_size;
 	// csd.bu.edu 5 34 :BU Central Server
-	// 
+
+	// 전송 -> 메세지를 만들어야 하니까 = 커맨드를 만들어야함 -> 팩토리
+
+	// 수신 -> 문자열을 파싱 -> 커맨드 -> 실행
+
+	// 전송 -> 메세지를 만든다 -> 문자열 조작 
+	// 받는 -> 파싱 -> 
+
+
 public:
+	Message();
 	Message(const char *msg);
 	~Message();
 	void			get_info();

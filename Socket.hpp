@@ -11,8 +11,12 @@
 #include "Error.hpp"
 # include "utils.hpp"
 
-enum SockType {
-	SERVER, CLIENT, SLEEP, LISTEN
+namespace SockType
+{
+	enum type
+	{
+		SERVER, CLIENT, SLEEP, LISTEN
+	};
 };
 
 class Socket
@@ -20,7 +24,7 @@ class Socket
 private:
 	int					_fd;
 	struct sockaddr_in	_addr;
-	SockType			_type;
+	SockType::type		_type;
 	struct sockaddr_in	parsing_host_info(char *connect) const;
 public:
 	Socket();
@@ -38,8 +42,8 @@ public:
 	void			show_info() const;
 	int				get_fd() const;
 	unsigned short	get_port() const;
-	void			set_type(SockType type);
-	SockType		get_type() const;
+	void			set_type(SockType::type type);
+	SockType::type		get_type() const;
 };
 
 #endif
