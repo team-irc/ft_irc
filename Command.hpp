@@ -6,22 +6,15 @@
 
 class Command
 {
-private:
-	Message		_msg;
-public:
-	Command();
-	virtual void run(const IrcServer& irc) = 0;
-	void	set_message(const Message &msg);
-	virtual ~Command();
+	private:
+		Message		_msg;
+	public:
+		Command();
+		Command(const Command &ref);
+		Command &operator=(const Command &ref);
+		virtual void run(IrcServer& irc) = 0;
+		void	set_message(const Message &msg);
+		virtual ~Command();
 };
-
-Command::Command() : _msg()
-{
-}
-
-Command::~Command()
-{
-}
-
 
 #endif

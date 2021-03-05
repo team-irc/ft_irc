@@ -42,6 +42,9 @@ Message::~Message()
 const int	Message::get_size()
 { return (_size); }
 
+const std::string &Message::get_command() const
+{ return (_command); }
+
 void		Message::get_info()
 {
 	std::cout << "Prefix: " << _prefix << std::endl;

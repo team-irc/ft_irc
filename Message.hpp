@@ -52,6 +52,7 @@ public:
 	const int		get_size();
 	const char		*get_msg();
 	void			set_prefix(const char *prefix);
+	const std::string &get_command() const;
 	void			inputPath(std::string path);
 private:
 	int				insert_string(int start, std::string str);

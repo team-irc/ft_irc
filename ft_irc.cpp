@@ -268,6 +268,7 @@ void	IrcServer::client_msg(int fd)
 	ft::split(std::string(buf), ':', split_ret);
 	std::string		user_port = split_ret[1];
 	const char *	tmp = user_port.c_str();
+	Command			*cmd;
 
 	Message msg(buf);
 	msg.get_info();
@@ -277,7 +278,7 @@ void	IrcServer::client_msg(int fd)
 	// -> 
 	// prefix SERVER <servername> <hopcount> <token> <info>
 	// 
-
+	cmd = _cmd_creator.get_command(msg.get_command());
 	std::cout << "user_port:" << user_port << std::endl;
 	for (int i = 0; i < user_port.length(); i++)
 	{
@@ -303,14 +304,20 @@ void	IrcServer::client_msg(int fd)
 		close(fd);
 		std::cout << "closed client: " << fd << std::endl;
 	}
-	else if (str_len == 1 && buf[0] == 'S') // COMMAND SERVER msg.get_command() == "SERVER"
+	else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
 	{
+		// command = get_command(msg._command);
+		// command.run(*this, fd);
+		cmd->run(*this);
+
+		/*
 		std::cout << "receive S msg" << std::endl;
 		Socket *tmp = _socket_set.find_socket(fd);
 		std::cout << "find Socket: "  << tmp->get_port() << std::endl;
 		_socket_set.remove_socket(tmp);
 		tmp->set_type(SockType::SERVER);
 		_socket_set.add_socket(tmp);
+		*/
 
 		/*
 		_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
@@ -361,6 +368,7 @@ void	IrcServer::manage_listen(struct timeval &timeout)
 		{
 			if (FD_ISSET(i, &listen_fd))
 			{
+				_current_sock = _socket_set.find_socket(i);
 				client_connect();
 			}
 		}
@@ -390,6 +398,7 @@ void	IrcServer::manage_server(struct timeval &timeout)
 		{
 			if (FD_ISSET(i, &server_fd))
 			{
+				_current_sock = _socket_set.find_socket(i);
 				client_msg(i);
 			}
 		}
@@ -417,15 +426,14 @@ void	IrcServer::manage_client(struct timeval &timeout)
 		{
 			if (FD_ISSET(i, &client_fd))
 			{
-				// 메세지 처리 (클라이언트 인 경우) -> 서버 검증 (Y) -> 유저맵 전송 
-				//                                      (N) -> echo_msg
+				_current_sock = _socket_set.find_socket(i);
 				client_msg(i);
 			}
 		}
 	}
 }
 
-const SocketSet	&IrcServer::get_socket_set()
+SocketSet	&IrcServer::get_socket_set()
 { return (_socket_set); }
 
 void	IrcServer::run(int argc)
@@ -450,4 +458,7 @@ void	IrcServer::run(int argc)
 		manage_server(timeout);
 		manage_client(timeout);
 	}
-};
+}
+
+Socket		*IrcServer::get_current_socket()
+{ return (_current_sock); }

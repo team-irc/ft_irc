@@ -17,6 +17,7 @@
 #include "utils.hpp"
 #include "Error.hpp"
 #include "Message.hpp"
+#include "CommandFactory.hpp"
 // #include "Member.hpp"
 // #include "Channel.hpp"
 
@@ -30,6 +31,8 @@ private:
 	// std::vector<Socket *>	_socket_vector;
 	SocketSet				_socket_set;
 	int						_fd_max;
+	Socket					*_current_sock;
+	CommandFactory			_cmd_creator;
 	
 	std::map<unsigned short, int>	_user_map;
 
@@ -41,7 +44,8 @@ public:
 public:
 
 	void	run(int argc);
-
+	Socket				*get_current_socket();
+	SocketSet			&get_socket_set();
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
@@ -56,8 +60,6 @@ private:
 	void				manage_server(struct timeval &timeout);
 	void				manage_client(struct timeval &timeout);
 	void				manage_listen(struct timeval &timeout);
-	const SocketSet		&get_socket_set();
-
 };
 
 void error_handling(const std::string buf);
