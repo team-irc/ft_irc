@@ -5,7 +5,8 @@ Command::Command() : _msg()
 }
 
 Command::Command(const Command &ref) : _msg(ref._msg)
-{}
+{
+}
 
 Command	&Command::operator=(const Command &ref)
 {

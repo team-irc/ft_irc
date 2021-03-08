@@ -50,16 +50,17 @@ private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
 	void				client_msg(int fd);
+	void				unknown_msg(int fd);
+	void				server_msg(int fd);
 	void				client_connect();
+
 	struct sockaddr_in	parsing_host_info(char **argv);
 	void				connect_to_server(char **argv);
 	void				send_msg(int send_fd, const char *msg);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
 	void				send_map_data(int my_fd);
 	void				show_map_data();
-	void				manage_server(struct timeval &timeout);
-	void				manage_client(struct timeval &timeout);
-	void				manage_listen(struct timeval &timeout);
+	void				fd_event_loop();
 };
 
 void error_handling(const std::string buf);

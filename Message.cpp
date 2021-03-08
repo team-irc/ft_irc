@@ -1,7 +1,7 @@
 # include "Message.hpp"
 
 Message::Message() :
-	_prefix(NULL), _command(NULL), _param(), _size(0)
+	_prefix(std::string()), _command(std::string()), _param(std::vector<std::string>()), _size(0)
 {}
 
 Message::Message(const char *msg)
@@ -67,6 +67,16 @@ void		Message::set_prefix(const char *prefix)
 		_prefix = ":";
 		_prefix += prefix;
 	}
+}
+
+void		Message::set_source_fd(const int fd)
+{
+	_source_fd = fd;
+}
+
+int			Message::get_source_fd()
+{
+	return(_source_fd);
 }
 
 const char	*Message::get_msg()

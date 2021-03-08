@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "Error.hpp"
-#include "Channel.hpp"
+// #include "Channel.hpp"
 #include "utils.hpp"
 
 #define	BUFFER_SIZE		512
@@ -15,6 +15,8 @@
 class Message
 {
 private:
+	int							_source_fd;
+
 	std::string					_dest; //csd.bu.edu
 
 	// CR(13)-LF(10) 으로 끝나야 함
@@ -52,6 +54,8 @@ public:
 	const int		get_size();
 	const char		*get_msg();
 	void			set_prefix(const char *prefix);
+	void			set_source_fd(const int fd);
+	int				get_source_fd();
 	const std::string &get_command() const;
 	void			inputPath(std::string path);
 private:

@@ -4,14 +4,17 @@ NAME = server
 
 CC = clang++
 
-CFLAGS = -Wall -Werror -Wextra -std=c++98 -fsanitize=address -g
+# CFLAGS = -Wall -Werror -Wextra -std=c++98 -g
+
+CFLAGS = -std=c++98
 
 HEADER_DIR = . 
 
 SRC_DIR = .
 
-SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp	Error.cpp	Message.cpp	\
-		Command.cpp		CommandFactory.cpp		command/SERVER.cpp
+SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp	\
+		Error.cpp	Message.cpp\
+		Command.cpp		CommandFactory.cpp		command/ServerCommand.cpp
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 
@@ -19,7 +22,7 @@ SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 
 ## 나중에 $(CLFAG) 추가
 $(NAME) : $(SRCS)
-	$(CC) $(SRCS) -I $(HEADER_DIR) -I ./command -o $(NAME)
+	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME)
 
 # %.o : %.c
 # 		$(CC) -o $@ -c $^ -I $(HEADER_DIR) -I ./command

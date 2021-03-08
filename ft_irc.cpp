@@ -5,7 +5,8 @@ IrcServer::IrcServer(int argc, char **argv)
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
 	_listen_socket = new Socket(htons(ft::atoi(argv[argc == 3 ? 2 : 1])));
-	_listen_socket->set_type(SockType::LISTEN);
+	// std::cout << "=======\n";
+	_listen_socket->set_type(LISTEN);
 	_fd_max = _socket_set.add_socket(_listen_socket);
 	_user_map.insert(std::pair<unsigned short, int>(ntohs(_listen_socket->get_port()), _listen_socket->get_fd()));
 
@@ -28,29 +29,15 @@ void	 IrcServer::connect_to_server(char **argv)
 	int				tmp;
 
 	new_socket = _listen_socket->connect(argv[1]);
-	new_socket->set_type(SockType::SERVER);
-	std::cout << "connect to server" << std::endl;
+	new_socket->set_type(SERVER);
 	tmp = _socket_set.add_socket(new_socket);
-	// _socket_vector.push_back(new_socket);
 	if (_fd_max < tmp)
 		_fd_max = tmp;
 	_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 
 	// test
-	std::cout << "connect_to_server\n";
 	new_socket->show_info();
-
-	// 서버 연결메시지 전송
-
-
-	// SERVER <servername> 0 0 0
-	// std::string		msg = "SERVER ";
-	// msg += argv[2];
-	// msg += " ";
-	// msg += std::to_string(0);
-	// new_socket->write(msg.c_str());
-
-	new_socket->write("S");
+	new_socket->write((std::string(":test.com SERVER ") + std::to_string(this->_listen_socket->get_port())).c_str());
 
 	sleep(5);
 
@@ -101,26 +88,20 @@ void	IrcServer::client_connect()
 	Socket		*new_socket;
 
 	new_socket = _listen_socket->accept();
-	new_socket->set_type(SockType::CLIENT);
-	std::cout << "client connect" << std::endl;
+	new_socket->set_type(UNKNOWN);
 	_socket_set.add_socket(new_socket);
-	// _socket_vector.push_back(new_socket);
 	_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 	if (_fd_max < new_socket->get_fd())
 		_fd_max = new_socket->get_fd();
-	std::cout << "fd_max: " << _fd_max << std::endl;
-	// test
-	std::cout << "client_sock:" << new_socket->get_fd() << std::endl;
 	new_socket->show_info();
 
 	// user create 전송
 	std::string msg = "user create:" + std::to_string(new_socket->get_port());
-	std::cout << "=================================" << std::endl;
 
 	// 자신에게 연결하는 클라이언트/서버에 대한 정보를 자신에 연결되어 있는 서버에 공유하기 위함
 	for (int i = 3; i < _fd_max + 1; i++)
 	{
-		if (FD_ISSET(i, &_socket_set.get_server_fds()))
+		if (FD_ISSET(i, &_socket_set.get_read_fds()) && _socket_set.find_socket(i)->get_type() == SERVER)
 			send_msg(i, msg.c_str());
 	}
 	// send_msg(_listen_socket->get_fd(), new_socket->get_fd(), msg.c_str());
@@ -132,7 +113,6 @@ void	IrcServer::send_msg(int send_fd, const char *msg)
 		std::cout << "send_msg(int, const char *) called." << std::endl;
 	int		size = strlen(msg);
 
-	std::cout << "send msg: " << msg << std::endl;
 	write(send_fd, msg, size);
 }
 
@@ -143,7 +123,7 @@ void IrcServer::send_msg(int my_fd, int except_fd, const char *msg)
 
 	for (int i = 3; i < _fd_max + 1; i++)
 	{
-		if (i != my_fd && i != except_fd && FD_ISSET(i, &_socket_set.get_server_fds()))
+		if (i != my_fd && i != except_fd && FD_ISSET(i, &_socket_set.get_read_fds()))
 		{
 			std::cout << "send msg: " << msg << std::endl;
 			write(i, msg, size);
@@ -160,13 +140,13 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 		// my_fd가 server인지 client인지 확인 후 정보 수정해서 전송
 		// 현재 서버의 이름을 메시지의 경로에 추가
 		
-		if (FD_ISSET(i, &(_socket_set.get_client_fds())) && i != my_fd)
+		if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd)
 		{
 			if (DEBUG)
 				std::cout << "echo_msg to client fd: " << i << ", msg: " << buf << std::endl;
 			write(i, buf, len);
 		}
-		else if (FD_ISSET(i, &(_socket_set.get_server_fds())) && i != my_fd)
+		else if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd)
 		{
 			if (DEBUG)
 				std::cout << "echo_msg to server fd: " << i << ", msg: " << buf << std::endl;
@@ -191,7 +171,7 @@ void	IrcServer::send_map_data(int my_fd)
 		std::string msg = "user create:" + std::to_string(begin->first);
 		for (int i = 3; i < _fd_max + 1; i++)
 		{ 
-			if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_server_fds()))
+			if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds()))
 				send_msg(i, msg.c_str());
 		}
 		begin++;
@@ -230,56 +210,69 @@ static int	read_until_crlf(int fd, char *buffer)
 	while (insert_idx < BUFFER_SIZE)
 	{
 		read_size = read(fd, buf, BUFFER_SIZE - insert_idx);
+		if (read_size == 0)
+			break;
 		for (i = 0; i < read_size; i++)
 		{
 			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
 			{
-				std::cout << "cr lf in\n";
 				strncpy(buffer + insert_idx, buf, i + 1);
 				buffer[i + insert_idx + 1] = 0;
-				std::cout << "read crlf end\n";
-				std::cout << buffer << std::endl;
 				return (i);
 			}
 		}
-		std::cout << "eof detect: " << std::endl;
 		write(1, buf, read_size);
-		std::cout << std::endl;
 		strncpy(buffer + insert_idx, buf, read_size);
 		insert_idx += read_size;
 	}
-	// i = 512
-	// strncpy(buffer, buf, i);
-	// buffer[i] = 0;
 	buffer[insert_idx] = 0;
-	std::cout << "read crlf end\n";
-	std::cout << buffer << std::endl;
 	return (BUFFER_SIZE);
 }
 
+/*
+** 소켓타입 CLIENT에서 데이터가 넘어 온 경우.
+*/
 void	IrcServer::client_msg(int fd)
 {
 	if (DEBUG)
 		std::cout << "client_msg function called." << std::endl;
 	char			buf[BUFFER_SIZE];
 	int				str_len = read_until_crlf(fd, buf);
+
+	if (str_len == 0)
+	{
+		_socket_set.remove_socket(_socket_set.find_socket(fd));
+		close(fd);
+		std::cout << "closed client: " << fd << std::endl;
+	}
+	else // CHANNEL 
+	{
+		echo_msg(fd, buf, str_len);
+	}
+}
+
+/*
+** 소켓타입 SERVER에서 데이터가 넘어 온 경우.
+*/
+void	IrcServer::server_msg(int fd)
+{
+	if (DEBUG)
+		std::cout << "server_msg function called." << std::endl;
+	char			buf[BUFFER_SIZE];
+	int				str_len = read_until_crlf(fd, buf);
 	bool			is_digit = false;
+
 	std::string *	split_ret;
 	ft::split(std::string(buf), ':', split_ret);
 	std::string		user_port = split_ret[1];
 	const char *	tmp = user_port.c_str();
 	Command			*cmd;
-
 	Message msg(buf);
-	msg.get_info();
-	
-	// check server msg
-	// ./server <servername/hostaddr>:<port>:<password> <my_port>
-	// -> 
-	// prefix SERVER <servername> <hopcount> <token> <info>
-	// 
+	msg.set_source_fd(fd);
 	cmd = _cmd_creator.get_command(msg.get_command());
-	std::cout << "user_port:" << user_port << std::endl;
+	cmd->set_message(msg);
+	std::cout << "server_port:" << user_port << std::endl;
+
 	for (int i = 0; i < user_port.length(); i++)
 	{
 		if (std::isdigit(tmp[i]) == false)
@@ -302,37 +295,12 @@ void	IrcServer::client_msg(int fd)
 	{
 		_socket_set.remove_socket(_socket_set.find_socket(fd));
 		close(fd);
-		std::cout << "closed client: " << fd << std::endl;
+		std::cout << "closed server: " << fd << std::endl;
 	}
 	else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
 	{
-		// command = get_command(msg._command);
-		// command.run(*this, fd);
-		cmd->run(*this);
-
-		/*
-		std::cout << "receive S msg" << std::endl;
-		Socket *tmp = _socket_set.find_socket(fd);
-		std::cout << "find Socket: "  << tmp->get_port() << std::endl;
-		_socket_set.remove_socket(tmp);
-		tmp->set_type(SockType::SERVER);
-		_socket_set.add_socket(tmp);
-		*/
-
-		/*
-		_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
-		*/
-
-		// FD_SET(fd, &_socket_set.get_server_fds());
-
-		// std::vector<Socket *>::iterator		iter;
-		// for (iter = _socket_vector.begin(); iter != _socket_vector.end(); iter++)
-		// {
-		// 	if ((*iter)->get_fd() == fd)
-		// 	{
-		// 		(*iter)->set_type(SERVER);
-		// 	}
-		// }
+		cmd->run(_socket_set);
+	
 		// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
 		// fd는 새롭게 연결되는 서버고, 이 서버에는 기존 서버들에 대한 정보가 필요함
 		// map에 있는 데이터들을 전송해줘서 해당 서버가 연결하기 위한 통로를 알 수 있도록 메시지 전송
@@ -341,93 +309,99 @@ void	IrcServer::client_msg(int fd)
 	}
 	else // CHANNEL 
 	{
-		echo_msg(fd, msg.get_msg(), msg.get_size());
-		// echo_msg(fd, buf, str_len);
+		throw(Error("else server msg"));
 	}
 	delete[] split_ret;
 }
 
-void	IrcServer::manage_listen(struct timeval &timeout)
+/*
+** 소켓타입 UNKNOWN에서 데이터가 넘어 온 경우.
+** NICK 커맨드 -> 해당 fd의 소켓을 유저타입으로 변경
+** SERVER 커맨드 -> 해당 fd의 소켓을 서버타입으로 변경
+** 아니면 -> :irc.example.net 451 * :Connection not registered
+*/
+
+void	IrcServer::unknown_msg(int fd)
 {
-	fd_set	listen_fd;
-	int		fd_num;
+	if (DEBUG)
+		std::cout << "unknown_msg function called." << std::endl;
+	char			buf[BUFFER_SIZE];
+	int				str_len = read_until_crlf(fd, buf);
+	std::string *	split_ret;
+	Command			*cmd;
+
+	Message msg(buf);
+	msg.set_source_fd(fd);
 	
-	listen_fd = _socket_set.get_listen_fds();
-	for (int i = 3; i < _fd_max + 1; i++)
+	
+	// cmd = _cmd_creator.get_command(msg.get_command());
+	// cmd->set_message(msg);
+	
+	// 임시 //// -> if(cmd) { cmd->run(); } 으로 바꿔야함
+	std::cout << "test: " << msg.get_command() << std::endl;
+	if (msg.get_command() == "SERVER") // COMMAND SERVER msg.get_command() == "SERVER"
 	{
-		if (FD_ISSET(i, &listen_fd))
-			std::cout << "listen_fd:" << i << std::endl;
+		cmd = _cmd_creator.get_command(msg.get_command());
+		cmd->set_message(msg);
+		cmd->run(_socket_set);
 	}
-	if((fd_num = select(_fd_max + 1, &listen_fd, 0 ,0, &timeout)) == -1)
-		throw (Error("select return -1. listen fd"));
-	if (fd_num != 0)
+	else if (msg.get_command() == "NICK")
 	{
-		if (DEBUG)
-			std::cout << "manage_listen called.\n";
-		for (int i = 0; i < _fd_max + 1; i++)
-		{
-			if (FD_ISSET(i, &listen_fd))
-			{
-				_current_sock = _socket_set.find_socket(i);
-				client_connect();
-			}
-		}
+		_socket_set.change_socket_type(fd, CLIENT);
 	}
+	else 
+	{
+		send_msg(fd, ":451 * :Connection not registered");
+	}
+	delete[] split_ret;
 }
 
-void	IrcServer::manage_server(struct timeval &timeout)
-{
 
-	fd_set	server_fd;
+void		IrcServer::fd_event_loop()
+{
+	struct timeval	timeout;
+	fd_set	fds;
 	int		fd_num;
 
-	server_fd = _socket_set.get_server_fds();
-	std::cout << "_fd_max: " << _fd_max << std::endl;
-	for (int i = 3; i < _fd_max + 1; i++)
-	{
-		if (FD_ISSET(i, &server_fd))
-			std::cout << "server_fd:" << i << std::endl;
-	}
-	if ((fd_num = select(_fd_max + 1, &server_fd, 0, 0, &timeout)) == -1)
-		throw (Error("select return -1. server_fds"));
+	timeout.tv_sec = 10;
+	timeout.tv_usec = 0;
+	fds = _socket_set.get_read_fds();
+	// for (int i = 3; i < _fd_max + 1; i++)
+	// {
+	// 	if (FD_ISSET(i, &fds))
+	// 		std::cout << "is set: " << i << std::endl;
+	// }
+	if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
+		throw (Error("select return -1."));
 	else if (fd_num != 0)
 	{
-		if (DEBUG)
-			std::cout << "manage_server called.\n";
 		for (int i = 0; i < _fd_max + 1; i++)
 		{
-			if (FD_ISSET(i, &server_fd))
+			if (FD_ISSET(i, &fds))
 			{
 				_current_sock = _socket_set.find_socket(i);
-				client_msg(i);
-			}
-		}
-	}
-}
 
-void	IrcServer::manage_client(struct timeval &timeout)
-{
-	fd_set	client_fd;
-	int		fd_num;
-	
-	client_fd = _socket_set.get_client_fds();
-	for (int i = 3; i < _fd_max + 1; i++)
-	{
-		if (FD_ISSET(i, &client_fd))
-			std::cout << "client_fd:" << i << std::endl;
-	}
-	if((fd_num = select(_fd_max + 1, &client_fd, 0 ,0, &timeout)) == -1)
-		throw (Error("select return -1. client fd"));
-	else if (fd_num != 0)
-	{
-		if (DEBUG)
-			std::cout << "manage_client called.\n";
-		for (int i = 0; i < _fd_max + 1; i++)
-		{
-			if (FD_ISSET(i, &client_fd))
-			{
-				_current_sock = _socket_set.find_socket(i);
-				client_msg(i);
+				if (_current_sock->get_type() == LISTEN)
+				{
+					std::cout << "new connection from " << i << std::endl;
+					client_connect();
+					continue;
+				}
+
+				std::cout << "message from fd: " << i << "(" << _current_sock->show_type() << ")\n";
+				char			buf[BUFFER_SIZE];
+				buf[BUFFER_SIZE - 1] = '\0';
+				read_until_crlf(i, buf);
+				std::cout << buf << std::endl;
+
+				if (_current_sock->get_type() == CLIENT)
+					client_msg(i);
+				else if (_current_sock->get_type() == SERVER)
+					server_msg(i);
+				else if (_current_sock->get_type() == UNKNOWN)
+					unknown_msg(i);
+				else
+					throw (Error("Unknown socket type."));
 			}
 		}
 	}
@@ -440,13 +414,8 @@ void	IrcServer::run(int argc)
 {
 	if (DEBUG)
 		std::cout << "run function called." << std::endl;
-	struct timeval	timeout;
-
-	timeout.tv_sec = 5;
-	timeout.tv_usec = 5000;
 	while (1)
 	{
-		// 현재 시간 값 측정
 		if (DEBUG)
 		{
 			std::cout << "===============Current Info=================\n";
@@ -454,9 +423,7 @@ void	IrcServer::run(int argc)
 			_socket_set.show_info();
 			std::cout << "============================================\n";
 		}
-		manage_listen(timeout);
-		manage_server(timeout);
-		manage_client(timeout);
+		fd_event_loop();
 	}
 }
 

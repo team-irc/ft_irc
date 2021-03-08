@@ -14,18 +14,13 @@ class	SocketSet
 		int						add_socket(Socket *new_sock);
 		Socket					*find_socket(int fd);
 		void					remove_socket(Socket *del);
-		fd_set					&get_server_fds();
-		fd_set const			&get_server_fds() const;
-		fd_set					&get_client_fds();
-		fd_set const			&get_client_fds() const;
-		fd_set					&get_listen_fds();
-		fd_set const			&get_listen_fds() const;
+		void					change_socket_type(int fd, SOCKET_TYPE type);
+		fd_set					&get_read_fds();
+		fd_set const			&get_read_fds() const;
 		void					show_info();
 	private:
 		std::vector<Socket *>	_vec;
-		fd_set					_server_sock;
-		fd_set					_client_sock;
-		fd_set					_listen_sock;
+		fd_set					_read;
 };
 
 #endif

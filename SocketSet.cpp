@@ -1,21 +1,18 @@
 #include "SocketSet.hpp"
-#include "Error.hpp"
 
 SocketSet::SocketSet()
 {
-	FD_ZERO(&_server_sock);
-	FD_ZERO(&_client_sock);
+	FD_ZERO(&_read);
 }
 
 SocketSet::SocketSet(SocketSet const &ref) :
-	_vec(ref._vec), _server_sock(ref._server_sock), _client_sock(ref._client_sock)
+	_vec(ref._vec), _read(ref._read)
 {}
 
 SocketSet	&SocketSet::operator= (SocketSet const &ref)
 {
 	_vec = ref._vec;
-	_server_sock = ref._server_sock;
-	_client_sock = ref._client_sock;
+	_read = ref._read;
 	return (*this);
 }
 
@@ -43,20 +40,25 @@ int			SocketSet::add_socket(Socket *new_sock)
 		begin++;
 	}
 	_vec.push_back(new_sock);
-	if (new_sock->get_type() == SockType::SERVER) {
-		FD_SET(new_sock->get_fd(), &_server_sock);
-		if (FD_ISSET(new_sock->get_fd(), &_server_sock))
-			std::cout << "server socket " << new_sock->get_fd() << " add" << std::endl;
-	}
-	else if (new_sock->get_type() == SockType::CLIENT) {
-		FD_SET(new_sock->get_fd(), &_client_sock);
-		std::cout << "client socket add" << std::endl;
-	}
-	else {
-		FD_SET(new_sock->get_fd(), &_listen_sock);
-		std::cout << "listen socket add" << std::endl;
-	}
+	FD_SET(new_sock->get_fd(), &_read);
 	return (new_sock->get_fd());
+}
+
+// UNKNOWN -> CLIENT, UNKNOWN -> SERVER 변경 시 호출 필요
+void		SocketSet::change_socket_type(int fd, SOCKET_TYPE type)
+{
+	std::vector<Socket *>::iterator begin = _vec.begin();
+	std::vector<Socket *>::iterator end = _vec.end();
+
+	while (begin != end)
+	{
+		if ((*begin)->get_fd() == fd)
+		{
+			(*begin)->set_type(type);
+			return ;
+		}
+		begin++;
+	}
 }
 
 Socket		*SocketSet::find_socket(int fd)
@@ -91,23 +93,11 @@ void		SocketSet::remove_socket(Socket *del)
 	}
 }
 
-fd_set		&SocketSet::get_server_fds()
-{ return (_server_sock); }
+fd_set		&SocketSet::get_read_fds()
+{ return (_read); }
 
-fd_set const	&SocketSet::get_server_fds() const
-{ return (_server_sock); }
-
-fd_set		&SocketSet::get_client_fds()
-{ return (_client_sock); }
-
-fd_set const	&SocketSet::get_client_fds() const
-{ return (_client_sock); }
-
-fd_set			&SocketSet::get_listen_fds()
-{ return (_listen_sock); }
-
-fd_set const	&SocketSet::get_listen_fds() const
-{ return (_listen_sock); }
+fd_set const	&SocketSet::get_read_fds() const
+{ return (_read); }
 
 void			SocketSet::show_info()
 {

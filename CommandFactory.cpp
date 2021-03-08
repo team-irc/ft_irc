@@ -1,8 +1,9 @@
 #include "CommandFactory.hpp"
+#include "ServerCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
-	_map.insert(std::pair<std::string, Command *>("SERVER", new SERVER()));
+	_map.insert(std::pair<std::string, Command *>("SERVER", new ServerCommand()));
 	// 명령어 만들면 여기다가 추가
 }
 

@@ -127,12 +127,12 @@ unsigned short	Socket::get_port() const
 {
 	return (ntohs(_addr.sin_port));}
 
-void			Socket::set_type(SockType::type type)
+void			Socket::set_type(SOCKET_TYPE type)
 {
 	_type = type;
 }
 
-SockType::type		Socket::get_type() const
+SOCKET_TYPE		Socket::get_type() const
 {
 	return (_type);
 }
@@ -148,4 +148,14 @@ Socket&			Socket::operator=(Socket const &copy)
 	_fd = copy._fd;
 	_addr = copy._addr;
 	return (*this);
+}
+
+const char		*Socket::show_type() const
+{
+	if (_type == SERVER)
+		return ("Server");
+	else if (_type == CLIENT)
+		return ("Client");
+	else
+		return ("Unknown");
 }

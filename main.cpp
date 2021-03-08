@@ -2,6 +2,7 @@
 
 int main(int argc, char **argv)
 {
+	std::cout << argc;
 	try
 	{
 		IrcServer server(argc, argv);
