@@ -44,17 +44,18 @@ void	Socket::listen() const
 		throw (Error("socket listen error"));
 }
 
-struct sockaddr_in	Socket::parsing_host_info(char *connect) const
+// first: host
+// second: password
+std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *connect) const
 {
 	std::string *		split_ret;
 	std::string			string_host;
 	std::string			string_port_network;
-	// password 관련 처리 방법 필요함 
 	std::string			string_password_network;
 	struct sockaddr_in	host;
-	struct addrinfo		*result;
 
-	ft::split(connect, ':', split_ret);
+	if (ft::split(connect, ':', split_ret) != 3)
+		throw (Error("invalid host info"));
 	string_host = split_ret[0];
 	string_port_network = split_ret[1];
 	string_password_network = split_ret[2];
@@ -63,11 +64,8 @@ struct sockaddr_in	Socket::parsing_host_info(char *connect) const
 	host.sin_port = htons(ft::atoi(string_port_network.c_str()));
 	if (host.sin_addr.s_addr == -1)
 		throw (Error("inet_addr() error"));
-	if (getaddrinfo(string_host.c_str(), string_port_network.c_str(), NULL, &result) != 0)
-		throw (Error("getaddrinfo() error"));
-	freeaddrinfo(result);
 	delete[] split_ret;
-	return (host);
+	return (std::make_pair(host, string_password_network));
 };
 
 // 127.0.0.1:port:pass
@@ -77,7 +75,7 @@ Socket	*Socket::connect(char *connect_srv) const
 	struct sockaddr_in	serv_addr;
 
 	memset(&serv_addr, 0, sizeof(serv_addr));
-	serv_addr = parsing_host_info(connect_srv);
+	serv_addr = parsing_host_info(connect_srv).first;
 	
 	new_sock = new Socket(serv_addr.sin_port);
 	if (new_sock->_fd == -1)
@@ -115,7 +113,7 @@ void		Socket::show_info() const
 {
 	std::cout << "==== Socket info ====" << std::endl;
 	std::cout << "fd     : " << _fd << std::endl;
-	std::cout << "type   : " << _type << std::endl;
+	std::cout << "type   : " << show_type() << std::endl;
 	std::cout << "port to: " << get_port() << std::endl;
 	std::cout << "=====================" << std::endl;
 }

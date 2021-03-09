@@ -21,6 +21,7 @@ IrcServer::~IrcServer()
 {
 };
 
+// 새로운 서버에서 기존 서버로 연결하는 함수
 void	 IrcServer::connect_to_server(char **argv)
 {
 	if (DEBUG)
@@ -37,13 +38,14 @@ void	 IrcServer::connect_to_server(char **argv)
 
 	// test
 	new_socket->show_info();
-	new_socket->write((std::string(":test.com SERVER ") + std::to_string(this->_listen_socket->get_port())).c_str());
 
-	sleep(5);
+	std::string		msg(":test.com SERVER 0 test\n");
+	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
-	// 
-	send_map_data(_listen_socket->get_fd());
+	// 자기 자신 포함해서 map 내부에 데이터를 SERVER 형태로 전송
+	// Channel, USER도 마찬가지로 전송하는거 추가
+	// send_map_data(_listen_socket->get_fd());
 }
 
 /*
@@ -96,14 +98,14 @@ void	IrcServer::client_connect()
 	new_socket->show_info();
 
 	// user create 전송
-	std::string msg = "user create:" + std::to_string(new_socket->get_port());
+	// std::string msg = "user create:" + std::to_string(new_socket->get_port());
 
 	// 자신에게 연결하는 클라이언트/서버에 대한 정보를 자신에 연결되어 있는 서버에 공유하기 위함
-	for (int i = 3; i < _fd_max + 1; i++)
-	{
-		if (FD_ISSET(i, &_socket_set.get_read_fds()) && _socket_set.find_socket(i)->get_type() == SERVER)
-			send_msg(i, msg.c_str());
-	}
+	// for (int i = 3; i < _fd_max + 1; i++)
+	// {
+	// 	if (FD_ISSET(i, &_socket_set.get_read_fds()) && _socket_set.find_socket(i)->get_type() == SERVER)
+	// 		send_msg(i, msg.c_str());
+	// }
 	// send_msg(_listen_socket->get_fd(), new_socket->get_fd(), msg.c_str());
 }
 
@@ -171,7 +173,8 @@ void	IrcServer::send_map_data(int my_fd)
 		std::string msg = "user create:" + std::to_string(begin->first);
 		for (int i = 3; i < _fd_max + 1; i++)
 		{ 
-			if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds()))
+			if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds())
+					&& (_socket_set.find_socket(i))->get_type() == SERVER)
 				send_msg(i, msg.c_str());
 		}
 		begin++;
@@ -299,12 +302,12 @@ void	IrcServer::server_msg(int fd)
 	}
 	else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
 	{
-		cmd->run(_socket_set);
+		cmd->run(*this);
 	
 		// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
 		// fd는 새롭게 연결되는 서버고, 이 서버에는 기존 서버들에 대한 정보가 필요함
 		// map에 있는 데이터들을 전송해줘서 해당 서버가 연결하기 위한 통로를 알 수 있도록 메시지 전송
-		send_map_data(_listen_socket->get_fd());
+		// send_map_data(_listen_socket->get_fd());
 		// Member에서 제거도 해야 됨
 	}
 	else // CHANNEL 
@@ -327,7 +330,6 @@ void	IrcServer::unknown_msg(int fd)
 		std::cout << "unknown_msg function called." << std::endl;
 	char			buf[BUFFER_SIZE];
 	int				str_len = read_until_crlf(fd, buf);
-	std::string *	split_ret;
 	Command			*cmd;
 
 	Message msg(buf);
@@ -338,12 +340,18 @@ void	IrcServer::unknown_msg(int fd)
 	// cmd->set_message(msg);
 	
 	// 임시 //// -> if(cmd) { cmd->run(); } 으로 바꿔야함
+	// if (cmd)
+	// 	cmd->run(*this);
 	std::cout << "test: " << msg.get_command() << std::endl;
 	if (msg.get_command() == "SERVER") // COMMAND SERVER msg.get_command() == "SERVER"
 	{
 		cmd = _cmd_creator.get_command(msg.get_command());
 		cmd->set_message(msg);
-		cmd->run(_socket_set);
+		
+		cmd->run(*this);
+
+		// 자신이 원래 가지고 있던 정보들 넘겨줌(새로 추가된 서버에 있던 정보 + 원래 가진 정보)
+		// send_map_data(_list_socket->get_fd());
 	}
 	else if (msg.get_command() == "NICK")
 	{
@@ -353,7 +361,6 @@ void	IrcServer::unknown_msg(int fd)
 	{
 		send_msg(fd, ":451 * :Connection not registered");
 	}
-	delete[] split_ret;
 }
 
 
@@ -388,11 +395,11 @@ void		IrcServer::fd_event_loop()
 					continue;
 				}
 
-				std::cout << "message from fd: " << i << "(" << _current_sock->show_type() << ")\n";
-				char			buf[BUFFER_SIZE];
-				buf[BUFFER_SIZE - 1] = '\0';
-				read_until_crlf(i, buf);
-				std::cout << buf << std::endl;
+				// std::cout << "message from fd: " << i << "(" << _current_sock->show_type() << ")\n";
+				// char			buf[BUFFER_SIZE];
+				// buf[BUFFER_SIZE - 1] = '\0';
+				// read_until_crlf(i, buf);
+				// std::cout << buf << std::endl;
 
 				if (_current_sock->get_type() == CLIENT)
 					client_msg(i);
@@ -429,3 +436,8 @@ void	IrcServer::run(int argc)
 
 Socket		*IrcServer::get_current_socket()
 { return (_current_sock); }
+
+int			IrcServer::get_fdmax()
+{
+	return (_fd_max);
+}

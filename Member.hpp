@@ -11,6 +11,9 @@ private:
 	std::string		_hostname;
 	std::string		_servername;
 	std::string		_realname;
+	// mode o의 경우는 해당 채널에 있는 유저만 지정할 수 있음
+	// mode o는 설정되더라도 :irc.example.net 379 test test :is using modes + 해당 위치에 나타나지 않음
+	// 하나의 유저가 여러 서버를 가질 수 있음
 public:
 	Member();
 	Member::Member(const std::string &nick, const std::string &username,

@@ -1,5 +1,6 @@
 #include "CommandFactory.hpp"
 #include "ServerCommand.hpp"
+#include "Command.hpp"
 
 CommandFactory::CommandFactory()
 {

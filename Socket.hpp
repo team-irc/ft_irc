@@ -8,6 +8,7 @@
 # include <sys/types.h>
 # include <sys/socket.h>
 # include <netdb.h>
+# include <utility>
 # include "Error.hpp"
 # include "utils.hpp"
 
@@ -22,7 +23,7 @@ private:
 	int					_fd;
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
-	struct sockaddr_in	parsing_host_info(char *connect) const;
+	std::pair<struct sockaddr_in, std::string>	parsing_host_info(char *connect) const;
 public:
 	Socket();
 	Socket(const char *port);

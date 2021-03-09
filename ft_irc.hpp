@@ -39,13 +39,15 @@ private:
 public:
 
 	IrcServer(int argc, char **argv);
-	virtual ~IrcServer();
+	~IrcServer();
 
 public:
 
 	void	run(int argc);
 	Socket				*get_current_socket();
 	SocketSet			&get_socket_set();
+	int					get_fdmax();
+	void				send_msg(int send_fd, const char *msg);
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
@@ -56,7 +58,6 @@ private:
 
 	struct sockaddr_in	parsing_host_info(char **argv);
 	void				connect_to_server(char **argv);
-	void				send_msg(int send_fd, const char *msg);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
 	void				send_map_data(int my_fd);
 	void				show_map_data();

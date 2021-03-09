@@ -4,6 +4,8 @@
 # include "SocketSet.hpp"
 # include "Message.hpp"
 
+class IrcServer;
+
 class Command
 {
 	protected:
@@ -12,7 +14,7 @@ class Command
 		Command();
 		Command(const Command &ref);
 		Command &operator=(const Command &ref);
-		virtual void run(SocketSet& socket_set) {};
+		virtual void run(IrcServer &irc) {};
 		void	set_message(const Message &msg);
 		virtual ~Command();
 };

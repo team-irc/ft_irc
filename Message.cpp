@@ -10,6 +10,7 @@ Message::Message(const char *msg)
 	// msg를 받아서 prefix, command, param으로 분리
 	if (msg != NULL)
 	{
+		_origin = msg;
 		std::string *arr;
 		int size = ft::split(msg, ' ', arr);
 		if (msg[0] == ':')
@@ -78,6 +79,8 @@ int			Message::get_source_fd()
 {
 	return(_source_fd);
 }
+
+const char	*Message::get_origin() const { return (_origin.c_str()); }
 
 const char	*Message::get_msg()
 {

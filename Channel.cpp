@@ -18,7 +18,9 @@ Channel::Channel(const Channel & other): _name(other._name), _member(other._memb
 
 Channel & Channel::operator = (const Channel & other)
 {
+	if (this == &other) return (*this);
 	_member = other._member;
+	return (*this);
 };
 
 Channel::~Channel()
