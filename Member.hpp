@@ -21,7 +21,7 @@ public:
 		const std::string &realname);
 	Member(const Member & other);
 	Member & operator = (const Member & other);
-	virtual ~Member();
+	~Member();
 public:
 	const std::string	&get_nick();
 	void				set_nick(const std::string &nick);

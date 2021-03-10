@@ -6,7 +6,7 @@
 /*   By: hna <hna@student.42seoul.kr>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/03/05 22:33:51 by marvin            #+#    #+#             */
-/*   Updated: 2021/03/09 21:37:27 by hna              ###   ########.fr       */
+/*   Updated: 2021/03/11 00:01:09 by hna              ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 
 # include <iostream>
 # include <map>
-# include "Command.hpp"
+
+class Command;
 
 class CommandFactory
 {
@@ -29,5 +30,7 @@ class CommandFactory
 	private:
 		std::map<std::string, Command *>	_map;
 };
+
+# include "Command.hpp"
 
 #endif

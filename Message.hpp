@@ -37,6 +37,8 @@ private:
 	//param은 최대 15개
 	std::vector<std::string>	_param;
 	int							_size;
+
+	int							_hopcount;
 	// csd.bu.edu 5 34 :BU Central Server
 
 	// 전송 -> 메세지를 만들어야 하니까 = 커맨드를 만들어야함 -> 팩토리
@@ -55,6 +57,7 @@ public:
 	const int		get_size();
 	const char		*get_msg();
 	const char		*get_origin() const;
+	const std::string &get_param(int idx) const;
 	void			set_prefix(const char *prefix);
 	void			set_source_fd(const int fd);
 	int				get_source_fd();

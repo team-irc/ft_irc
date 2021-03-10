@@ -40,8 +40,7 @@ const bool			Member::is_setting() const
 	if (!_nick.empty() && !_username.empty() && !_hostname.empty()
 		&& !_servername.empty() && !_realname.empty())
 		return (true);
-	else
-		return (false);
+	return (false);
 }
 
 const std::string	&Member::get_nick() { return (_nick); }

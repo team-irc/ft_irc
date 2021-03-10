@@ -8,7 +8,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	// std::cout << "=======\n";
 	_listen_socket->set_type(LISTEN);
 	_fd_max = _socket_set.add_socket(_listen_socket);
-	_user_map.insert(std::pair<unsigned short, int>(ntohs(_listen_socket->get_port()), _listen_socket->get_fd()));
+	_user_map.insert(std::pair<unsigned short, int>(_listen_socket->get_port(), _listen_socket->get_fd()));
 
 	_listen_socket->bind();
 	_listen_socket->listen();
@@ -34,12 +34,12 @@ void	 IrcServer::connect_to_server(char **argv)
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
 		_fd_max = tmp;
-	_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
+	// _user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 
 	// test
 	new_socket->show_info();
 
-	std::string		msg(":test.com SERVER 0 test\n");
+	std::string		msg = ":test.com SERVER " + std::to_string(_listen_socket->get_port()) +" test\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -92,7 +92,7 @@ void	IrcServer::client_connect()
 	new_socket = _listen_socket->accept();
 	new_socket->set_type(UNKNOWN);
 	_socket_set.add_socket(new_socket);
-	_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
+	// _user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 	if (_fd_max < new_socket->get_fd())
 		_fd_max = new_socket->get_fd();
 	new_socket->show_info();
@@ -158,7 +158,7 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 	write(1, buf, len);
 }
 
-void	IrcServer::send_map_data(int my_fd)
+void	IrcServer::send_map_data(int fd)
 {
 	if (DEBUG)
 		std::cout << "send_map_data called." << std::endl;
@@ -170,13 +170,15 @@ void	IrcServer::send_map_data(int my_fd)
 	while (begin != end)
 	{
 		// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
-		std::string msg = "user create:" + std::to_string(begin->first);
-		for (int i = 3; i < _fd_max + 1; i++)
-		{ 
-			if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds())
-					&& (_socket_set.find_socket(i))->get_type() == SERVER)
-				send_msg(i, msg.c_str());
-		}
+		std::cout << "begin: " << std::to_string(begin->first) << std::endl;
+		std::string msg = ":" + std::to_string(_listen_socket->get_port()) + " SERVER " + std::to_string(begin->first) + " hop :port\n";
+		// for (int i = 3; i < _fd_max + 1; i++)
+		// { 
+		// 	if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds())
+		// 			&& (_socket_set.find_socket(i))->get_type() == SERVER)
+		// 		send_msg(i, msg.c_str());
+		// }
+		send_msg(fd, msg.c_str());
 		begin++;
 	}
 }
@@ -217,6 +219,7 @@ static int	read_until_crlf(int fd, char *buffer)
 			break;
 		for (i = 0; i < read_size; i++)
 		{
+			// 메시지가 연속해서 들어온 경우 CR/LF 뒷부분 누락됨 2021-03-11
 			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
 			{
 				strncpy(buffer + insert_idx, buf, i + 1);
@@ -276,24 +279,24 @@ void	IrcServer::server_msg(int fd)
 	cmd->set_message(msg);
 	std::cout << "server_port:" << user_port << std::endl;
 
-	for (int i = 0; i < user_port.length(); i++)
-	{
-		if (std::isdigit(tmp[i]) == false)
-		{
-			std::cout << "false:" << tmp[i] << std::endl;
-			break ;
-		}
-		is_digit = true;
-	}
-	std::cout << "is_digit: " << is_digit << std::endl;
-	if (is_digit)
-	{
-		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(user_port.c_str()), fd));
-		std::map<unsigned short, int>::iterator it = _user_map.find((unsigned short)ft::atoi(user_port.c_str()));
-		//std::cout << "new user_map.port: " << it->first << std::endl;
-		//std::cout << "new user_map.value: " << it->second << std::endl;
-		show_map_data();
-	}
+	// for (int i = 0; i < user_port.length(); i++)
+	// {
+	// 	if (std::isdigit(tmp[i]) == false)
+	// 	{
+	// 		std::cout << "false:" << tmp[i] << std::endl;
+	// 		break ;
+	// 	}
+	// 	is_digit = true;
+	// }
+	// std::cout << "is_digit: " << is_digit << std::endl;
+	// if (is_digit)
+	// {
+	// 	// _user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(user_port.c_str()), fd));
+	// 	// std::map<unsigned short, int>::iterator it = _user_map.find((unsigned short)ft::atoi(user_port.c_str()));
+	// 	//std::cout << "new user_map.port: " << it->first << std::endl;
+	// 	//std::cout << "new user_map.value: " << it->second << std::endl;
+	// 	show_map_data();
+	// }
 	if (str_len == 0)
 	{
 		_socket_set.remove_socket(_socket_set.find_socket(fd));
@@ -302,8 +305,13 @@ void	IrcServer::server_msg(int fd)
 	}
 	else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
 	{
+		std::cout << "========servermsg=======" << std::endl;
 		cmd->run(*this);
-	
+		// 
+		std::cout << "receive msg: " << msg.get_origin() << std::endl;
+		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
+		show_map_data();
+		std::cout << "========servermsg=======" << std::endl;
 		// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
 		// fd는 새롭게 연결되는 서버고, 이 서버에는 기존 서버들에 대한 정보가 필요함
 		// map에 있는 데이터들을 전송해줘서 해당 서버가 연결하기 위한 통로를 알 수 있도록 메시지 전송
@@ -349,9 +357,9 @@ void	IrcServer::unknown_msg(int fd)
 		cmd->set_message(msg);
 		
 		cmd->run(*this);
-
-		// 자신이 원래 가지고 있던 정보들 넘겨줌(새로 추가된 서버에 있던 정보 + 원래 가진 정보)
-		// send_map_data(_list_socket->get_fd());
+		send_map_data(fd);
+		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
+		// 자신이 원래 가지고 있던 정보들 넘겨줌
 	}
 	else if (msg.get_command() == "NICK")
 	{

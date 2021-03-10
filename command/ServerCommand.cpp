@@ -12,7 +12,9 @@ void	ServerCommand::run(IrcServer &irc)
 	{
 		if (ss.find_socket(i)->get_type() == SERVER && i != _msg.get_source_fd())
 		{
+			
 			irc.send_msg(i, _msg.get_origin());
+			
 			std::cout << "Message send\n"; //
 			std::cout << "to: " << i << " | " << _msg.get_origin() << std::endl;
 		}

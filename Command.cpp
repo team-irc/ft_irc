@@ -10,6 +10,7 @@ Command::Command(const Command &ref) : _msg(ref._msg)
 
 Command	&Command::operator=(const Command &ref)
 {
+	if (this == &ref) return (*this);
 	this->_msg = ref._msg;
 	return (*this);
 }

@@ -3,7 +3,7 @@
 
 void	NickCommand::run(IrcServer &irc)
 {
-	
+	// set_username(_msg.);
 	std::cout << "Nick Command executed.\n";
 }
 

@@ -61,6 +61,11 @@ void		Message::get_info()
 	std::cout << std::endl;
 }
 
+const std::string &Message::get_param(int idx) const
+{
+	return (_param.at(idx));
+}
+
 void		Message::set_prefix(const char *prefix)
 {
 	if (prefix != NULL)

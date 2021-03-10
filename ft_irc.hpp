@@ -26,7 +26,7 @@
 class IrcServer
 {
 private:
-	
+	std::string				_server_name;
 	Socket					*_listen_socket;
 	// std::vector<Socket *>	_socket_vector;
 	SocketSet				_socket_set;

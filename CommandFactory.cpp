@@ -1,6 +1,5 @@
 #include "CommandFactory.hpp"
 #include "ServerCommand.hpp"
-#include "Command.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -13,6 +12,7 @@ CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
 
 CommandFactory &CommandFactory::operator=(const CommandFactory &ref)
 {
+	if (this == &ref) return (*this);
 	this->_map = ref._map;
 	return (*this);
 }
