@@ -181,6 +181,7 @@ void	IrcServer::send_map_data(int fd)
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
+	std::cout << "end map data" << std::endl;
 }
 
 void	IrcServer::show_map_data()
@@ -202,16 +203,26 @@ void	IrcServer::show_map_data()
 /*
 ** CR 또는 LF까지만 버퍼를 읽어온다
 */
-static int	read_until_crlf(int fd, char *buffer)
+static int	read_until_crlf(int fd, char *buffer, int *len)
 {
 	if (DEBUG)
 		std::cout << "read_until_crlf start\n";
-	int		i = 0;
-	int		read_size = 0;
-	int		insert_idx = 0;
-	char	buf[BUFFER_SIZE];
+	int					i = 0;
+	int					read_size = 0;
+	int					insert_idx = 0;
+	char				buf[BUFFER_SIZE];
+	static std::string	remember;
+	int					rem_size = 0;
 
 	memset(buf, 0, BUFFER_SIZE);
+	// buf에 remember를 삽입
+	if (!remember.empty())
+	{
+		rem_size = remember.length();
+		strncpy(buf, remember.c_str(), rem_size);
+		insert_idx += rem_size;
+		remember.clear();
+	}
 	while (insert_idx < BUFFER_SIZE)
 	{
 		read_size = read(fd, buf, BUFFER_SIZE - insert_idx);
@@ -224,7 +235,18 @@ static int	read_until_crlf(int fd, char *buffer)
 			{
 				strncpy(buffer + insert_idx, buf, i + 1);
 				buffer[i + insert_idx + 1] = 0;
-				return (i);
+				for (int j = 0; buf[i + insert_idx + 2 + j]; ++j)
+					remember += buf[i + insert_idx + 2 + j];
+				
+				std::cout << "buffer: " << buffer << std::endl;
+				if (!remember.empty())
+					std::cout << "rem: " << remember << std::endl;
+				
+				*len = i + insert_idx;
+				if (remember.empty())
+					return (0);
+				else
+					return (1);
 			}
 		}
 		write(1, buf, read_size);
@@ -232,7 +254,8 @@ static int	read_until_crlf(int fd, char *buffer)
 		insert_idx += read_size;
 	}
 	buffer[insert_idx] = 0;
-	return (BUFFER_SIZE);
+	*len = BUFFER_SIZE;
+	return (0);
 }
 
 /*
@@ -243,18 +266,24 @@ void	IrcServer::client_msg(int fd)
 	if (DEBUG)
 		std::cout << "client_msg function called." << std::endl;
 	char			buf[BUFFER_SIZE];
-	int				str_len = read_until_crlf(fd, buf);
+	int				str_len = 0;
+	int				result;
 
-	if (str_len == 0)
+	do
 	{
-		_socket_set.remove_socket(_socket_set.find_socket(fd));
-		close(fd);
-		std::cout << "closed client: " << fd << std::endl;
-	}
-	else // CHANNEL 
-	{
-		echo_msg(fd, buf, str_len);
-	}
+		result = read_until_crlf(fd, buf, &str_len);
+		if (str_len == 0)
+		{
+			_socket_set.remove_socket(_socket_set.find_socket(fd));
+			close(fd);
+			std::cout << "closed client: " << fd << std::endl;
+			return ;
+		}
+		else // CHANNEL 
+		{
+			echo_msg(fd, buf, str_len);
+		}
+	} while (result);
 }
 
 /*
@@ -265,64 +294,43 @@ void	IrcServer::server_msg(int fd)
 	if (DEBUG)
 		std::cout << "server_msg function called." << std::endl;
 	char			buf[BUFFER_SIZE];
-	int				str_len = read_until_crlf(fd, buf);
-	bool			is_digit = false;
-
-	std::string *	split_ret;
-	ft::split(std::string(buf), ':', split_ret);
-	std::string		user_port = split_ret[1];
-	const char *	tmp = user_port.c_str();
+	int				str_len = 0;
+	int				result;
 	Command			*cmd;
-	Message msg(buf);
-	msg.set_source_fd(fd);
-	cmd = _cmd_creator.get_command(msg.get_command());
-	cmd->set_message(msg);
-	std::cout << "server_port:" << user_port << std::endl;
 
-	// for (int i = 0; i < user_port.length(); i++)
-	// {
-	// 	if (std::isdigit(tmp[i]) == false)
-	// 	{
-	// 		std::cout << "false:" << tmp[i] << std::endl;
-	// 		break ;
-	// 	}
-	// 	is_digit = true;
-	// }
-	// std::cout << "is_digit: " << is_digit << std::endl;
-	// if (is_digit)
-	// {
-	// 	// _user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(user_port.c_str()), fd));
-	// 	// std::map<unsigned short, int>::iterator it = _user_map.find((unsigned short)ft::atoi(user_port.c_str()));
-	// 	//std::cout << "new user_map.port: " << it->first << std::endl;
-	// 	//std::cout << "new user_map.value: " << it->second << std::endl;
-	// 	show_map_data();
-	// }
-	if (str_len == 0)
+	do
 	{
-		_socket_set.remove_socket(_socket_set.find_socket(fd));
-		close(fd);
-		std::cout << "closed server: " << fd << std::endl;
-	}
-	else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
-	{
-		std::cout << "========servermsg=======" << std::endl;
-		cmd->run(*this);
-		// 
-		std::cout << "receive msg: " << msg.get_origin() << std::endl;
-		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
-		show_map_data();
-		std::cout << "========servermsg=======" << std::endl;
-		// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
-		// fd는 새롭게 연결되는 서버고, 이 서버에는 기존 서버들에 대한 정보가 필요함
-		// map에 있는 데이터들을 전송해줘서 해당 서버가 연결하기 위한 통로를 알 수 있도록 메시지 전송
-		// send_map_data(_listen_socket->get_fd());
-		// Member에서 제거도 해야 됨
-	}
-	else // CHANNEL 
-	{
-		throw(Error("else server msg"));
-	}
-	delete[] split_ret;
+		result = read_until_crlf(fd, buf, &str_len);
+		Message msg(buf);
+		msg.set_source_fd(fd);
+		cmd = _cmd_creator.get_command(msg.get_command());
+		cmd->set_message(msg);
+		if (str_len == 0)
+		{
+			_socket_set.remove_socket(_socket_set.find_socket(fd));
+			close(fd);
+			std::cout << "closed server: " << fd << std::endl;
+		}
+		else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
+		{
+			std::cout << "========servermsg=======" << std::endl;
+			cmd->run(*this);
+			// 
+			std::cout << "receive msg: " << msg.get_origin() << std::endl;
+			_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
+			show_map_data();
+			std::cout << "========servermsg=======" << std::endl;
+			// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
+			// fd는 새롭게 연결되는 서버고, 이 서버에는 기존 서버들에 대한 정보가 필요함
+			// map에 있는 데이터들을 전송해줘서 해당 서버가 연결하기 위한 통로를 알 수 있도록 메시지 전송
+			// send_map_data(_listen_socket->get_fd());
+			// Member에서 제거도 해야 됨
+		}
+		else // CHANNEL 
+		{
+			throw(Error("else server msg"));
+		}
+	} while (result);
 }
 
 /*
@@ -337,38 +345,44 @@ void	IrcServer::unknown_msg(int fd)
 	if (DEBUG)
 		std::cout << "unknown_msg function called." << std::endl;
 	char			buf[BUFFER_SIZE];
-	int				str_len = read_until_crlf(fd, buf);
+	int				str_len;
+	
+	
 	Command			*cmd;
+	int				result;
 
-	Message msg(buf);
-	msg.set_source_fd(fd);
-	
-	
-	// cmd = _cmd_creator.get_command(msg.get_command());
-	// cmd->set_message(msg);
-	
-	// 임시 //// -> if(cmd) { cmd->run(); } 으로 바꿔야함
-	// if (cmd)
-	// 	cmd->run(*this);
-	std::cout << "test: " << msg.get_command() << std::endl;
-	if (msg.get_command() == "SERVER") // COMMAND SERVER msg.get_command() == "SERVER"
+	do
 	{
-		cmd = _cmd_creator.get_command(msg.get_command());
-		cmd->set_message(msg);
+		result = read_until_crlf(fd, buf, &str_len);
+		Message msg(buf);
+		msg.set_source_fd(fd);
+		// cmd = _cmd_creator.get_command(msg.get_command());
+		// cmd->set_message(msg);
 		
-		cmd->run(*this);
-		send_map_data(fd);
-		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
-		// 자신이 원래 가지고 있던 정보들 넘겨줌
-	}
-	else if (msg.get_command() == "NICK")
-	{
-		_socket_set.change_socket_type(fd, CLIENT);
-	}
-	else 
-	{
-		send_msg(fd, ":451 * :Connection not registered");
-	}
+		// 임시 //// -> if(cmd) { cmd->run(); } 으로 바꿔야함
+		// if (cmd)
+		// 	cmd->run(*this);
+		std::cout << "test: " << msg.get_command() << std::endl;
+		std::cout << "result: " << result << std::endl;
+		if (msg.get_command() == "SERVER") // COMMAND SERVER msg.get_command() == "SERVER"
+		{
+			cmd = _cmd_creator.get_command(msg.get_command());
+			cmd->set_message(msg);
+			
+			cmd->run(*this);
+			send_map_data(fd);
+			_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
+			// 자신이 원래 가지고 있던 정보들 넘겨줌
+		}
+		else if (msg.get_command() == "NICK")
+		{
+			_socket_set.change_socket_type(fd, CLIENT);
+		}
+		else 
+		{
+			send_msg(fd, ":451 * :Connection not registered");
+		}
+	} while (result);
 }
 
 
@@ -378,7 +392,7 @@ void		IrcServer::fd_event_loop()
 	fd_set	fds;
 	int		fd_num;
 
-	timeout.tv_sec = 10;
+	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
 	fds = _socket_set.get_read_fds();
 	// for (int i = 3; i < _fd_max + 1; i++)

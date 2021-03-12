@@ -22,7 +22,7 @@ SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 
 ## 나중에 $(CLFAG) 추가
 $(NAME) : $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME)
+	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -g
 
 # %.o : %.c
 # 		$(CC) -o $@ -c $^ -I $(HEADER_DIR) -I ./command
