@@ -12,7 +12,7 @@ IrcServer::IrcServer(int argc, char **argv)
 
 	_listen_socket->bind();
 	_listen_socket->listen();
-	
+
 	if (argc == 3)
 		connect_to_server(argv);
 };
@@ -34,6 +34,8 @@ void	 IrcServer::connect_to_server(char **argv)
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
 		_fd_max = tmp;
+	// if (_fd_max < _socket_set->get_fd())
+	//		_fd_max = _socket_set->get_fd();
 	// _user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 
 	// test
@@ -221,22 +223,36 @@ static int	read_until_crlf(int fd, char *buffer, int *len)
 		rem_size = remember.length();
 		strncpy(buf, remember.c_str(), rem_size);
 		insert_idx += rem_size;
-		remember.clear();
 	}
 	while (insert_idx < BUFFER_SIZE)
 	{
-		read_size = read(fd, buf, BUFFER_SIZE - insert_idx);
-		if (read_size == 0)
-			break;
-		for (i = 0; i < read_size; i++)
+		if (remember.empty())
+		{
+			if (!(read_size = read(fd, buf, BUFFER_SIZE - insert_idx)))
+				break;
+		}
+		else
+		{
+			strncpy(buf, remember.c_str(), rem_size);
+			remember.clear();
+		}
+		for (i = 0; i < read_size + rem_size; i++)
 		{
 			// 메시지가 연속해서 들어온 경우 CR/LF 뒷부분 누락됨 2021-03-11
 			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
 			{
-				strncpy(buffer + insert_idx, buf, i + 1);
-				buffer[i + insert_idx + 1] = 0;
-				for (int j = 0; buf[i + insert_idx + 2 + j]; ++j)
-					remember += buf[i + insert_idx + 2 + j];
+				if (rem_size == 0)
+				{
+					strncpy(buffer + insert_idx, buf, i + 1);
+					buffer[i + insert_idx + 1] = 0;
+				}
+				else
+				{
+					strncpy(buffer, buf, i + 1);
+					buffer[i + 1] = 0;
+				}
+				for (int j = 1; buf[i + j]; ++j)
+					remember += buf[i + j];
 				
 				std::cout << "buffer: " << buffer << std::endl;
 				if (!remember.empty())
@@ -245,10 +261,12 @@ static int	read_until_crlf(int fd, char *buffer, int *len)
 				*len = i + insert_idx;
 				if (remember.empty())
 					return (0);
-				else
-					return (1);
+				return (1);
 			}
 		}
+		std::cout << "no CR LF in buf[";
+		std::cout << read_size << " + " << rem_size << "]\n";
+		rem_size = 0;
 		write(1, buf, read_size);
 		strncpy(buffer + insert_idx, buf, read_size);
 		insert_idx += read_size;
@@ -271,6 +289,7 @@ void	IrcServer::client_msg(int fd)
 
 	do
 	{
+		memset(buf, 0, BUFFER_SIZE);
 		result = read_until_crlf(fd, buf, &str_len);
 		if (str_len == 0)
 		{
@@ -300,11 +319,15 @@ void	IrcServer::server_msg(int fd)
 
 	do
 	{
+		memset(buf, 0, BUFFER_SIZE);
+		std::cout << "do read until crlf\n";
 		result = read_until_crlf(fd, buf, &str_len);
 		Message msg(buf);
 		msg.set_source_fd(fd);
 		cmd = _cmd_creator.get_command(msg.get_command());
 		cmd->set_message(msg);
+		std::cout << "test: " << msg.get_command() << std::endl;
+		std::cout << "result: " << result << std::endl;
 		if (str_len == 0)
 		{
 			_socket_set.remove_socket(_socket_set.find_socket(fd));
@@ -353,6 +376,7 @@ void	IrcServer::unknown_msg(int fd)
 
 	do
 	{
+		memset(buf, 0, BUFFER_SIZE);
 		result = read_until_crlf(fd, buf, &str_len);
 		Message msg(buf);
 		msg.set_source_fd(fd);
