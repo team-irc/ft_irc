@@ -18,7 +18,7 @@
 #include "Error.hpp"
 #include "Message.hpp"
 #include "CommandFactory.hpp"
-// #include "Member.hpp"
+#include "Member.hpp"
 // #include "Channel.hpp"
 
 #define DEBUG 0
@@ -26,15 +26,21 @@
 class IrcServer
 {
 private:
-	std::string				_server_name;
-	Socket					*_listen_socket;
-	// std::vector<Socket *>	_socket_vector;
-	SocketSet				_socket_set;
-	int						_fd_max;
-	Socket					*_current_sock;
-	CommandFactory			_cmd_creator;
-	
+	std::string						_server_name;
+	Socket							*_listen_socket;
+	// std::vector<Socket *>		_socket_vector;
+	SocketSet						_socket_set;
+	int								_fd_max;
+	Socket							*_current_sock;
+	CommandFactory					_cmd_creator;
+
+	// 연결된 서버/클라이언트에 접근하기 위한 fd 제공
 	std::map<unsigned short, int>	_user_map;
+	// irc 네트워크상에 있는 유저의 정보 저장
+	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
+	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
+	std::map<int, Member *>			_local_user; // 자신의 서버에 연결되어 있는 멤버 관리
+	std::map<std::string, int>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 
 public:
 
@@ -43,11 +49,12 @@ public:
 
 public:
 
-	void	run(int argc);
+	void				run(int argc);
 	Socket				*get_current_socket();
 	SocketSet			&get_socket_set();
 	int					get_fdmax();
 	void				send_msg(int send_fd, const char *msg);
+	Member				*get_local_user(int fd);
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);

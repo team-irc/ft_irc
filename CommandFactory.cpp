@@ -3,8 +3,11 @@
 
 CommandFactory::CommandFactory()
 {
-	_map.insert(std::pair<std::string, Command *>("SERVER", new ServerCommand()));
 	// 명령어 만들면 여기다가 추가
+	_map.insert(std::pair<std::string, Command *>("SERVER", new ServerCommand()));
+	_map.insert(std::pair<std::string, Command *>("PASS", new PassCommand()));
+	_map.insert(std::pair<std::string, Command *>("USER", new UserCommand()));
+	_map.insert(std::pair<std::string, Command *>("NICK", new NickCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

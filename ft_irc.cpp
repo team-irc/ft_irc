@@ -241,31 +241,16 @@ static int	read_until_crlf(int fd, char *buffer, int *len)
 			// 메시지가 연속해서 들어온 경우 CR/LF 뒷부분 누락됨 2021-03-11
 			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
 			{
-				if (rem_size == 0)
-				{
-					strncpy(buffer + insert_idx, buf, i + 1);
-					buffer[i + insert_idx + 1] = 0;
-				}
-				else
-				{
-					strncpy(buffer, buf, i + 1);
-					buffer[i + 1] = 0;
-				}
+				strncpy(buffer + rem_size == 0 ? insert_idx : 0, buf, i + 1);
+				buffer[i + rem_size == 0 ? insert_idx : 0 + 1];
 				for (int j = 1; buf[i + j]; ++j)
 					remember += buf[i + j];
-				
-				std::cout << "buffer: " << buffer << std::endl;
-				if (!remember.empty())
-					std::cout << "rem: " << remember << std::endl;
-				
 				*len = i + insert_idx;
 				if (remember.empty())
 					return (0);
 				return (1);
 			}
 		}
-		std::cout << "no CR LF in buf[";
-		std::cout << read_size << " + " << rem_size << "]\n";
 		rem_size = 0;
 		write(1, buf, read_size);
 		strncpy(buffer + insert_idx, buf, read_size);
@@ -320,7 +305,6 @@ void	IrcServer::server_msg(int fd)
 	do
 	{
 		memset(buf, 0, BUFFER_SIZE);
-		std::cout << "do read until crlf\n";
 		result = read_until_crlf(fd, buf, &str_len);
 		Message msg(buf);
 		msg.set_source_fd(fd);
@@ -369,8 +353,6 @@ void	IrcServer::unknown_msg(int fd)
 		std::cout << "unknown_msg function called." << std::endl;
 	char			buf[BUFFER_SIZE];
 	int				str_len;
-	
-	
 	Command			*cmd;
 	int				result;
 
@@ -406,6 +388,11 @@ void	IrcServer::unknown_msg(int fd)
 		{
 			send_msg(fd, ":451 * :Connection not registered");
 		}
+		// 1. SERVER(Meber 제거)
+		// 2-1. USER/NICK인 경우(Member에서 값을 찾은 뒤 해당 내용 삽입)
+		// 2-2. Member.is_setting이 된 경우(클라이언트로 타입 변경)
+		// 3. QUIT 메시지(SERVER - [75:5   57] Client unregistered (connection 8): Got QUIT command. / Client - ERROR :Closing connection)
+		// 4. 그 외 메시지(에러 메시지 반환)
 	} while (result);
 }
 
@@ -478,6 +465,11 @@ void	IrcServer::run(int argc)
 		}
 		fd_event_loop();
 	}
+}
+
+Member		*IrcServer::get_local_user(int fd)
+{
+	return (_local_user.find(fd)->second);
 }
 
 Socket		*IrcServer::get_current_socket()
