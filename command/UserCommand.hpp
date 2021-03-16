@@ -34,13 +34,12 @@
 class UserCommand : public Command
 {
 private:
-
+	send_msg();
 public:
 	UserCommand();
 	virtual ~UserCommand();
 	UserCommand(UserCommand const &copy);
 	UserCommand	&operator=(UserCommand const &ref);
-
 	void	run(IrcServer &irc);
 };
 

@@ -6,6 +6,7 @@
 class Member
 {
 private:
+	int				_fd;
 	std::string		_nick;
 	std::string		_username;
 	std::string		_hostname;
@@ -39,6 +40,8 @@ public:
 	void				set_servername(const std::string &servername);
 	const std::string	&get_realname();
 	void				set_realname(const std::string &realname);
+	int					get_fd();
+	void				set_fd(int fd);
 	char				get_mode();
 	void				set_mode(char mode);
 	bool				check_mode(char mode, bool is_set);

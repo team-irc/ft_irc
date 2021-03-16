@@ -50,3 +50,11 @@ int ft::split(const std::string str, char c, std::string *& ret)
 	ret += 0;
 	return (size);
 }
+
+class multiDimensionArray
+{
+private:
+
+	std::vector
+
+};

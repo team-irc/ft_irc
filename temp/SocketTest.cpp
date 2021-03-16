@@ -32,7 +32,7 @@ private:
 	
 	int					_fd_max;
 	
-	std::map<unsigned short, int>	_user_map;
+	std::map<unsigned short, int>	_fd_map;
 
 public:
 
@@ -66,7 +66,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	_listen_socket->set_type(SLEEP);
 	FD_SET(_listen_socket->get_fd(), &_server_fds);
 	_fd_max = _listen_socket->get_fd();
-	_user_map.insert(std::pair<unsigned short, int>(ntohs(_listen_socket->get_port()), _listen_socket->get_fd()));
+	_fd_map.insert(std::pair<unsigned short, int>(ntohs(_listen_socket->get_port()), _listen_socket->get_fd()));
 
 	_listen_socket->bind();
 	_listen_socket->listen();
@@ -93,7 +93,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	FD_SET(new_socket->get_fd(), &_server_fds);
 	_socket_vector.push_back(new_socket);
 	_fd_max++;
-	_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
+	_fd_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 
 	// test
 	std::cout << "connect_to_server\n";
@@ -150,7 +150,7 @@ void	IrcServer::client_connect()
 	new_socket->set_type(CLIENT);
 	FD_SET(new_socket->get_fd(), &_client_fds);
 	_socket_vector.push_back(new_socket);
-	_user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
+	_fd_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 	if (_fd_max < new_socket->get_fd())
 		_fd_max = new_socket->get_fd();
 
@@ -204,8 +204,8 @@ void	IrcServer::send_map_data(int my_fd)
 	std::map<unsigned short, int>::iterator begin;
 	std::map<unsigned short, int>::iterator end;
 
-	begin = _user_map.begin();
-	end = _user_map.end();
+	begin = _fd_map.begin();
+	end = _fd_map.end();
 	while (begin != end)
 	{
 		// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
@@ -217,8 +217,8 @@ void	IrcServer::send_map_data(int my_fd)
 
 void	IrcServer::show_map_data()
 {
-	std::map<unsigned short, int>::iterator begin = _user_map.begin();
-	std::map<unsigned short, int>::iterator end = _user_map.end();
+	std::map<unsigned short, int>::iterator begin = _fd_map.begin();
+	std::map<unsigned short, int>::iterator end = _fd_map.end();
 
 	std::cout << "============MAP DATA=============\n";
 	while (begin != end)
@@ -256,8 +256,8 @@ void	IrcServer::client_msg(int fd)
 	std::cout << "is_digit: " << is_digit << std::endl;
 	if (is_digit)
 	{
-		_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(user_port.c_str()), fd));
-		std::map<unsigned short, int>::iterator it = _user_map.find((unsigned short)ft::atoi(user_port.c_str()));
+		_fd_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(user_port.c_str()), fd));
+		std::map<unsigned short, int>::iterator it = _fd_map.find((unsigned short)ft::atoi(user_port.c_str()));
 		//std::cout << "new user_map.port: " << it->first << std::endl;
 		//std::cout << "new user_map.value: " << it->second << std::endl;
 		show_map_data();

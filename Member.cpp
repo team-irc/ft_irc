@@ -55,7 +55,8 @@ const std::string	&Member::get_servername()								{ return (_servername); }
 void				Member::set_servername(const std::string &servername)	{ _servername = servername; }
 const std::string	&Member::get_realname()									{ return (_realname); }
 void				Member::set_realname(const std::string &realname)		{ _realname = realname; }
-
+int					Member::get_fd()										{ return (_fd); }
+void				Member::set_fd(int fd)									{ _fd = fd; }
 //nick
 //user -> username hostname -> member.set_username(...) 
 //

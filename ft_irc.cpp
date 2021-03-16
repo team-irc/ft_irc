@@ -8,7 +8,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	// std::cout << "=======\n";
 	_listen_socket->set_type(LISTEN);
 	_fd_max = _socket_set.add_socket(_listen_socket);
-	_user_map.insert(std::pair<unsigned short, int>(_listen_socket->get_port(), _listen_socket->get_fd()));
+	_fd_map.insert(std::pair<unsigned short, int>(_listen_socket->get_port(), _listen_socket->get_fd()));
 
 	_listen_socket->bind();
 	_listen_socket->listen();
@@ -167,8 +167,8 @@ void	IrcServer::send_map_data(int fd)
 	std::map<unsigned short, int>::iterator begin;
 	std::map<unsigned short, int>::iterator end;
 
-	begin = _user_map.begin();
-	end = _user_map.end();
+	begin = _fd_map.begin();
+	end = _fd_map.end();
 	while (begin != end)
 	{
 		// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
@@ -188,8 +188,8 @@ void	IrcServer::send_map_data(int fd)
 
 void	IrcServer::show_map_data()
 {
-	std::map<unsigned short, int>::iterator begin = _user_map.begin();
-	std::map<unsigned short, int>::iterator end = _user_map.end();
+	std::map<unsigned short, int>::iterator begin = _fd_map.begin();
+	std::map<unsigned short, int>::iterator end = _fd_map.end();
 
 	std::cout << "============MAP DATA=============\n";
 	while (begin != end)
@@ -238,7 +238,6 @@ static int	read_until_crlf(int fd, char *buffer, int *len)
 		}
 		for (i = 0; i < read_size + rem_size; i++)
 		{
-			// 메시지가 연속해서 들어온 경우 CR/LF 뒷부분 누락됨 2021-03-11
 			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
 			{
 				strncpy(buffer + rem_size == 0 ? insert_idx : 0, buf, i + 1);
@@ -324,7 +323,7 @@ void	IrcServer::server_msg(int fd)
 			cmd->run(*this);
 			// 
 			std::cout << "receive msg: " << msg.get_origin() << std::endl;
-			_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
+			_fd_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
 			show_map_data();
 			std::cout << "========servermsg=======" << std::endl;
 			// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
@@ -374,10 +373,9 @@ void	IrcServer::unknown_msg(int fd)
 		{
 			cmd = _cmd_creator.get_command(msg.get_command());
 			cmd->set_message(msg);
-			
 			cmd->run(*this);
 			send_map_data(fd);
-			_user_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
+			_fd_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
 			// 자신이 원래 가지고 있던 정보들 넘겨줌
 		}
 		else if (msg.get_command() == "NICK")
@@ -467,9 +465,38 @@ void	IrcServer::run(int argc)
 	}
 }
 
-Member		*IrcServer::get_local_user(int fd)
+Member		*IrcServer::find_member(int fd)
 {
-	return (_local_user.find(fd)->second);
+	std::map<std::string, Member *>::iterator begin = _global_user.begin();
+	std::map<std::string, Member *>::iterator end = _global_user.end();
+
+	while (begin != end)
+	{
+		if ((begin->second)->get_fd() == fd)
+			return (begin->second);
+		begin++;
+	}
+	return (NULL);
+}
+
+Member		*IrcServer::get_member(std::string nick)
+{
+	std::map<std::string, Member *>::iterator it = _global_user.find(nick);
+
+	if (_global_user.end() == it)
+		return (NULL);
+	return (_global_user.find(nick)->second);
+}
+
+// 해당 fd를 키로 가지는 값
+Member		*IrcServer::get_member(int fd)
+{
+	std::string		key = std::to_string(fd);
+	std::map<std::string, Member *>::iterator it = _global_user.find(key);
+
+	if (_global_user.end() == it)
+		return (NULL);
+	return (_global_user.find(key)->second);
 }
 
 Socket		*IrcServer::get_current_socket()

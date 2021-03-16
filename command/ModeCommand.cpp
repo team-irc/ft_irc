@@ -71,14 +71,14 @@ void	ModeCommand::run(IrcServer &irc)
 {
 	// _msg의 param을 분석해야 함
 	// - + 중복 허용됨
-	std::string		param = _msg.get_param(0);
+	std::string		param = _msg.get_param(1);
 	std::string		result;
 	mode_set		set;
 	Member			*member;
 	
 	set.mode = PLUS;
 	set.is_set = true;
-	member = irc.get_local_user(_msg.get_source_fd());
+	member = irc.get_member(_msg.get_param(0));
 	for (int i = 0; i < param.length(); i++)
 	{
 		if (param.at(i) == '-')
