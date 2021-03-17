@@ -1,5 +1,8 @@
 #include "CommandFactory.hpp"
 #include "ServerCommand.hpp"
+#include "NickCommand.hpp"
+#include "UserCommand.hpp"
+#include "PassCommand.hpp"
 
 CommandFactory::CommandFactory()
 {

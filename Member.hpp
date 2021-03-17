@@ -23,9 +23,9 @@ private:
 	// 하나의 유저가 여러 서버를 가질 수 있음
 public:
 	Member();
-	Member::Member(const std::string &nick, const std::string &username,
+	Member(const std::string &nick, const std::string &username,
 		const std::string &hostname, const std::string &servername,
-		const std::string &realname);
+		const std::string &realname, char mode);
 	Member(const Member & other);
 	Member & operator = (const Member & other);
 	~Member();

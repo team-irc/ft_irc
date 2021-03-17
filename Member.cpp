@@ -41,7 +41,11 @@ const bool			Member::is_setting() const
 {
 	if (!_nick.empty() && !_username.empty() && !_hostname.empty()
 		&& !_servername.empty() && !_realname.empty())
+	{
+		if (std::isdigit(_nick.at(0)))
+			return (false);
 		return (true);
+	}
 	return (false);
 }
 
@@ -125,6 +129,7 @@ bool				Member::check_mode(char mode, bool is_set)
 				return (false);
 		}
 	}
+	return (false);
 }
 
 void				Member::set_mode(char mode) { _mode = mode; }

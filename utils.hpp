@@ -2,7 +2,6 @@
 # define UTILS_HPP
 
 #include <iostream>
-#include <vector>
 
 namespace ft
 {
@@ -10,8 +9,6 @@ namespace ft
 	int atoi(const char * nptr);
 
 	int split(const std::string str, char c, std::string *& ret);
-
-	class multiDimensionArray;
 
 };
 

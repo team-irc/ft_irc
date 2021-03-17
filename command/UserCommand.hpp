@@ -1,7 +1,7 @@
 #ifndef USER_COMMAND_HPP
 # define USER_COMMAND_HPP
 
-
+# include "Command.hpp"
 /*
       Command: USER
    Parameters: <username> <hostname> <servername> <realname>
@@ -31,10 +31,12 @@
    "Identity Server".
 */
 
+class Member;
+
 class UserCommand : public Command
 {
 private:
-	send_msg();
+	void  insert_info(Member *member, IrcServer &irc);
 public:
 	UserCommand();
 	virtual ~UserCommand();

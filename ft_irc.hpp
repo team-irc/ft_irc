@@ -39,6 +39,7 @@ private:
 	// irc 네트워크상에 있는 유저의 정보 저장
 	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
+	
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
@@ -56,9 +57,13 @@ public:
 	SocketSet			&get_socket_set();
 	int					get_fdmax();
 	void				send_msg(int send_fd, const char *msg);
+	void				send_msg_server(int fd, const char *msg);
+	void				add_member(std::string &nickname, Member *new_member);
+	void				add_fd_map(const std::string &key, int fd);
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
 	Member				*find_member(int fd);
+	
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
@@ -72,6 +77,7 @@ private:
 	void				send_msg(int my_fd, int except_fd, const char *msg);
 	void				send_map_data(int my_fd);
 	void				show_map_data();
+	void				show_global_user();
 	void				fd_event_loop();
 };
 

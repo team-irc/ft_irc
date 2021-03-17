@@ -19,6 +19,7 @@ void	NickCommand::run(IrcServer &irc)
 	Socket		*socket;
 	Member		*member;
 	std::string	nickname;
+	int			hopcount;
 
 	socket = irc.get_current_socket();
 	nickname = _msg.get_param(0);
@@ -29,34 +30,49 @@ void	NickCommand::run(IrcServer &irc)
 	}
 	else
 	{
-		member = irc.get_member(socket.get_fd());
+		member = irc.get_member(socket->get_fd());
+		if (socket->get_type() == CLIENT || socket->get_type() == UNKNOWN) // 메세지를 받은 소켓의 타입이 CLIENT에서 홉카운트는 0으로 설정 
+			_msg.set_param_at(1, "0");
+		else // SERVER에서 
+		{
+			hopcount = ft::atoi(_msg.get_param(1).c_str());
+			hopcount++;
+			_msg.set_param_at(1, std::to_string(hopcount));
+		}
 		if (member)
 		{
+			// NICK 메세지 전송
 			member->set_nick(nickname);
-			irc.send_msg()
+			_msg.get_param(1);
+			_msg.set_param_at(1, "");
+
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+
+			// USER 메세지 전송
+			std::string		str;
+			str += "USER ";
+			str += member->get_username();
+			str += " ";
+			str += member->get_hostname();
+			str += " ";
+			str += member->get_servername();
+			str += " ";
+			str += member->get_realname();
+		
+			Message		user_msg(str.c_str());
+			user_msg.set_prefix(nickname);
+			irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
 		}
 		else
 		{
+			// 글로벌 DB에 추가 후 NICK 메세지 전송
 			member = new Member();
 			member->set_nick(nickname);
-			member->set_fd(socket.get_fd());
-			// irc.add_member(member);
-			irc.send_msg()
+			member->set_fd(socket->get_fd());
+			irc.add_member(nickname, member);
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
 	}
-
-	sock = irc.get_current_socket();
-	sock.get_fd(); // fd
-	_msg.get_param(1); // msg
-
-	// 해당 fd값, 닉네임을 글로벌db에 추가.
-	// 
-	irc.get_member()
-	irc.add_member()
-	//
-
-	irc._global_db.add()
-
 	std::cout << "Nick Command executed.\n";
 }
 

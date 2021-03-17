@@ -12,9 +12,14 @@ HEADER_DIR = .
 
 SRC_DIR = .
 
-SRC = main.cpp	ft_irc.cpp	Socket.cpp	SocketSet.cpp	utils.cpp	\
-		Error.cpp	Message.cpp\
-		Command.cpp		CommandFactory.cpp		command/ServerCommand.cpp
+SRC = \
+	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			\
+	Error.cpp	Member.cpp		Message.cpp		Command.cpp		CommandFactory.cpp		\
+	command/ServerCommand.cpp	\
+	command/PassCommand.cpp		\
+	command/NickCommand.cpp		\
+	command/UserCommand.cpp		
+
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 

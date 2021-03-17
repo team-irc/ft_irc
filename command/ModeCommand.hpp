@@ -1,4 +1,6 @@
-# include "ft_irc.hpp"
+#ifndef MODECOMMAND_HPP
+# define MODECOMMAND_HPP
+# include "Command.hpp"
 
 enum MODE {
 	PLUS, MINUS, NONE
@@ -20,3 +22,5 @@ class ModeCommand : public Command
 	private:
 		std::string	parse_user_mode(Member *member, IrcServer &irc, char mode, mode_set set);
 }
+
+#endif

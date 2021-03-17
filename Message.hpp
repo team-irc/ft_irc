@@ -28,6 +28,7 @@ private:
 
 	// 		*path;
 	std::string					_prefix;
+	std::string					_prefix_no_collon;
 
 	// :tolsun.oulu.fi
 	// command는 3자리 숫자거나 유효한 IRC 명령
@@ -58,7 +59,9 @@ public:
 	const char		*get_msg();
 	const char		*get_origin() const;
 	const std::string &get_param(int idx) const;
-	void			set_prefix(const char *prefix);
+	void			set_param_at(int idx, const std::string &val);
+	void			set_prefix(const std::string &prefix);
+	const std::string &get_prefix() const;
 	void			set_source_fd(const int fd);
 	int				get_source_fd();
 	const std::string &get_command() const;

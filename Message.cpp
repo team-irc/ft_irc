@@ -4,17 +4,29 @@ Message::Message() :
 	_prefix(std::string()), _command(std::string()), _param(std::vector<std::string>()), _size(0)
 {}
 
+void		remove_crlf(std::string *str)
+{
+	if (str->at(str->size() - 1) == ASCII_CONST::CR || str->at(str->size() - 1) == ASCII_CONST::LF)
+		str->resize(str->size() - 1);
+}
+
 Message::Message(const char *msg)
 {
 	int		idx = 0;
 	// msg를 받아서 prefix, command, param으로 분리
+	idx = 0;
 	if (msg != NULL)
 	{
 		_origin = msg;
 		std::string *arr;
 		int size = ft::split(msg, ' ', arr);
 		if (msg[0] == ':')
+		{
 			_prefix = arr[idx++];
+			_prefix_no_collon = _prefix.substr(1);
+		}
+		for (int i = 0; i < arr[idx].size(); i++)
+			arr[idx][i] = std::toupper(arr[idx][i]);
 		_command = arr[idx++];
 		std::string param;
 		while (idx < size)
@@ -29,6 +41,7 @@ Message::Message(const char *msg)
 					param += arr[idx];
 				}
 			}
+			remove_crlf(&param);
 			_param.push_back(param);
 			idx++;
 		}
@@ -62,16 +75,25 @@ void		Message::get_info()
 }
 
 const std::string &Message::get_param(int idx) const
+{ return (_param.at(idx)); }
+
+void		Message::set_param_at(int idx, const std::string &val)
 {
-	return (_param.at(idx));
+	if (idx > _param.size())
+		throw (Error("idx out of bounds"));
+	else if (idx == _param.size())
+		_param.push_back(val);
+	else
+		_param[idx] = val;
 }
 
-void		Message::set_prefix(const char *prefix)
+void		Message::set_prefix(const std::string &prefix)
 {
-	if (prefix != NULL)
+	if (prefix.empty())
 	{
 		_prefix = ":";
 		_prefix += prefix;
+		_prefix_no_collon = prefix;
 	}
 }
 
@@ -93,28 +115,6 @@ const char	*Message::get_msg()
 	int			param_size = 0;
 	int			idx = 0;
 
-	// // 없으면 걍 아무것도 안하면 됨
-	// if (!_prefix.empty())
-	// 	idx = insert_string(idx, _prefix);
-	// // prefix, command, param 사이는 공백 하나로 구분함
-	// if (idx > 0)
-	// 	_msg[idx++] = ' ';
-	// // 510 이상인 경우 에러
-	// idx = insert_string(idx, _command);
-	// // 15개 넘어가는 경우 / 510 이상인 경우 에러
-	// if (idx > 509)
-	// 	throw (Error("msg out of range"));
-	// _msg[idx++] = ' ';
-	// // 파라미터 최대 15개
-	// // if (_param.size() > 15)
-	// // 	throw (Error("parameter size out of range"));
-	// idx = insert_string(idx, _param);
-	// if (idx > 509)
-	// 	throw (Error("msg out of range"));
-	// _msg[idx++] = 13;
-	// _msg[idx++] = 10;
-	// _size = idx;
-	// return (_msg);
 	_msg.clear();
 	if (!_prefix.empty())
 		_msg += _prefix + " ";
@@ -131,8 +131,7 @@ const char	*Message::get_msg()
 	}
 	if (_msg.length() > 510)
 		throw (Error("msg out of range"));
-	// _msg += 13;
-	// _msg += 10;
+	_msg += '\n';
 	_size = _msg.length();
 	return (_msg.c_str());
 }
@@ -147,4 +146,9 @@ int			Message::insert_string(int start, std::string str)
 		idx++;
 	}
 	return (idx + start);
+}
+
+const std::string	&Message::get_prefix() const
+{
+	return (_prefix_no_collon);
 }
