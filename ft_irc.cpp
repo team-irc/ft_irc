@@ -116,8 +116,8 @@ void	IrcServer::send_msg(int send_fd, const char *msg)
 	if (DEBUG)
 		std::cout << "send_msg(int, const char *) called." << std::endl;
 	int		size = strlen(msg);
-
-	write(send_fd, msg, size);
+	Socket	*socket = _socket_set.find_socket(send_fd);
+	socket->write(msg);
 }
 
 // map 변경 예정(fd_map -> server만 가지는 map으로)
@@ -143,18 +143,12 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 	{
 		// my_fd가 server인지 client인지 확인 후 정보 수정해서 전송
 		// 현재 서버의 이름을 메시지의 경로에 추가
-		
-		if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd)
+		Socket	*socket = _socket_set.find_socket(i);
+		if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd && socket->get_type() != LISTEN && socket->get_type() != UNKNOWN)
 		{
 			if (DEBUG)
-				std::cout << "echo_msg to client fd: " << i << ", msg: " << buf << std::endl;
-			write(i, buf, len);
-		}
-		else if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd)
-		{
-			if (DEBUG)
-				std::cout << "echo_msg to server fd: " << i << ", msg: " << buf << std::endl;
-			write(i, buf, len);
+				std::cout << "echo_msg to fd: " << i << ", msg: " << buf << std::endl;
+			socket->write(buf);
 		}
 	}
 	write(1, buf, len);
@@ -285,6 +279,9 @@ void	IrcServer::client_msg(int fd)
 	{
 		memset(buf, 0, BUFFER_SIZE);
 		result = read_until_crlf(fd, buf, &str_len);
+		// Log
+		std::cout << "[RECV] " << buf << " [" << fd<< "] " << "[client]\n";
+		//
 		if (str_len == 0)
 		{
 			_socket_set.remove_socket(_socket_set.find_socket(fd));
@@ -315,10 +312,14 @@ void	IrcServer::server_msg(int fd)
 	{
 		memset(buf, 0, BUFFER_SIZE);
 		result = read_until_crlf(fd, buf, &str_len);
+		// Log
+		std::cout << "[RECV] " << buf << " [" << fd<< "] " << "[server]\n";
+		//
 		Message msg(buf);
 		msg.set_source_fd(fd);
 		cmd = _cmd_creator.get_command(msg.get_command());
-		cmd->set_message(msg);
+		if (cmd)
+			cmd->set_message(msg);
 		std::cout << "test: " << msg.get_command() << std::endl;
 		std::cout << "result: " << result << std::endl;
 		if (str_len == 0)
@@ -329,12 +330,8 @@ void	IrcServer::server_msg(int fd)
 		}
 		else if (cmd) // COMMAND SERVER msg.get_command() == "SERVER"
 		{
-			// std::cout << "========servermsg=======" << std::endl;
 			cmd->run(*this);
-			// 
-			// std::cout << "receive msg: " << msg.get_origin() << std::endl;
-			// _fd_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(msg.get_param(0).c_str()), fd));
-			// show_map_data();
+
 			// std::cout << "========servermsg=======" << std::endl;
 			// 새로운 서버가 연결을 시도하는 경우(이미 연결은 됐고 서버로 인증받는 단계)
 			// fd는 새롭게 연결되는 서버고, 이 서버에는 기존 서버들에 대한 정보가 필요함
@@ -345,7 +342,8 @@ void	IrcServer::server_msg(int fd)
 		}
 		else // CHANNEL 
 		{
-			throw(Error("else server msg"));
+			std::cout << "Unknown Command: " << msg.get_command() << std::endl;
+			// throw(Error("else server msg"));
 		}
 	} while (result);
 }
@@ -370,6 +368,9 @@ void	IrcServer::unknown_msg(int fd)
 	{
 		memset(buf, 0, BUFFER_SIZE);
 		result = read_until_crlf(fd, buf, &str_len);
+		// Log
+		std::cout << "[RECV] " << buf << " [" << fd<< "] " << "[unknown]\n";
+		//
 		Message msg(buf);
 		msg.set_source_fd(fd);
 		// cmd = _cmd_creator.get_command(msg.get_command());
@@ -531,15 +532,16 @@ void		IrcServer::add_fd_map(const std::string &key, int fd)
 void		IrcServer::show_global_user()
 {
 	std::map<std::string, Member *>::iterator iter = _global_user.begin();
-	std::cout << "nickname	mode	username	hostname	servername	realname	fd\n";
+	std::cout << "nickname	username	fd\n";
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
-		std::cout << member->get_nick() << "\t" << member->get_mode() << "\t" << member->get_username() << "\t";
-		std::cout << member->get_hostname() << "\t" << member->get_servername() << "\t" << member->get_realname() << "\t";
+		std::cout << member->get_nick() << "\t" << member->get_username() << "\t";
+		//std::cout << member->get_hostname() << "\t" << member->get_servername() << "\t" << member->get_realname() << "\t";
 		std::cout << member->get_fd() << "\n";
 		iter++;
 	}
 	std::cout << "===============================================================\n";
 	return ;
 }
+

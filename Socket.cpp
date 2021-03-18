@@ -106,6 +106,7 @@ Socket*		Socket::accept() const
 
 void		Socket::write(char const *msg) const
 {
+	std::cout << "[SEND] " << msg << " [" << _fd << "] " << "[" << show_type() << "]\n";
 	::write(_fd, msg, strlen(msg));
 }
 
@@ -154,6 +155,10 @@ const char		*Socket::show_type() const
 		return ("Server");
 	else if (_type == CLIENT)
 		return ("Client");
-	else
+	else if (_type == LISTEN)
+		return ("Listen");
+	else if (_type == UNKNOWN)
 		return ("Unknown");
+	else
+		return ("not defined type");
 }

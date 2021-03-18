@@ -49,6 +49,31 @@ Message::Message(const char *msg)
 	}
 }
 
+Message::Message(const Message &ref) :
+	_source_fd(ref._source_fd), _dest(ref._dest), _msg(ref._msg), _origin(ref._origin), _paths(ref._paths),
+	_prefix(ref._prefix), _prefix_no_collon(ref._prefix_no_collon), _command(ref._command), _param(ref._param),
+	_size(ref._size), _hopcount(ref._hopcount)
+{}
+
+Message		&Message::operator=(const Message &ref)
+{
+	if (this != &ref)
+	{
+		_source_fd = ref._source_fd;
+		_dest = ref._dest;
+		_msg = ref._msg;
+		_origin = ref._origin;
+		_paths = ref._paths;
+		_prefix = ref._prefix;
+		_prefix_no_collon = ref._prefix_no_collon;
+		_command = ref._command;
+		_param = ref._param;
+		_size = ref._size;
+		_hopcount = ref._hopcount;
+	}
+	return (*this);
+}
+
 Message::~Message()
 {
 }

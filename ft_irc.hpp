@@ -41,6 +41,7 @@ private:
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
 	
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
+	
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
 	// 0	aaa			...			...				| 5

@@ -53,6 +53,8 @@ private:
 public:
 	Message();
 	Message(const char *msg);
+	Message(const Message &ref);
+	Message	&operator=(const Message &ref);
 	~Message();
 	void			get_info();
 	const int		get_size();
