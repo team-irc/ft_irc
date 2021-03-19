@@ -40,12 +40,15 @@
 | I(i) | 초대 전용 플래그를 자동으로 무시하도록 초대 마스크를 설정/제거 | - 해당 마스크에 일치하는 유저는 invite가 없어도 접속 가능
 */
 
+// 채널 생성한 멤버에 관리자/생성자 권한 부여
+
+
 class Channel
 {
 private:
 	const std::string				_name;
 	std::string						_key;
-	std::vector<Member>				_member;
+	std::vector<Member *>			_member;
 	std::vector<char>				_mode;
 	//								_properties.op_members;
 	//								_properties.create_member;
@@ -53,14 +56,14 @@ private:
 	//								_properties.mode;
 	
 public:
-	Channel(const std::string channel_name, const std::string key, const Member &first_member);
-	Channel(const std::string channel_name, const Member &first_member);
+	Channel(const std::string channel_name, const std::string key, Member *first_member);
+	Channel(const std::string channel_name, Member *first_member);
 	Channel(const Channel & other);
 	Channel & operator = (const Channel & other);
 	~Channel();
 public:
-	void add_member(const Member member);
-	
+	void add_member(Member *member);
+	std::vector<Member *> get_members();
 };
 
 #endif

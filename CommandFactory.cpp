@@ -3,6 +3,9 @@
 #include "NickCommand.hpp"
 #include "UserCommand.hpp"
 #include "PassCommand.hpp"
+#include "JoinCommand.hpp"
+#include "PartCommand.hpp"
+#include "PrivmsgCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -11,6 +14,9 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("PASS", new PassCommand()));
 	_map.insert(std::pair<std::string, Command *>("USER", new UserCommand()));
 	_map.insert(std::pair<std::string, Command *>("NICK", new NickCommand()));
+	_map.insert(std::pair<std::string, Command *>("JOIN", new JoinCommand()));
+	// _map.insert(std::pair<std::string, Command *>("PART", new PartCommand()));
+	_map.insert(std::pair<std::string, Command *>("PRIVMSG", new PrivmsgCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

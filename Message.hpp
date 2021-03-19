@@ -61,6 +61,7 @@ public:
 	const char		*get_msg();
 	const char		*get_origin() const;
 	const std::string &get_param(int idx) const;
+	const int		get_param_size() const;
 	void			set_param_at(int idx, const std::string &val);
 	void			set_prefix(const std::string &prefix);
 	const std::string &get_prefix() const;

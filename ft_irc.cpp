@@ -274,6 +274,7 @@ void	IrcServer::client_msg(int fd)
 	char			buf[BUFFER_SIZE];
 	int				str_len = 0;
 	int				result;
+	Command			*cmd;
 
 	do
 	{
@@ -282,6 +283,11 @@ void	IrcServer::client_msg(int fd)
 		// Log
 		std::cout << "[RECV] " << buf << " [" << fd<< "] " << "[client]\n";
 		//
+		Message msg(buf);
+		msg.set_source_fd(fd);
+		cmd = _cmd_creator.get_command(msg.get_command());
+		if (cmd)
+			cmd->set_message(msg);
 		if (str_len == 0)
 		{
 			_socket_set.remove_socket(_socket_set.find_socket(fd));
@@ -291,7 +297,11 @@ void	IrcServer::client_msg(int fd)
 		}
 		else // CHANNEL 
 		{
-			echo_msg(fd, buf, str_len);
+			if (cmd)
+				cmd->run(*this);
+			else
+				_current_sock->write("ERR_NO SUCH COMMAND\n");
+				// :irc.example.net 421 a hello :Unknown command
 		}
 	} while (result);
 }
@@ -342,7 +352,7 @@ void	IrcServer::server_msg(int fd)
 		}
 		else // CHANNEL 
 		{
-			std::cout << "Unknown Command: " << msg.get_command() << std::endl;
+			_current_sock->write("ERR_NO SUCH COMMAND\n");
 			// throw(Error("else server msg"));
 		}
 	} while (result);
@@ -500,6 +510,16 @@ Member		*IrcServer::get_member(std::string nick)
 	return (_global_user.find(nick)->second);
 }
 
+Channel		*IrcServer::get_channel(std::string channel_name)
+{
+	std::map<std::string, Channel *>::iterator it = _global_channel.find(channel_name);
+
+	if (_global_channel.end() == it)
+		return (NULL);
+	else
+		return (it->second);
+}
+
 // 해당 fd를 키로 가지는 값
 Member		*IrcServer::get_member(int fd)
 {
@@ -522,6 +542,11 @@ int			IrcServer::get_fdmax()
 void		IrcServer::add_member(std::string &nickname, Member *new_member)
 {
 	_global_user.insert(std::pair<std::string, Member *>(nickname, new_member));
+}
+
+void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
+{
+	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
 }
 
 void		IrcServer::add_fd_map(const std::string &key, int fd)

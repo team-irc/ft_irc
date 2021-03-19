@@ -1,14 +1,16 @@
 #include "Channel.hpp"
 
-Channel::Channel(const std::string channel_name, const std::string key, const Member & first_member)
-	: _name(channel_name), _key(key), _member(std::vector<Member>())
+Channel::Channel(const std::string channel_name, const std::string key, Member *first_member)
+	: _name(channel_name), _key(key)
 {
+	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(first_member);
 };
 
-Channel::Channel(const std::string channel_name, const Member & first_member)
-	: _name(channel_name), _member(std::vector<Member>())
+Channel::Channel(const std::string channel_name, Member *first_member)
+	: _name(channel_name)
 {
+	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(first_member);
 };
 
@@ -25,10 +27,13 @@ Channel & Channel::operator = (const Channel & other)
 
 Channel::~Channel()
 {
-	_member.clear();
+	// _member.clear();
 };
 
-void Channel::add_member(const Member member)
+void Channel::add_member(Member *member)
 {
 	_member.push_back(member);
 };
+
+std::vector<Member *>	Channel::get_members()
+{ return (_member); }

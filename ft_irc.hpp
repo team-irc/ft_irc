@@ -19,7 +19,7 @@
 #include "Message.hpp"
 #include "CommandFactory.hpp"
 #include "Member.hpp"
-// #include "Channel.hpp"
+#include "Channel.hpp"
 
 #define DEBUG 0
 
@@ -41,6 +41,7 @@ private:
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
 	
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
+	std::map<std::string, Channel *>	_global_channel;
 	
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
@@ -59,8 +60,10 @@ public:
 	int					get_fdmax();
 	void				send_msg(int send_fd, const char *msg);
 	void				send_msg_server(int fd, const char *msg);
+	void				add_channel(std::string &channel_name, Channel *channel);
 	void				add_member(std::string &nickname, Member *new_member);
 	void				add_fd_map(const std::string &key, int fd);
+	Channel				*get_channel(std::string channel_name);
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
 	Member				*find_member(int fd);

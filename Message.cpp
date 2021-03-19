@@ -173,6 +173,9 @@ int			Message::insert_string(int start, std::string str)
 	return (idx + start);
 }
 
+const int			Message::get_param_size() const
+{ return (_param.size()); }
+
 const std::string	&Message::get_prefix() const
 {
 	return (_prefix_no_collon);
