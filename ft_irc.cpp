@@ -34,12 +34,6 @@ void	 IrcServer::connect_to_server(char **argv)
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
 		_fd_max = tmp;
-	// if (_fd_max < _socket_set->get_fd())
-	//		_fd_max = _socket_set->get_fd();
-	// _user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
-
-	// test
-	new_socket->show_info();
 
 	std::string		msg = ":test.com SERVER " + std::to_string(_listen_socket->get_port()) +" test\n";
 	new_socket->write(msg.c_str());
@@ -49,41 +43,6 @@ void	 IrcServer::connect_to_server(char **argv)
 	// Channel, USER도 마찬가지로 전송하는거 추가
 	// send_map_data(_listen_socket->get_fd());
 }
-
-/*
-** 1번 서버에 2번 서버가 연결 요청
-** socket함수 호출
-** sockaddr_in 구조체에 값 채워넣음
-** 1번 서버와 2번 서버 connect로 연결
-** 연결 되면 password 확인
-** password 틀리면 연결 끊고 종료
-*/
-
-struct sockaddr_in	IrcServer::parsing_host_info(char **argv)
-{
-	std::string *		split_ret;
-	std::string			string_host;
-	std::string			string_port_network;
-	// password 관련 처리 방법 필요함 
-	std::string			string_password_network;
-	struct sockaddr_in	host;
-	struct addrinfo		*result;
-
-	ft::split(argv[1], ':', split_ret);
-	string_host = split_ret[0];
-	string_port_network = split_ret[1];
-	string_password_network = split_ret[2];
-	host.sin_family = AF_INET;
-	host.sin_addr.s_addr = inet_addr(string_host.c_str());
-	host.sin_port = htons(ft::atoi(string_port_network.c_str()));
-	if (host.sin_addr.s_addr == -1)
-		Error("inet_addr() error");
-	if (getaddrinfo(string_host.c_str(), string_port_network.c_str(), NULL, &result) != 0)
-		Error("getaddrinfo() error");
-	freeaddrinfo(result);
-	delete[] split_ret;
-	return (host);
-};
 
 void	IrcServer::client_connect()
 {
@@ -302,6 +261,7 @@ void	IrcServer::client_msg(int fd)
 			else
 				_current_sock->write("ERR_NO SUCH COMMAND\n");
 				// :irc.example.net 421 a hello :Unknown command
+			show_global_channel();
 		}
 	} while (result);
 }
@@ -349,6 +309,7 @@ void	IrcServer::server_msg(int fd)
 			// send_map_data(_listen_socket->get_fd());
 			// Member에서 제거도 해야 됨
 			show_global_user();
+			show_global_channel();
 		}
 		else // CHANNEL 
 		{
@@ -487,6 +448,7 @@ void	IrcServer::run(int argc)
 	}
 }
 
+// fd를 가지고 있는 멤버를 반환
 Member		*IrcServer::find_member(int fd)
 {
 	std::map<std::string, Member *>::iterator begin = _global_user.begin();
@@ -561,7 +523,7 @@ void		IrcServer::show_global_user()
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
-		std::cout << member->get_nick() << "\t" << member->get_username() << "\t";
+		std::cout << member->get_nick() << "\t\t" << member->get_username() << "\t\t\t";
 		//std::cout << member->get_hostname() << "\t" << member->get_servername() << "\t" << member->get_realname() << "\t";
 		std::cout << member->get_fd() << "\n";
 		iter++;
@@ -570,3 +532,27 @@ void		IrcServer::show_global_user()
 	return ;
 }
 
+void		IrcServer::show_global_channel()
+{
+	std::map<std::string, Channel *>::iterator iter = _global_channel.begin();
+	std::vector<Member *>	member_vector;
+
+	std::cout << "channel_name	users\n";
+	while (iter != _global_channel.end())
+	{
+		std::cout << (*iter).first << "\t";
+	
+		member_vector = (*iter).second->get_members();
+		std::vector<Member *>::iterator		member_iter;
+		member_iter = member_vector.begin();
+		while (member_iter != member_vector.end())
+		{
+			std::cout << (*member_iter)->get_nick() << "\t";
+			member_iter++;
+		}
+		iter++;
+		std::cout << "\n";
+	}
+	std::cout << "===============================================================\n";
+	return ;
+}

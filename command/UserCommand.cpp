@@ -31,6 +31,12 @@ void	UserCommand::run(IrcServer &irc)
 	{
 		// 다른 서버에서 전송된 경우, NICk이 우선적으로 전송되기 때문에 map에 있는 상태
 		member = irc.get_member(prefix);
+		if (member == NULL)
+		{
+			member = new Member(prefix, _msg.get_param(0), _msg.get_param(1), _msg.get_param(2), _msg.get_param(3), 0);
+			member->set_fd(irc.get_current_socket()->get_fd());
+			irc.add_member(prefix, member);
+		}
 		insert_info(member, irc);
 	}
 	std::cout << "User command executed.\n";

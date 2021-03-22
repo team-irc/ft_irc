@@ -27,6 +27,19 @@ Socket::Socket(unsigned short port)
 	_addr.sin_port = port;
 }
 
+Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
+{
+}
+
+Socket&			Socket::operator=(Socket const &copy)
+{
+	if (_fd)
+		close(_fd);
+	_fd = copy._fd;
+	_addr = copy._addr;
+	return (*this);
+}
+
 Socket::~Socket()
 {
 	close(_fd);
@@ -43,6 +56,15 @@ void	Socket::listen() const
 	if (::listen(_fd, 5) == -1)
 		throw (Error("socket listen error"));
 }
+
+/*
+** 1번 서버에 2번 서버가 연결 요청
+** socket함수 호출
+** sockaddr_in 구조체에 값 채워넣음
+** 1번 서버와 2번 서버 connect로 연결
+** 연결 되면 password 확인
+** password 틀리면 연결 끊고 종료
+*/
 
 // first: host
 // second: password
@@ -124,7 +146,8 @@ int			Socket::get_fd() const
 
 unsigned short	Socket::get_port() const
 {
-	return (ntohs(_addr.sin_port));}
+	return (ntohs(_addr.sin_port));
+}
 
 void			Socket::set_type(SOCKET_TYPE type)
 {
@@ -134,19 +157,6 @@ void			Socket::set_type(SOCKET_TYPE type)
 SOCKET_TYPE		Socket::get_type() const
 {
 	return (_type);
-}
-
-Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
-{
-}
-
-Socket&			Socket::operator=(Socket const &copy)
-{
-	if (_fd)
-		close(_fd);
-	_fd = copy._fd;
-	_addr = copy._addr;
-	return (*this);
 }
 
 const char		*Socket::show_type() const

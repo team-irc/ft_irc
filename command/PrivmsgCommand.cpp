@@ -42,14 +42,19 @@ void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
 	std::vector<Member *>	members = channel.get_members();
 	std::vector<Member *>::iterator begin = members.begin();
 	std::vector<Member *>::iterator end = members.end();
-	SocketSet	ss = irc.get_socket_set();
 	int			fd;
+	std::string	prefix;
 
 	add_prefix(irc);
+	prefix = _msg.get_prefix().substr(0, _msg.get_prefix().find('!'));
 	while (begin != end)
 	{
 		fd = (*begin)->get_fd();
-		(ss.find_socket(fd))->write(_msg.get_msg());
+		// 해당 메시지를 보낸 유저에는 메시지를 전송하지 않아야 함
+		// 채널 내에 있을 수도 있고 없을 수도 있음(prefix로 구분?)
+		if (((*begin)->get_nick() != prefix) &&
+			((*begin)->get_fd() != _msg.get_source_fd()))
+			(irc.get_socket_set().find_socket(fd))->write(_msg.get_msg());
 		begin++;
 	}
 }
@@ -81,10 +86,20 @@ void			PrivmsgCommand::run(IrcServer &irc)
 	}
 	else
 	{
-		// error_msg
-		// :irc.example.net 411 usera :No recipient given (privmsg)
+		
+		// Error	err(ERR_NOSUCHNICK);
+		// err.add_param(nickname);
+		// err.add_param(channel);
+		// socket->write(err.get_msg());
+		// 
 		err = ":servername 411 " + (irc.find_member(_msg.get_source_fd()))->get_nick() + " :No recipient given (privmsg)\n";
 		(irc.get_current_socket())->write(err.c_str());
 	}
+	std::cout << "Privmsg executed" << std::endl;
 	// delete[] recvs;
 }
+
+// privmsg #hi hihi
+// :irc.example.net 401 a #hi :No such nick or channel name
+// nick 11
+// :irc.example.net 432 a 11 :Erroneous nickname

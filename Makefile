@@ -32,6 +32,8 @@ SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 $(NAME) : $(SRCS)
 	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -g
 
+sanitize : $(SRCS)
+	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -fsanitize=address
 # %.o : %.c
 # 		$(CC) -o $@ -c $^ -I $(HEADER_DIR) -I ./command
 

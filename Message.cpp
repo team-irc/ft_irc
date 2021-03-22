@@ -4,7 +4,7 @@ Message::Message() :
 	_prefix(std::string()), _command(std::string()), _param(std::vector<std::string>()), _size(0)
 {}
 
-void		remove_crlf(std::string *str)
+void remove_crlf(std::string *str)
 {
 	if (str->at(str->size() - 1) == ASCII_CONST::CR || str->at(str->size() - 1) == ASCII_CONST::LF)
 		str->resize(str->size() - 1);
@@ -15,38 +15,37 @@ Message::Message(const char *msg)
 	int		idx = 0;
 	// msg를 받아서 prefix, command, param으로 분리
 	idx = 0;
-	if (msg != NULL)
+	if (msg == NULL)
+		return ;
+	_origin = msg;
+	std::string *arr;
+	int size = ft::split(msg, ' ', arr);
+	if (msg[0] == ':')
 	{
-		_origin = msg;
-		std::string *arr;
-		int size = ft::split(msg, ' ', arr);
-		if (msg[0] == ':')
-		{
-			_prefix = arr[idx++];
-			_prefix_no_collon = _prefix.substr(1);
-		}
-		for (int i = 0; i < arr[idx].size(); i++)
-			arr[idx][i] = std::toupper(arr[idx][i]);
-		_command = arr[idx++];
-		std::string param;
-		while (idx < size)
-		{
-			param = arr[idx];
-			if (param.at(0) == ':')
-			{
-				idx++;
-				for (; idx < size; idx++)
-				{
-					param += " ";
-					param += arr[idx];
-				}
-			}
-			remove_crlf(&param);
-			_param.push_back(param);
-			idx++;
-		}
-		delete[] arr;
+		_prefix = arr[idx++];
+		_prefix_no_collon = _prefix.substr(1);
 	}
+	for (int i = 0; i < arr[idx].size(); i++)
+		arr[idx][i] = std::toupper(arr[idx][i]);
+	_command = arr[idx++];
+	std::string param;
+	while (idx < size)
+	{
+		param = arr[idx];
+		if (param.at(0) == ':')
+		{
+			idx++;
+			for (; idx < size; idx++)
+			{
+				param += " ";
+				param += arr[idx];
+			}
+		}
+		remove_crlf(&param);
+		_param.push_back(param);
+		idx++;
+	}
+	delete[] arr;
 }
 
 Message::Message(const Message &ref) :
@@ -114,7 +113,7 @@ void		Message::set_param_at(int idx, const std::string &val)
 
 void		Message::set_prefix(const std::string &prefix)
 {
-	if (prefix.empty())
+	if (_prefix.empty())
 	{
 		_prefix = ":";
 		_prefix += prefix;

@@ -45,6 +45,7 @@ void	NickCommand::run(IrcServer &irc)
 			member->set_nick(nickname);
 			_msg.get_param(1);
 			_msg.set_param_at(1, "");
+			_msg.set_prefix(nickname);
 
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 
@@ -69,6 +70,7 @@ void	NickCommand::run(IrcServer &irc)
 			member = new Member();
 			member->set_nick(nickname);
 			member->set_fd(socket->get_fd());
+			_msg.set_prefix(nickname);
 			irc.add_member(nickname, member);
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
