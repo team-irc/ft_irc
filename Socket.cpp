@@ -93,11 +93,14 @@ std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *conne
 // 127.0.0.1:port:pass
 Socket	*Socket::connect(char *connect_srv) const
 {
-	Socket				*new_sock;
-	struct sockaddr_in	serv_addr;
+	Socket										*new_sock;
+	struct sockaddr_in							serv_addr;
+	std::pair<struct sockaddr_in, std::string>	pair;
 
 	memset(&serv_addr, 0, sizeof(serv_addr));
-	serv_addr = parsing_host_info(connect_srv).first;
+	pair = parsing_host_info(connect_srv);
+	serv_addr = pair.first;
+	_pass = pair.second;
 	
 	new_sock = new Socket(serv_addr.sin_port);
 	if (new_sock->_fd == -1)

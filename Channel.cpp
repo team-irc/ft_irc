@@ -35,5 +35,21 @@ void Channel::add_member(Member *member)
 	_member.push_back(member);
 };
 
+void Channel::delete_member(Member *member)
+{
+	std::vector<Member *>::iterator	first;
+	std::vector<Member *>::iterator	last;
+
+	first = _member.begin();
+	last = _member.end();
+	while (first != last)
+	{
+		if (*first == member)
+			return (_member.erase(first));
+		++first;
+	}
+	return (_member.end());
+};
+
 std::vector<Member *>	Channel::get_members()
 { return (_member); }

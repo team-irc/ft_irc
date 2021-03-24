@@ -21,8 +21,10 @@ class Socket
 {
 private:
 	int					_fd;
+	std::string			_pass;
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
+private:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(char *connect) const;
 public:
 	Socket();
@@ -32,17 +34,18 @@ public:
 	Socket& operator=(Socket const &copy);
 	~Socket();
 public:
-	void			bind() const;
-	void			listen() const;
-	Socket			*accept() const;
-	Socket			*connect(char *connect_srv) const;
-	void			write(char const *msg) const;
-	void			show_info() const;
-	int				get_fd() const;
-	unsigned short	get_port() const;
-	void			set_type(SOCKET_TYPE type);
-	SOCKET_TYPE		get_type() const;
-	const char		*show_type() const;
+	void				bind() const;
+	void				listen() const;
+	Socket				*accept() const;
+	Socket				*connect(char *connect_srv) const;
+	void				write(char const *msg) const;
+	void				show_info() const;
+	int					get_fd() const;
+	unsigned short		get_port() const;
+	void				set_type(SOCKET_TYPE type);
+	SOCKET_TYPE			get_type() const;
+	const char			*show_type() const;
+	std::string const	&get_pass() const;
 };
 
 #endif

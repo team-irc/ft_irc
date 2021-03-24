@@ -49,20 +49,27 @@ void	NickCommand::run(IrcServer &irc)
 
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 
-			// USER 메세지 전송
-			std::string		str;
-			str += "USER ";
-			str += member->get_username();
-			str += " ";
-			str += member->get_hostname();
-			str += " ";
-			str += member->get_servername();
-			str += " ";
-			str += member->get_realname();
-		
-			Message		user_msg(str.c_str());
-			user_msg.set_prefix(nickname);
-			irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
+			if (irc.check_pass())
+			{
+				// USER 메세지 전송
+				std::string		str;
+				str += "USER ";
+				str += member->get_username();
+				str += " ";
+				str += member->get_hostname();
+				str += " ";
+				str += member->get_servername();
+				str += " ";
+				str += member->get_realname();
+			
+				Message		user_msg(str.c_str());
+				user_msg.set_prefix(nickname);
+				irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
+			}
+			else
+			{
+				// 연결X + 다른 서버에서도 등록 취소해야 함
+			}
 		}
 		else
 		{

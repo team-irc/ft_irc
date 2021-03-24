@@ -44,12 +44,19 @@ void	UserCommand::run(IrcServer &irc)
 
 void	UserCommand::insert_info(Member *member, IrcServer &irc)
 {
-	member->set_username(_msg.get_param(0));
-	member->set_hostname(_msg.get_param(1));
-	member->set_servername(_msg.get_param(2));
-	member->set_realname(_msg.get_param(3));
-	_msg.set_prefix(member->get_nick());
-	irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
+	if (irc.check_pass())
+	{
+		member->set_username(_msg.get_param(0));
+		member->set_hostname(_msg.get_param(1));
+		member->set_servername(_msg.get_param(2));
+		member->set_realname(_msg.get_param(3));
+		_msg.set_prefix(member->get_nick());
+		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
+	}
+	else
+	{
+		// 연결 안됨 + 등록된 유저 제거 필요
+	}
 }
 
 UserCommand::UserCommand() : Command()

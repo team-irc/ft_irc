@@ -27,6 +27,8 @@ class IrcServer
 {
 private:
 	std::string						_server_name;
+	std::string						_my_pass;
+	std::string						_input_pass;
 	Socket							*_listen_socket;
 	// std::vector<Socket *>		_socket_vector;
 	SocketSet						_socket_set;
@@ -67,6 +69,9 @@ public:
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
 	Member				*find_member(int fd);
+	bool				check_pass();
+	std::string const &	get_input_pass() const;
+	void				set_input_pass(std::string const &key);
 	
 private:
 

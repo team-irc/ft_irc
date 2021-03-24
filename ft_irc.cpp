@@ -4,7 +4,7 @@ IrcServer::IrcServer(int argc, char **argv)
 {
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
-	_listen_socket = new Socket(htons(ft::atoi(argv[argc == 3 ? 2 : 1])));
+	_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
 	// std::cout << "=======\n";
 	_listen_socket->set_type(LISTEN);
 	_fd_max = _socket_set.add_socket(_listen_socket);
@@ -12,8 +12,8 @@ IrcServer::IrcServer(int argc, char **argv)
 
 	_listen_socket->bind();
 	_listen_socket->listen();
-
-	if (argc == 3)
+	_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
+	if (argc == 4)
 		connect_to_server(argv);
 };
 
@@ -34,8 +34,10 @@ void	 IrcServer::connect_to_server(char **argv)
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
 		_fd_max = tmp;
-
-	std::string		msg = ":test.com SERVER " + std::to_string(_listen_socket->get_port()) +" test\n";
+	_my_pass = std::string(argv[3]);
+	// 이 시점에서 PASS 보내고
+	std::string		msg = "PASS " + new_socket->get_pass();
+	std::string		msg = "SERVER " + std::to_string(_listen_socket->get_port()) +" test\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -68,6 +70,14 @@ void	IrcServer::client_connect()
 	// 		send_msg(i, msg.c_str());
 	// }
 	// send_msg(_listen_socket->get_fd(), new_socket->get_fd(), msg.c_str());
+}
+
+bool	IrcServer::check_pass()
+{
+	if (_input_pass == _my_pass)
+		return (true);
+	else
+		return (false);
 }
 
 void	IrcServer::send_msg(int send_fd, const char *msg)
@@ -349,6 +359,7 @@ void	IrcServer::unknown_msg(int fd)
 		
 		std::cout << "test: " << msg.get_command() << std::endl;
 		std::cout << "result: " << result << std::endl;
+		// PASS 받으면 명령어 실행
 		if (msg.get_command() == "SERVER") // COMMAND SERVER msg.get_command() == "SERVER"
 		{
 			cmd = _cmd_creator.get_command(msg.get_command());
@@ -501,9 +512,17 @@ int			IrcServer::get_fdmax()
 	return (_fd_max);
 }
 
+std::string const	&IrcServer::get_input_pass() const { return (_input_pass); }
+void				IrcServer::set_input_pass(std::string const &key) { _input_pass = key; }
+
 void		IrcServer::add_member(std::string &nickname, Member *new_member)
 {
 	_global_user.insert(std::pair<std::string, Member *>(nickname, new_member));
+}
+
+void		IrcServer::delete_member(std::string &nickname)
+{
+	_global_user.erase(nickname);
 }
 
 void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
