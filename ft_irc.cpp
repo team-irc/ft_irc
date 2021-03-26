@@ -11,7 +11,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	_fd_map.insert(std::pair<unsigned short, int>(_listen_socket->get_port(), _listen_socket->get_fd()));
 	_listen_socket->bind();
 	_listen_socket->listen();
-	_server_name = std::string("127.0.0.1-") + std::to_string(_listen_socket->get_port());
+	_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 	_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 	if (argc == 4)
 		connect_to_server(argv);
@@ -38,7 +38,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + std::to_string(_listen_socket->get_port()) +" test\n";
+	msg = "SERVER " + _server_name + " :connect!\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -422,3 +422,6 @@ void		IrcServer::show_global_channel()
 	std::cout << "===============================================================\n";
 	return ;
 }
+
+std::string			IrcServer::get_servername()
+{ return (_server_name); }

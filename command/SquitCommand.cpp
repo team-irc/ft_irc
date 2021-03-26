@@ -3,6 +3,22 @@
 
 void	SquitCommand::run(IrcServer &irc)
 {
+	Socket	*sock = irc.get_current_socket();
+
+	// SQUIT은 서버에서 보내는 메시지라서 다른 타입이면 걍 무시
+	if (sock->get_type() == SERVER)
+	{
+		if (_msg.get_prefix().empty())
+		{
+			// 이 경우는 직접 연결된 서버에서 연결 종료 메시지를 보낸 경우
+			// fd_map과 socketset에서 둘 다 지워야 함
+		}
+		else
+		{
+			// 이 경우는 그냥 전달받은 경우
+			// fd_map에서 해당 포트 번호에 해당하는 값을 지우면 됨
+		}
+	}
 }
 
 SquitCommand::SquitCommand() : Command()
