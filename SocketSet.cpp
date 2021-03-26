@@ -23,6 +23,7 @@ SocketSet::~SocketSet()
 
 	while (begin != end)
 	{
+		FD_CLR((*begin)->get_fd(), &_read);
 		delete (*begin);
 		begin++;
 	}
@@ -86,6 +87,7 @@ void		SocketSet::remove_socket(Socket *del)
 	{
 		if ((*begin)->get_fd() == del->get_fd())
 		{
+			FD_CLR((*begin)->get_fd(), &_read);
 			_vec.erase(begin);
 			return ;
 		}

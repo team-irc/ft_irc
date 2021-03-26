@@ -28,7 +28,6 @@ class IrcServer
 private:
 	std::string						_server_name;
 	std::string						_my_pass;
-	std::string						_input_pass;
 	Socket							*_listen_socket;
 	// std::vector<Socket *>		_socket_vector;
 	SocketSet						_socket_set;
@@ -63,27 +62,26 @@ public:
 	void				send_msg(int send_fd, const char *msg);
 	void				send_msg_server(int fd, const char *msg);
 	void				add_channel(std::string &channel_name, Channel *channel);
-	void				add_member(std::string &nickname, Member *new_member);
+	bool				add_member(std::string &nickname, Member *new_member);
 	void				add_fd_map(const std::string &key, int fd);
+	void				send_map_data(int my_fd);
+	void				delete_member(const std::string &nickname);
 	Channel				*get_channel(std::string channel_name);
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
+	std::map<std::string, Channel *>	&get_global_channel();
 	Member				*find_member(int fd);
-	bool				check_pass();
-	std::string const &	get_input_pass() const;
-	void				set_input_pass(std::string const &key);
+	bool				check_pass(Socket *currnet_socket);
 	
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
 	void				client_msg(int fd);
 	void				unknown_msg(int fd);
-	void				server_msg(int fd);
 	void				client_connect();
 
 	void				connect_to_server(char **argv);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
-	void				send_map_data(int my_fd);
 	void				show_map_data();
 	void				show_global_user();
 	void				show_global_channel();

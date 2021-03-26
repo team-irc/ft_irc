@@ -8,10 +8,10 @@ void	PassCommand::run(IrcServer &irc)
 	
 	if (member)
 		sock->write(":servername 462 *(or nick) :Connection already registered\n");
-	else if (!irc.get_input_pass().empty())
-		sock->write(":servername 462 *(or nick) :Connection already registered\n");
 	else
-		_input_pass = _msg.get_param(0);
+	{
+		sock->set_pass(_msg.get_param(0));
+	}
 }
 
 PassCommand::PassCommand() : Command()

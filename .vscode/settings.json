@@ -61,7 +61,8 @@
 		"utility": "cpp",
 		"vector": "cpp",
 		"__tree": "cpp",
-		"map": "cpp"
+		"map": "cpp",
+		"set": "cpp"
 	},
 	"C_Cpp.errorSquiggles": "Disabled"
 }

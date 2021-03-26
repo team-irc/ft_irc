@@ -91,7 +91,7 @@ std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *conne
 };
 
 // 127.0.0.1:port:pass
-Socket	*Socket::connect(char *connect_srv) const
+Socket	*Socket::connect(char *connect_srv)
 {
 	Socket										*new_sock;
 	struct sockaddr_in							serv_addr;
@@ -100,9 +100,9 @@ Socket	*Socket::connect(char *connect_srv) const
 	memset(&serv_addr, 0, sizeof(serv_addr));
 	pair = parsing_host_info(connect_srv);
 	serv_addr = pair.first;
-	_pass = pair.second;
-	
+
 	new_sock = new Socket(serv_addr.sin_port);
+	new_sock->set_pass(pair.second);
 	if (new_sock->_fd == -1)
 		throw (Error("connect socket create error"));
 	if (::connect(new_sock->_fd, (struct sockaddr *)&new_sock->_addr, sizeof(new_sock->_addr)) == -1)
@@ -151,6 +151,11 @@ unsigned short	Socket::get_port() const
 {
 	return (ntohs(_addr.sin_port));
 }
+
+std::string const	&Socket::get_pass() const
+{ return (_pass); }
+
+void			Socket::set_pass(std::string const &val) { _pass = val; }
 
 void			Socket::set_type(SOCKET_TYPE type)
 {

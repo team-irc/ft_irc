@@ -2,6 +2,7 @@
 # define NICK_COMMAND_HPP
 
 # include "Command.hpp"
+# include "Reply.hpp"
 
 /*
 	Command: NICK

@@ -28,6 +28,7 @@ Message::Message(const char *msg)
 	for (int i = 0; i < arr[idx].size(); i++)
 		arr[idx][i] = std::toupper(arr[idx][i]);
 	_command = arr[idx++];
+	remove_crlf(&_command);
 	std::string param;
 	while (idx < size)
 	{

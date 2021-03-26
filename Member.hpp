@@ -2,16 +2,19 @@
 #define MEMBER_HPP
 
 #include <string>
+#include <set>
+class Channel;
 
 class Member
 {
 private:
-	int				_fd;
-	std::string		_nick;
-	std::string		_username;
-	std::string		_hostname;
-	std::string		_servername;
-	std::string		_realname;
+	int						_fd;
+	std::string				_nick;
+	std::string				_username;
+	std::string				_hostname;
+	std::string				_servername;
+	std::string				_realname;
+	std::set<Channel *>		_joinned_channels;
 
 	// mode i: mark a users as invisible;
 	// mode s: marks a user for receipt of server notices;
@@ -46,6 +49,7 @@ public:
 	void				set_mode(char mode);
 	bool				check_mode(char mode, bool is_set);
 	const bool			is_setting() const;
+	bool				add_channel(Channel *channel);
 };
 
 #endif

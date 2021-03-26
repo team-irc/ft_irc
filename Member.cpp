@@ -1,4 +1,5 @@
 #include "Member.hpp"
+#include "Channel.hpp"
 
 Member::Member()
 {
@@ -35,7 +36,20 @@ Member & Member::operator = (const Member & other)
 
 Member::~Member()
 {
+	std::set<Channel *>::iterator	joinned_channel;
+
+	joinned_channel = _joinned_channels.begin();
+	while (joinned_channel != _joinned_channels.end())
+	{
+		(*joinned_channel)->delete_member(this);
+		joinned_channel++;
+	}
 };
+
+bool				Member::add_channel(Channel *channel)
+{
+	return (_joinned_channels.insert(channel)).second;
+}
 
 const bool			Member::is_setting() const
 {
@@ -73,29 +87,25 @@ bool				Member::check_mode(char mode, bool is_set)
 		{
 			if (_mode & 8)
 				return (false);
-			else
-				return (true);
+			return (true);
 		}
 		else if (mode == 'w')
 		{
 			if (_mode & 4)
 				return (false);
-			else
-				return (true);
+			return (true);
 		}
 		else if (mode == 's')
 		{
 			if (_mode & 2)
 				return (false);
-			else
-				return (true);
+			return (true);
 		}
 		else if (mode == 'o')
 		{
 			if (_mode & 1)
 				return (false);
-			else
-				return (true);
+			return (true);
 		}
 	}
 	else
@@ -104,29 +114,25 @@ bool				Member::check_mode(char mode, bool is_set)
 		{
 			if (_mode & 8)
 				return (true);
-			else
-				return (false);
+			return (false);
 		}
 		else if (mode == 'w')
 		{
 			if (_mode & 4)
 				return (true);
-			else
-				return (false);
+			return (false);
 		}
 		else if (mode == 's')
 		{
 			if (_mode & 2)
 				return (true);
-			else
-				return (false);
+			return (false);
 		}
 		else if (mode == 'o')
 		{
 			if (_mode & 1)
 				return (true);
-			else
-				return (false);
+			return (false);
 		}
 	}
 	return (false);

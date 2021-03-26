@@ -2,7 +2,6 @@
 
 int main(int argc, char **argv)
 {
-	std::cout << argc;
 	try
 	{
 		IrcServer server(argc, argv);
@@ -11,5 +10,9 @@ int main(int argc, char **argv)
 	catch(Error &e)
 	{
 		std::cerr << e.what() << '\n';
+	}
+	catch(char *err)
+	{
+		std::cerr << err << '\n';
 	}
 }

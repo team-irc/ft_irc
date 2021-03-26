@@ -1,5 +1,6 @@
 #include "KickCommand.hpp"
 
+
 void KickCommand::run(IrcServer &irc)
 {
 	Socket		*socket;
@@ -8,15 +9,17 @@ void KickCommand::run(IrcServer &irc)
 	std::string	comment;
 
 	socket = irc.get_current_socket();
-
+	if (socket->get_type() == SOCKET_TYPE::UNKNOWN)
+		return ; //err
 	if (_msg.get_param_size() < 2)
-		socket->write(Reply(ERR_NEEDMOREPARAMS).get_msg());
+		return (socket->write(Reply(ERR::NEEDMOREPARAMS).get_msg()));
 
-	if (irc._global_channel.find(_msg.get_param(0)) == _global_channel.end())
-		socket->write(Reply(ERR_NOSUCHANNEL).get_msg());
+	if (!(channel = irc.get_channel(_msg.get_param(0))))
+		return (socket->write(Reply(ERR::NOSUCHANNEL).get_msg()));
 
-	channel = irc._global_channel.find(_msg.get_param(0)).second;
-	member = irc._global_user.find(_msg.get_param(1)).second;
+	if (!(member = irc.get_member(_msg.get_param(1))))
+		return ;
+
 	if (_msg.get_param_size() == 3)
 		comment = _msg.get_param(2);
 	else

@@ -45,11 +45,14 @@ void Channel::delete_member(Member *member)
 	while (first != last)
 	{
 		if (*first == member)
-			return (_member.erase(first));
+			return ;
 		++first;
 	}
-	return (_member.end());
+	return ;
 };
 
 std::vector<Member *>	Channel::get_members()
 { return (_member); }
+
+const std::string & 	Channel::get_name()
+{ return (_name); }

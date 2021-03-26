@@ -11,51 +11,69 @@ void	UserCommand::run(IrcServer &irc)
 {
 	std::string	prefix = _msg.get_prefix();
 	Member	*member;
+	Socket	*sock = irc.get_current_socket();
 
-	if (prefix.empty())
+	if (sock->get_type() == UNKNOWN)
 	{
-		// 자신에게 연결된 클라이언트에서 전송된 경우
 		member = irc.find_member(irc.get_current_socket()->get_fd());
-		if (member)
-			insert_info(member, irc);
+		if (member) // NICK이 먼저 들어온 경우
+		{
+			insert_info(member, irc);	
+		}
 		else
 		{
-			// fd가 키 값으로 map에 삽입됨, 전송은 하지 않음(nick이 없으므로)
+			// fd가 키 값으로 map에 삽입됨, 전송은 하지 않음(nick이 없으므로), 전송은 NICK에서
 			std::string	key = std::to_string(irc.get_current_socket()->get_fd());
 			member = new Member(key, _msg.get_param(0), _msg.get_param(1), _msg.get_param(2), _msg.get_param(3), 0);
 			member->set_fd(irc.get_current_socket()->get_fd());
-			irc.add_member(key, member);
+			if (!irc.add_member(key, member)) {
+				// KILL 메시지 전송
+			}
 		}
 	}
-	else
+	else if (sock->get_type() == CLIENT)
 	{
-		// 다른 서버에서 전송된 경우, NICk이 우선적으로 전송되기 때문에 map에 있는 상태
-		member = irc.get_member(prefix);
-		if (member == NULL)
-		{
-			member = new Member(prefix, _msg.get_param(0), _msg.get_param(1), _msg.get_param(2), _msg.get_param(3), 0);
-			member->set_fd(irc.get_current_socket()->get_fd());
-			irc.add_member(prefix, member);
-		}
-		insert_info(member, irc);
+		irc.get_current_socket()->write(":servername 462 *(or nick) :Connection already registered\n");
 	}
-	std::cout << "User command executed.\n";
+	else if (sock->get_type() == SERVER)
+	{
+		//SERVER에서 들어오는 경우, NICK->USER 순서이므로 이 단계에서 이미 NICK이 등록 됨
+		member = irc.get_member(prefix);
+		if (member)
+		{
+			// nick 내부에서 ADD_MEMBER에 대한 처리를 했으므로 정보 업데이트만 하면 됨
+			insert_info(member, irc);
+		}
+	}
 }
 
 void	UserCommand::insert_info(Member *member, IrcServer &irc)
 {
-	if (irc.check_pass())
+	if (irc.get_current_socket()->get_type() == UNKNOWN && irc.check_pass(irc.get_current_socket()))
+	{
+		// user 메시지 전송
+		member->set_username(_msg.get_param(0));
+		member->set_hostname(_msg.get_param(1));
+		member->set_servername(_msg.get_param(2));
+		member->set_realname(_msg.get_param(3));
+		// NICK 메시지 전송
+		std::string msg = "NICK " + member->get_nick() + " 0\n";
+		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
+
+		_msg.set_prefix(member->get_nick());
+		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
+		irc.get_socket_set().change_socket_type(irc.get_current_socket()->get_fd(), CLIENT);
+	}
+	else if (irc.get_current_socket()->get_type() == SERVER)
 	{
 		member->set_username(_msg.get_param(0));
 		member->set_hostname(_msg.get_param(1));
 		member->set_servername(_msg.get_param(2));
 		member->set_realname(_msg.get_param(3));
+		std::string msg = "NICK " + member->get_nick() + " 0\n";
+		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
 		_msg.set_prefix(member->get_nick());
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
-	}
-	else
-	{
-		// 연결 안됨 + 등록된 유저 제거 필요
 	}
 }
 

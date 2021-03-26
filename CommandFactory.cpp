@@ -6,6 +6,8 @@
 #include "JoinCommand.hpp"
 #include "PartCommand.hpp"
 #include "PrivmsgCommand.hpp"
+#include "QuitCommand.hpp"
+#include "NamesCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -15,6 +17,8 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("USER", new UserCommand()));
 	_map.insert(std::pair<std::string, Command *>("NICK", new NickCommand()));
 	_map.insert(std::pair<std::string, Command *>("JOIN", new JoinCommand()));
+	_map.insert(std::pair<std::string, Command *>("QUIT", new QuitCommand()));
+	_map.insert(std::pair<std::string, Command *>("NAMES", new NamesCommand()));
 	// _map.insert(std::pair<std::string, Command *>("PART", new PartCommand()));
 	_map.insert(std::pair<std::string, Command *>("PRIVMSG", new PrivmsgCommand()));
 }

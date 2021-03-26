@@ -37,7 +37,7 @@ public:
 	void				bind() const;
 	void				listen() const;
 	Socket				*accept() const;
-	Socket				*connect(char *connect_srv) const;
+	Socket				*connect(char *connect_srv);
 	void				write(char const *msg) const;
 	void				show_info() const;
 	int					get_fd() const;
@@ -46,6 +46,7 @@ public:
 	SOCKET_TYPE			get_type() const;
 	const char			*show_type() const;
 	std::string const	&get_pass() const;
+	void				set_pass(std::string const &val);
 };
 
 #endif
