@@ -72,6 +72,7 @@ public:
 	std::map<std::string, Channel *>	&get_global_channel();
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
+	std::string			get_servername();
 	
 private:
 
