@@ -1,33 +1,48 @@
 #include "SquitCommand.hpp"
 #include "ft_irc.hpp"
 
+void			find_squit_server(IrcServer &irc, int fd)
+{
+	std::map<std::string, int>::iterator	begin = _fd_map.begin();
+	std::map<std::string, int>::iterator	end = _fd_map.end();
+
+	while (begin != end)
+	{
+		if (begin->second == fd)
+		{
+			irc.delete_fd_map(begin->first);
+		}
+		begin++;
+	}
+}
+
 void	SquitCommand::run(IrcServer &irc)
 {
-	Socket	*sock = irc.get_current_socket();
-	unsigned short		port;
+	Socket				*sock = irc.get_current_socket();
+	std::string			servername;
 	int					fd = irc.get_current_socket()->get_fd();
-	std::string			msg = "";
 
 	// SQUIT은 서버에서 보내는 메시지라서 다른 타입이면 걍 무시
 	if (sock->get_type() == SERVER)
 	{
-		if (_msg.get_prefix().empty())
+		if (_msg.get_prefix().empty()) // 직접 연결된 서버에서 SQUIT 하는 경우
 		{
-			port = irc.get_current_socket()->get_port();
-			// 이 경우는 직접 연결된 서버에서 연결 종료 메시지를 보낸 경우
 			// fd_map과 socketset에서 둘 다 지워야 함
-			irc.delete_fd_map(port);
-			irc.get_socket_set().remove_socket(irc.get_current_socket());
-			msg += ":" + std::to_string(port) + " " + _msg.get_msg();
+			irc.get_socket_set().remove_socket(sock);
+			delete sock;
+														// 1. 해당 fd를 가진 모든 서버를 fd_map에서 제거 (+ 유저맵에서 제거)
+														// 2. 해당 소켓 제거
+														// 3. 다른 서버에 프리픽스 추가해서 SQUIT 전송
+														// (4. 다른 서버에 유저 QUIT 전송?)
 		}
-		else
+		servername = _msg.get_param(0);
+		irc.delete_fd_map(servername);
+		_msg.set_prefix(irc.get_servername());
+		irc.send_msg_server(fd, _msg.c_str());
+		else // 직접 연결되지 않은 서버가 SQUIT 한 경우
 		{
-			// 이 경우는 그냥 전달받은 경우
-			// fd_map에서 해당 포트 번호에 해당하는 값을 지우면 됨
-			port = ft::atoi(_msg.get_prefix().c_str());
-			irc.delete_fd_map(port);
+
 		}
-		irc.send_msg_server(fd, msg.c_str());
 	}
 }
 

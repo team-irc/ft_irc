@@ -36,11 +36,12 @@ private:
 	CommandFactory					_cmd_creator;
 
 	// 연결된 서버/클라이언트에 접근하기 위한 fd 제공
-	std::map<unsigned short, int>	_fd_map;
+	std::map<std::string, int>	_fd_map;
 	// irc 네트워크상에 있는 유저의 정보 저장
 	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
 	
+	std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
 	
@@ -66,6 +67,7 @@ public:
 	void				add_fd_map(const std::string &key, int fd);
 	void				send_map_data(int my_fd);
 	void				delete_member(const std::string &nickname);
+	void				delete_fd_map(std::string const &key);
 	Channel				*get_channel(std::string channel_name);
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
@@ -73,6 +75,7 @@ public:
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();
+	void				sigint_handler();
 	
 private:
 

@@ -7,6 +7,9 @@
 // 1-1. 있으면 정보 삽입, 다른 서버에 nick을 prefix로 하는 user 메시지 전송
 // 1-2. 없으면 fd를 키로 map에 삽입, 다른 서버에 전송은 하지 않음
 // param : :prefix USER username hostname servername realname
+
+int		valid_check(std::string &)
+
 void	UserCommand::run(IrcServer &irc)
 {
 	std::string	prefix = _msg.get_prefix();

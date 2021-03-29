@@ -4,16 +4,19 @@ IrcServer::IrcServer(int argc, char **argv)
 {
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
-	_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
-	// std::cout << "=======\n";
-	_listen_socket->set_type(LISTEN);
-	_fd_max = _socket_set.add_socket(_listen_socket);
-	_fd_map.insert(std::pair<unsigned short, int>(_listen_socket->get_port(), _listen_socket->get_fd()));
-	_listen_socket->bind();
-	_listen_socket->listen();
-	_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
-	_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 	if (argc == 4)
+	{
+		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
+		// std::cout << "=======\n";
+		_listen_socket->set_type(LISTEN);
+		_fd_max = _socket_set.add_socket(_listen_socket);
+		_listen_socket->bind();
+		_listen_socket->listen();
+		_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
+		_fd_map.insert(std::pair<std::string, int>(_server_name, _listen_socket->get_fd()));
+		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
+	}
+	if (argc == 5)
 		connect_to_server(argv);
 };
 
@@ -82,8 +85,8 @@ void	IrcServer::send_msg(int send_fd, const char *msg)
 // map 변경 예정(fd_map -> server만 가지는 map으로)
 void	IrcServer::send_msg_server(int fd, const char *msg)
 {
-	std::map<unsigned short, int>::iterator begin = _fd_map.begin();
-	std::map<unsigned short, int>::iterator end = _fd_map.end();
+	std::map<std::string, int>::iterator begin = _fd_map.begin();
+	std::map<std::string, int>::iterator end = _fd_map.end();
 
 	while (begin != end)
 	{
@@ -117,16 +120,16 @@ void	IrcServer::send_map_data(int fd)
 {
 	if (DEBUG)
 		std::cout << "send_map_data called." << std::endl;
-	std::map<unsigned short, int>::iterator begin;
-	std::map<unsigned short, int>::iterator end;
+	std::map<std::string, int>::iterator begin;
+	std::map<std::string, int>::iterator end;
 
 	begin = _fd_map.begin();
 	end = _fd_map.end();
 	while (begin != end)
 	{
 		// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
-		std::cout << "begin: " << std::to_string(begin->first) << std::endl;
-		std::string msg = ":" + std::to_string(_listen_socket->get_port()) + " SERVER " + std::to_string(begin->first) + " hop :port\n";
+		std::cout << "begin: " << begin->first << std::endl;
+		std::string msg = ":" + std::to_string(_listen_socket->get_port()) + " SERVER " + begin->first + " hop :port\n";
 		// for (int i = 3; i < _fd_max + 1; i++)
 		// { 
 		// 		if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds())
@@ -141,13 +144,13 @@ void	IrcServer::send_map_data(int fd)
 
 void	IrcServer::show_map_data()
 {
-	std::map<unsigned short, int>::iterator begin = _fd_map.begin();
-	std::map<unsigned short, int>::iterator end = _fd_map.end();
+	std::map<std::string, int>::iterator begin = _fd_map.begin();
+	std::map<std::string, int>::iterator end = _fd_map.end();
 
 	std::cout << "============MAP DATA=============\n";
 	while (begin != end)
 	{
-		std::cout << "key(port): " << begin->first << std::endl;
+		std::cout << "key(server name): " << begin->first << std::endl;
 		std::cout << "value(fd): " << begin->second << std::endl;
 		std::cout << "-----------------\n";
 		begin++;
@@ -237,7 +240,11 @@ void	IrcServer::client_msg(int fd)
 		std::cout << "[RECV] " << buf << " [" << fd<< "] " << "[" << _current_sock->show_type() << "]\n";
 		if (buf[0] == 0) // 클라이언트에서 Ctrl + C 입력한 경우
 		{	// 해당 클라이언트와 연결 종료
-			cmd = _cmd_creator.get_command("QUIT");
+			std::string msg;
+			if (_current_sock->get_type() == SERVER)
+				cmd = _cmd_creator.get_command("SQUIT");
+			else
+				cmd = _cmd_creator.get_command("QUIT");
 			cmd->run(*this);
 			return ;
 		}
@@ -372,6 +379,11 @@ void		IrcServer::delete_member(const std::string &nickname)
 	_global_user.erase(nickname);
 }
 
+void		IrcServer::delete_fd_map(std::string const &key)
+{
+	_fd_map.erase(key);
+}
+
 void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
@@ -379,7 +391,7 @@ void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
 
 void		IrcServer::add_fd_map(const std::string &key, int fd)
 {
-	_fd_map.insert(std::pair<unsigned short, int>((unsigned short)ft::atoi(key.c_str()), fd));
+	_fd_map.insert(std::pair<std::string, int>(key, fd));
 }
 
 void		IrcServer::show_global_user()
@@ -425,3 +437,15 @@ void		IrcServer::show_global_channel()
 
 std::string			IrcServer::get_servername()
 { return (_server_name); }
+
+void				IrcServer::sigint_handler()
+{
+	std::string		msg;
+	Command			*cmd;
+
+	msg = "SQUIT" + _server_name + " :SIGINT\n";
+	cmd = _cmd_creator.get_command("SQUIT");
+	cmd->set_message(Message(msg.c_str()));
+	cmd->run(*this);
+	// 사용한 메모리들 정리 작업 추가
+}

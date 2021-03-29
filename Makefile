@@ -23,7 +23,8 @@ SRC = \
 	command/JoinCommand.cpp		\
 	command/PrivmsgCommand.cpp	\
 	command/QuitCommand.cpp		\
-	command/NamesCommand.cpp	
+	command/NamesCommand.cpp	\
+	command/SquitCommand.cpp
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))

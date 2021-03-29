@@ -144,6 +144,34 @@ public:
 	~Reply();
 public:
 	const std::string &get_msg();
+private:
+	std::string ERR_NOSUCHNICK(const std::string & nick);
+	std::string ERR_NOSUCHSERVER(const std::string & server_name);
+	std::string ERR_NOSUCHCHANNEL(const std::string & channel_name);
+	std::string ERR_CANNOTSENDTOCHAN(const std::string & channel_name);
+	std::string ERR_TOOMANYCHANNELS(const std::string & channel_name);
+	std::string ERR_WASNOSUCHNICK(const std::string & nick);
+	std::string ERR_TOOMANYTARGETS(const std::string & target);
+	std::string ERR_NOORIGIN();
+	std::string ERR_NORECIPIENT(const std::string & command);
+	std::string ERR_NOTEXTTOSEND();
+	std::string ERR_NOTOPLEVEL(const std::string & mask);
+	std::string ERR_WILDTOPLEVEL(const std::string & mask);
+	std::string ERR_UNKNOWNCOMMAND(const std::string & command);
+	std::string ERR_NOMOTD();
+	std::string ERR_NOADMININFO(const std::string & server);
+	std::string ERR_FILEERROR(const std::string & file_op, const std::string & file);
+	std::string ERR_NONICKNAMEGIVEN();
+	std::string ERR_ERRONEUSNICKNAME(const std::string & nick);
+	std::string ERR_NICKNAMEINUSE(const std::string & nick);
+	std::string ERR_NICKCOLLISION(const std::string & nick);
+	std::string ERR_USERNOTINCHANNEL(const std::string & nick, const std::string & channel);
+	std::string ERR_NOTONCHANNEL(const std::string & channel);
+	std::string ERR_USERONCHANNEL(const std::string & user, const std::string & channel);
+	std::string ERR_NOLOGIN(const std::string & user);
+	std::string ERR_SUMMONDISABLED();
+	std::string ERR_USERSDISABLED();
+	std::string ERR_NOTREGISTERED();
 };
 
 #endif
