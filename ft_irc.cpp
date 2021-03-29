@@ -246,6 +246,7 @@ void	IrcServer::client_msg(int fd)
 				cmd = _cmd_creator.get_command("SQUIT");
 			else
 				cmd = _cmd_creator.get_command("QUIT");
+			cmd->set_message(NULL);
 			cmd->run(*this);
 			return ;
 		}
