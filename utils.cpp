@@ -50,3 +50,30 @@ int ft::split(const std::string str, char c, std::string *& ret)
 	ret += 0;
 	return (size);
 }
+
+char	*ft::strchr(const char *s, int c)
+{
+	while (*s != '\0')
+	{
+		if (*s == c)
+			return ((char *)s);
+		s++;
+	}
+	if (c == '\0')
+		return ((char*)s);
+	return (NULL);
+}
+
+bool	ft::isalpha(int c)
+{
+	if (c >= 'A' && c <= 'Z')
+		return (true);
+	if (c >= 'a' && c <= 'z')
+		return (true);
+	return (false);
+}
+
+bool	ft::isdigit(int c)
+{
+	return ((c >= '0' && c <= '9') ? true : false);
+}

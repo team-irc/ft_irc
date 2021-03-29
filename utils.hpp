@@ -6,9 +6,15 @@
 namespace ft
 {
 
-	int atoi(const char * nptr);
+	int		atoi(const char * nptr);
 
-	int split(const std::string str, char c, std::string *& ret);
+	int		split(const std::string str, char c, std::string *& ret);
+
+	char	*strchr(const char *s, int c);
+
+	bool	isalpha(int c);
+
+	bool	isdigit(int c);
 
 };
 

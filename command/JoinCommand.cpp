@@ -11,6 +11,8 @@ void	JoinCommand::run(IrcServer &irc)
 	Member			*member;
 
 	socket = irc.get_current_socket();
+	if (_msg.get_param_size() < 2)
+		return (socket->write(Reply(ERR::NEEDMOREPARAMS(), "JOIN").get_msg().c_str()));
 	if (socket->get_type() == UNKNOWN)
 		return ;
 	else if (socket->get_type() == SERVER)

@@ -14,6 +14,8 @@ void	UserCommand::run(IrcServer &irc)
 	Member	*member;
 	Socket	*sock = irc.get_current_socket();
 
+	if (_msg.get_param_size() < 4)
+		return (sock->write((Reply(ERR::NEEDMOREPARAMS(), "USER").get_msg()).c_str()));
 	if (sock->get_type() == UNKNOWN)
 	{
 		member = irc.find_member(irc.get_current_socket()->get_fd());
@@ -34,7 +36,7 @@ void	UserCommand::run(IrcServer &irc)
 	}
 	else if (sock->get_type() == CLIENT)
 	{
-		irc.get_current_socket()->write(":servername 462 *(or nick) :Connection already registered\n");
+		sock->write((Reply(ERR::ALREADYREGISTRED()).get_msg()).c_str());
 	}
 	else if (sock->get_type() == SERVER)
 	{

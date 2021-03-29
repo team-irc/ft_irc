@@ -1,6 +1,9 @@
 #include "NickCommand.hpp"
 #include "ft_irc.hpp"
-#include <cctype>
+
+/*
+** 	ERR_NICKCOLLISION 처리 안함
+*/
 
 // nick 메시지 수신
 // 1. nick이 global_user에 있는지 검사
@@ -27,10 +30,10 @@ void	NickCommand::run(IrcServer &irc)
 	socket = irc.get_current_socket();
 	nickname = _msg.get_param(0);
 	member = irc.get_member(nickname);
-	//if (this->nick_name_check(nickname))
-		//return (socket->write((Reply(ERR::ERRONEUSNICKNAME(), nickname).get_msg()).c_str()));
+	if (this->nick_name_check(nickname))
+		return (socket->write((Reply(ERR::ERRONEUSNICKNAME(), nickname).get_msg()).c_str()));
 	if (member)
-		return (socket->write((Reply(ERR::ALREADYREGISTRED()).get_msg()).c_str()));
+		return (socket->write((Reply(ERR::NICKNAMEINUSE(), nickname).get_msg()).c_str()));
 	if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
 	{
 		member = irc.get_member(socket->get_fd());
@@ -128,14 +131,16 @@ NickCommand	&NickCommand::operator=(NickCommand const &ref)
 	return (*this);
 }
 
-/*bool nick_name_check(std::string & nick)
+bool NickCommand::nick_name_check(std::string & nick)
 {
 	const char special[] = {'-', '|', '\\', '`', '^', '{', '}'};
 
-	if (std::isalpha(nick[0]))
+	if (ft::isalpha(nick[0]))
 		return (false);
 	for (int i = 1; i < nick.length(); ++i)
 	{
+		if ((!ft::strchr(special, nick[i])) && !ft::isalpha(nick[i]) && !ft::isdigit(nick[i]))
+			return (false);
 	}
-	return (false);
-}*/
+	return (true);
+}

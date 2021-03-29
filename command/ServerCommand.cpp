@@ -8,7 +8,7 @@ void	ServerCommand::run(IrcServer &irc)
 {
 	SocketSet	&ss = irc.get_socket_set();
 	Socket		*socket = irc.get_current_socket();
-	
+
 	if (socket->get_type() == UNKNOWN) // 새로운 서버 추가요청을 받은경우 (패스워드 확인 필요)
 	{
 		if (socket->get_pass().empty())

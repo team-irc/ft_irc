@@ -55,7 +55,7 @@ public:
 	NickCommand	&operator=(NickCommand const &ref);
 	void	run(IrcServer &irc);
 private:
-	//bool nick_name_check(std::string & nick);
+	bool nick_name_check(std::string & nick);
 };
 
 #endif
