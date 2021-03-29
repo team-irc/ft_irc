@@ -1,6 +1,20 @@
 #include "SquitCommand.hpp"
 #include "ft_irc.hpp"
 
+void	SquitCommand::send_quit_user(int fd, IrcServer &irc)
+{
+	Member			*member;
+	std::string		msg;
+
+	while ((member = irc.find_member(fd)))
+	{
+		msg = ":" + member->get_nick() + " QUIT :server connect out\n";
+		irc.send_msg_server(fd, msg.c_str());
+		irc.delete_member(member->get_nick());
+		delete (member);
+	}
+}
+
 void	SquitCommand::delete_fd_map(int fd, IrcServer &irc)
 {
 	std::map<std::string, int>::iterator	begin = irc.get_fd_map().begin();
@@ -8,8 +22,8 @@ void	SquitCommand::delete_fd_map(int fd, IrcServer &irc)
 	std::map<std::string, int>::iterator	tmp;
 	std::string								msg;
 
-	tmp = ++begin;
-	--begin;
+	// fd_map에는 SERVER에 대한 내용만 있음, Client는 global_user에서 찾아야 함
+	// 제거해야 할 fd를 가진 user들을 찾아서 quit
 	while (begin != end)
 	{
 		if (begin->second == fd)
@@ -21,9 +35,12 @@ void	SquitCommand::delete_fd_map(int fd, IrcServer &irc)
 			--begin;
 			irc.delete_fd_map(begin->first);
 			irc.send_msg_server(fd, msg.c_str());
+			begin = tmp;
 		}
-		begin = tmp;
+		else if (begin != end)
+			begin++;
 	}
+	send_quit_user(fd, irc);
 }
 
 void	SquitCommand::run(IrcServer &irc)
