@@ -35,20 +35,21 @@ void Channel::add_member(Member *member)
 	_member.push_back(member);
 };
 
-void Channel::delete_member(Member *member)
+int	Channel::delete_member(Member *member)
 {
-	std::vector<Member *>::iterator	first;
-	std::vector<Member *>::iterator	last;
+	std::vector<Member *>::iterator	iter;
 
-	first = _member.begin();
-	last = _member.end();
-	while (first != last)
+	iter = _member.begin();
+	while (iter != _member.end())
 	{
-		if (*first == member)
-			return ;
-		++first;
+		if (*iter == member)
+		{
+			_member.erase(iter);
+			return (1);
+		}
+		iter++;
 	}
-	return ;
+	return (0);
 };
 
 std::vector<Member *>	Channel::get_members()

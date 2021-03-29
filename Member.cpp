@@ -48,7 +48,7 @@ Member::~Member()
 
 bool				Member::add_channel(Channel *channel)
 {
-	return (_joinned_channels.insert(channel)).second;
+	return ((_joinned_channels.insert(channel)).second);
 }
 
 const bool			Member::is_setting() const
