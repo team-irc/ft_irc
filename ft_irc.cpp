@@ -77,7 +77,6 @@ void	IrcServer::send_msg(int send_fd, const char *msg)
 {
 	if (DEBUG)
 		std::cout << "send_msg(int, const char *) called." << std::endl;
-	int		size = strlen(msg);
 	Socket	*socket = _socket_set.find_socket(send_fd);
 	socket->write(msg);
 }
@@ -126,17 +125,9 @@ void	IrcServer::send_map_data(int fd)
 
 	begin = _fd_map.begin();
 	end = _fd_map.end();
-	while (begin != end)
+	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
-		// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
-		std::cout << "begin: " << begin->first << std::endl;
 		std::string msg = ":" + std::to_string(_listen_socket->get_port()) + " SERVER " + begin->first + " hop :port\n";
-		// for (int i = 3; i < _fd_max + 1; i++)
-		// { 
-		// 		if ((begin)->second != i && FD_ISSET(i, &_socket_set.get_read_fds())
-		// 			&& (_socket_set.find_socket(i))->get_type() == SERVER)
-		// 		send_msg(i, msg.c_str());
-		// }
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
