@@ -20,7 +20,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("JOIN", new JoinCommand()));
 	_map.insert(std::pair<std::string, Command *>("QUIT", new QuitCommand()));
 	_map.insert(std::pair<std::string, Command *>("NAMES", new NamesCommand()));
-	// _map.insert(std::pair<std::string, Command *>("PART", new PartCommand()));
+	_map.insert(std::pair<std::string, Command *>("PART", new PartCommand()));
 	_map.insert(std::pair<std::string, Command *>("PRIVMSG", new PrivmsgCommand()));
 	_map.insert(std::pair<std::string, Command *>("SQUIT", new SquitCommand()));
 }

@@ -14,7 +14,7 @@ SRC_DIR = .
 
 SRC = \
 	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			\
-	Error.cpp	Member.cpp		Message.cpp		Command.cpp		CommandFactory.cpp		\
+	Error.cpp	Member.cpp		Message.cpp		Command.cpp		CommandFactory.cpp		Reply.cpp	\
 	Channel.cpp	\
 	command/ServerCommand.cpp	\
 	command/PassCommand.cpp		\
@@ -22,9 +22,10 @@ SRC = \
 	command/UserCommand.cpp		\
 	command/JoinCommand.cpp		\
 	command/PrivmsgCommand.cpp	\
+	command/PartCommand.cpp		\
 	command/QuitCommand.cpp		\
 	command/NamesCommand.cpp	\
-	command/SquitCommand.cpp
+	command/SquitCommand.cpp	
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))

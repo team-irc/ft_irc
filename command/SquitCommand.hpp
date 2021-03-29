@@ -20,7 +20,7 @@
 class SquitCommand : public Command
 {
 private:
-
+	void	delete_fd_map(int fd, IrcServer &irc);
 public:
 	SquitCommand();
 	virtual ~SquitCommand();

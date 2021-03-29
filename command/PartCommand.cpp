@@ -1,5 +1,6 @@
 #include "PartCommand.hpp"
 #include "ft_irc.hpp"
+#include "Reply.hpp"
 
 void	PartCommand::run(IrcServer &irc)
 {
@@ -10,13 +11,52 @@ void	PartCommand::run(IrcServer &irc)
 	Member			*member;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() == "SERVER")
+	if (_msg.get_param_size() < 1)
+		socket->write("ERR_NEEDMOREPARAMS\n");
+	_msg.get_param(0);
+	if (socket->get_type() == SERVER)
 	{
-		// 1. 
+		size = ft::split(_msg.get_param(0), ',', channel_names);
+		member = irc.find_member(socket->get_fd());
+		for (int i = 0; i < size; i++)
+		{
+			channel = irc.get_channel(channel_names[i]);	
+			if (channel == 0)
+			{
+				socket->write("ERR_NOSUCHCHANNEL\n");
+			}
+			else
+			{
+				// if (channel->(member))
+				// 	channel->delete_member(member);
+				// else
+				// 	socket->write("ERR_NOTONCHANNEL\n");
+			}
+		}
+		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); 
 	}
-	else if (socket->get_type() == "CLIENT") // 클라이언트에서 온 경우
+	else if (socket->get_type() == CLIENT) // 클라이언트에서 온 경우
 	{
-		// 1. 나가려는 채널 목록을 받아온다. (fd이용)
+		_msg.set_prefix(member->get_nick());
+
+		size = ft::split(_msg.get_param(0), ',', channel_names);
+		member = irc.find_member(socket->get_fd());
+		for (int i = 0; i < size; i++)
+		{
+			channel = irc.get_channel(channel_names[i]);	
+			if (channel == 0)
+			{
+				socket->write("ERR_NOSUCHCHANNEL\n");
+			}
+			else
+			{
+				// if (channel->find_member(member))
+				// 	channel->delete_member(member);
+				// else
+				// 	socket->write("ERR_NOTONCHANNEL\n");
+			}
+		}
+		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		// 2. 채널목록으로 채널을 가져온다.
 		// 3. 채널의 활성 멤버에서 자기를 제거한다.
 		// 4. 채널에 없다면 에러
@@ -24,26 +64,7 @@ void	PartCommand::run(IrcServer &irc)
 	}
 	else
 	{
-		
-	}
-	size = ft::split(_msg.get_param(0), ',', channel_names);
-	member = irc.find_member(socket->get_fd());
-
-	for (int i = 0, i < size, i++)
-	{
-		channel = irc.get_channel(channel_names[i]);	
-		if (channel == 0)
-		{
-			throw(Error("ERR_NO SUCH CHANNEL"));
-		}
-		else
-		{
-			if (channel->find_member(member))
-				channel->delete_member(member);
-			else
-				throw(Error("ERR_NOT ON CHANNEL"));
-		}
-		irc.send_msg_server(socket.get_fd(), _msg.get_msg());
+		return ;
 	}
 	std::cout << "Part Command executed.\n";
 }

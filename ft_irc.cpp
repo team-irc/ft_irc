@@ -4,7 +4,7 @@ IrcServer::IrcServer(int argc, char **argv)
 {
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
-	if (argc == 4)
+	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
 		// std::cout << "=======\n";
@@ -16,7 +16,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_fd_map.insert(std::pair<std::string, int>(_server_name, _listen_socket->get_fd()));
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 	}
-	if (argc == 5)
+	if (argc == 4)
 		connect_to_server(argv);
 };
 
@@ -85,12 +85,13 @@ void	IrcServer::send_msg(int send_fd, const char *msg)
 // map 변경 예정(fd_map -> server만 가지는 map으로)
 void	IrcServer::send_msg_server(int fd, const char *msg)
 {
-	std::map<std::string, int>::iterator begin = _fd_map.begin();
-	std::map<std::string, int>::iterator end = _fd_map.end();
+	std::vector<Socket *> vec = _socket_set.get_connect_sockets();
+	std::vector<Socket *>::iterator	begin = vec.begin();
+	std::vector<Socket *>::iterator end = vec.end();
 
 	while (begin != end)
 	{
-		Socket *s = _socket_set.find_socket(begin->second);
+		Socket *s = (*begin);
 		if (s->get_type() == SERVER && (s->get_fd() != fd))
 			s->write(msg);
 		begin++;
@@ -255,6 +256,7 @@ void	IrcServer::client_msg(int fd)
 		{
 			cmd->set_message(msg);
 			cmd->run(*this);
+			show_fd_map();
 			show_global_user();
 			show_global_channel();
 		}
@@ -394,19 +396,50 @@ void		IrcServer::add_fd_map(const std::string &key, int fd)
 	_fd_map.insert(std::pair<std::string, int>(key, fd));
 }
 
+
+void		IrcServer::show_fd_map()
+{
+	std::cout << "================== _fd_map ======================\n";
+	std::cout.width(5);
+	std::cout << "fd";
+	std::cout.width(20);
+	std::cout << "server_name\n";
+
+	std::map<std::string, int>::iterator	iter = _fd_map.begin();
+	while (iter != _fd_map.end())
+	{
+		std::cout.width(5);
+		std::cout << (*iter).second;
+		std::cout.width(20);
+		std::cout << (*iter).first;
+		std::cout << "\n";
+		iter++;
+	}
+}
+
+
 void		IrcServer::show_global_user()
 {
 	std::map<std::string, Member *>::iterator iter = _global_user.begin();
-	std::cout << "nickname	username	fd\n";
+
+	std::cout << "================== _global_user ==================\n";
+	std::cout.width(20);
+	std::cout << "nickname";
+	std::cout.width(20);
+	std::cout << "username";
+	std::cout.width(10);
+	std::cout << "fd\n";
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
-		std::cout << member->get_nick() << "\t\t" << member->get_username() << "\t\t\t";
-		//std::cout << member->get_hostname() << "\t" << member->get_servername() << "\t" << member->get_realname() << "\t";
+		std::cout.width(20);
+		std::cout << member->get_nick();
+		std::cout.width(20);
+		std::cout << member->get_username();
+		std::cout.width(10);
 		std::cout << member->get_fd() << "\n";
 		iter++;
 	}
-	std::cout << "===============================================================\n";
 	return ;
 }
 
@@ -415,37 +448,46 @@ void		IrcServer::show_global_channel()
 	std::map<std::string, Channel *>::iterator iter = _global_channel.begin();
 	std::vector<Member *>	member_vector;
 
-	std::cout << "channel_name	users\n";
+	std::cout << "================== _global_channel ==================\n";
+	std::cout.width(20);
+	std::cout << "channel name";
+	std::cout.width(20);
+	std::cout << "users\n";
 	while (iter != _global_channel.end())
 	{
-		std::cout << (*iter).first << "\t";
+		std::cout.width(20);
+		std::cout << (*iter).first;
 	
 		member_vector = (*iter).second->get_members();
 		std::vector<Member *>::iterator		member_iter;
 		member_iter = member_vector.begin();
 		while (member_iter != member_vector.end())
 		{
-			std::cout << (*member_iter)->get_nick() << "\t";
+			std::cout.width(20);
+			std::cout << (*member_iter)->get_nick();
 			member_iter++;
 		}
 		iter++;
 		std::cout << "\n";
 	}
-	std::cout << "===============================================================\n";
+	std::cout << "====================================================\n";
 	return ;
 }
 
 std::string			IrcServer::get_servername()
 { return (_server_name); }
 
-void				IrcServer::sigint_handler()
-{
-	std::string		msg;
-	Command			*cmd;
+std::map<std::string, int>	&IrcServer::get_fd_map()
+{ return (_fd_map); }
 
-	msg = "SQUIT" + _server_name + " :SIGINT\n";
-	cmd = _cmd_creator.get_command("SQUIT");
-	cmd->set_message(Message(msg.c_str()));
-	cmd->run(*this);
-	// 사용한 메모리들 정리 작업 추가
-}
+// void				IrcServer::sigint_handler(int type)
+// {
+// 	std::string		msg;
+// 	Command			*cmd;
+
+// 	msg = "SQUIT" + _server_name + " :SIGINT\n";
+// 	cmd = _cmd_creator.get_command("SQUIT");
+// 	cmd->set_message(Message(msg.c_str()));
+// 	cmd->run(*this);
+// 	// 사용한 메모리들 정리 작업 추가
+// }

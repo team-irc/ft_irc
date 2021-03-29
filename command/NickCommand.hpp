@@ -2,7 +2,6 @@
 # define NICK_COMMAND_HPP
 
 # include "Command.hpp"
-# include "Reply.hpp"
 
 /*
 	Command: NICK
@@ -49,15 +48,14 @@ NICK Wiz                        ; Introducing new nick "Wiz".
 
 class NickCommand : public Command
 {
-private:
-
 public:
 	NickCommand();
 	virtual ~NickCommand();
 	NickCommand(NickCommand const &copy);
 	NickCommand	&operator=(NickCommand const &ref);
-
 	void	run(IrcServer &irc);
+private:
+	//bool nick_name_check(std::string & nick);
 };
 
 #endif

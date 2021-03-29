@@ -12,10 +12,10 @@ void KickCommand::run(IrcServer &irc)
 	if (socket->get_type() == SOCKET_TYPE::UNKNOWN)
 		return ; //err
 	if (_msg.get_param_size() < 2)
-		return (socket->write(Reply(ERR::NEEDMOREPARAMS).get_msg()));
+		return (socket->write((Reply(ERR::NEEDMOREPARAMS).get_msg()).c_str()));
 
 	if (!(channel = irc.get_channel(_msg.get_param(0))))
-		return (socket->write(Reply(ERR::NOSUCHANNEL).get_msg()));
+		return (socket->write((Reply(ERR::NOSUCHANNEL).get_msg()).c_str()));
 
 	if (!(member = irc.get_member(_msg.get_param(1))))
 		return ;

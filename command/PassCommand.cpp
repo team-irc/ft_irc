@@ -7,7 +7,9 @@ void	PassCommand::run(IrcServer &irc)
 	Socket	*sock = irc.get_current_socket();
 	
 	if (member)
-		sock->write(":servername 462 *(or nick) :Connection already registered\n");
+		sock->write(Reply(ERR::ALREADYREGISTRED()).get_msg().c_str());
+	else if (_msg.get_param_size() <= 0)
+		sock->write(Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()).get_msg().c_str());
 	else
 	{
 		sock->set_pass(_msg.get_param(0));

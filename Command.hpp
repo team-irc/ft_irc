@@ -3,6 +3,7 @@
 
 # include "SocketSet.hpp"
 # include "Message.hpp"
+# include "Reply.hpp"
 
 /*
 <message>  ::= [':' <prefix> <SPACE> ] <command> <params> <crlf>

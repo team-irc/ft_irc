@@ -101,6 +101,9 @@ fd_set		&SocketSet::get_read_fds()
 fd_set const	&SocketSet::get_read_fds() const
 { return (_read); }
 
+std::vector<Socket *>	SocketSet::get_connect_sockets()
+{ return (_vec); }
+
 void			SocketSet::show_info()
 {
 	std::vector<Socket *>::iterator begin = _vec.begin();

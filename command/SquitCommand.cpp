@@ -1,18 +1,28 @@
 #include "SquitCommand.hpp"
 #include "ft_irc.hpp"
 
-void			find_squit_server(IrcServer &irc, int fd)
+void	SquitCommand::delete_fd_map(int fd, IrcServer &irc)
 {
-	std::map<std::string, int>::iterator	begin = _fd_map.begin();
-	std::map<std::string, int>::iterator	end = _fd_map.end();
+	std::map<std::string, int>::iterator	begin = irc.get_fd_map().begin();
+	std::map<std::string, int>::iterator	end = irc.get_fd_map().end();
+	std::map<std::string, int>::iterator	tmp;
+	std::string								msg;
 
+	tmp = ++begin;
+	--begin;
 	while (begin != end)
 	{
 		if (begin->second == fd)
 		{
+			// SQUIT 전송?
+			// + 연결된 다른 클라이언트들도 제거해야 함
+			msg = ":" + irc.get_servername() + " SQUIT " + begin->first + " :connect close\n";
+			tmp = ++begin;
+			--begin;
 			irc.delete_fd_map(begin->first);
+			irc.send_msg_server(fd, msg.c_str());
 		}
-		begin++;
+		begin = tmp;
 	}
 }
 
@@ -20,28 +30,27 @@ void	SquitCommand::run(IrcServer &irc)
 {
 	Socket				*sock = irc.get_current_socket();
 	std::string			servername;
-	int					fd = irc.get_current_socket()->get_fd();
+	int					fd = sock->get_fd();
 
 	// SQUIT은 서버에서 보내는 메시지라서 다른 타입이면 걍 무시
 	if (sock->get_type() == SERVER)
 	{
-		if (_msg.get_prefix().empty()) // 직접 연결된 서버에서 SQUIT 하는 경우
+		if (_msg.get_prefix().empty()) // 직접 연결된 서버에서 SQUIT 하는 경우(signal처리로 들어오는 경우 or 다른 문제 때문에 보내는 경우)
 		{
 			// fd_map과 socketset에서 둘 다 지워야 함
+			// 1. 해당 소켓 제거
+			// 2. fd_map에서 제거(같은 fd를 가지는 서버도 제거 필요(해당 SQUIT를 전송하는 방향으로 처리))
+			// 2. 다른 서버에 프리픽스 추가해서 SQUIT 전송
 			irc.get_socket_set().remove_socket(sock);
+			delete_fd_map(fd, irc);
 			delete sock;
-														// 1. 해당 fd를 가진 모든 서버를 fd_map에서 제거 (+ 유저맵에서 제거)
-														// 2. 해당 소켓 제거
-														// 3. 다른 서버에 프리픽스 추가해서 SQUIT 전송
-														// (4. 다른 서버에 유저 QUIT 전송?)
 		}
-		servername = _msg.get_param(0);
-		irc.delete_fd_map(servername);
-		_msg.set_prefix(irc.get_servername());
-		irc.send_msg_server(fd, _msg.c_str());
-		else // 직접 연결되지 않은 서버가 SQUIT 한 경우
+		else // 다른 서버를 통해 연결되는 경우
 		{
-
+			servername = _msg.get_param(0);
+			irc.delete_fd_map(servername);
+			_msg.set_prefix(irc.get_servername());
+			irc.send_msg_server(fd, _msg.get_msg());
 		}
 	}
 }

@@ -41,7 +41,7 @@ private:
 	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
 	
-	std::map<std::string, Server *>		_global_server;
+	// std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
 	
@@ -75,7 +75,7 @@ public:
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();
-	void				sigint_handler();
+	std::map<std::string, int>			&get_fd_map();
 	
 private:
 
@@ -87,6 +87,8 @@ private:
 	void				connect_to_server(char **argv);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
 	void				show_map_data();
+	
+	void				show_fd_map();
 	void				show_global_user();
 	void				show_global_channel();
 	void				fd_event_loop();

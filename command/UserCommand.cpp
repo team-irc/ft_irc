@@ -8,8 +8,6 @@
 // 1-2. 없으면 fd를 키로 map에 삽입, 다른 서버에 전송은 하지 않음
 // param : :prefix USER username hostname servername realname
 
-int		valid_check(std::string &)
-
 void	UserCommand::run(IrcServer &irc)
 {
 	std::string	prefix = _msg.get_prefix();
@@ -66,6 +64,14 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		_msg.set_prefix(member->get_nick());
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
 		irc.get_socket_set().change_socket_type(irc.get_current_socket()->get_fd(), CLIENT);
+
+		if (!irc.get_current_socket()->get_pass().empty())
+		{
+			if (irc.check_pass(irc.get_current_socket()))
+			{
+				
+			}
+		}
 	}
 	else if (irc.get_current_socket()->get_type() == SERVER)
 	{

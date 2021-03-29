@@ -11,15 +11,15 @@ void	OperCommand::run(IrcServer &irc)
 
 	socket = irc.get_current_socket();
 	if (_msg.get_param_size() < 2) // 파라미터 사이즈가 적다면 에러
-		socket->write(Reply(ERR_NEEDMOREPARAMS).get_msg());
+		socket->write((Reply(ERR_NEEDMOREPARAMS).get_msg()).c_str());
 	member = irc.get_member(_msg.get_param(0));
 	if (!member) // 유저를 못찾은 경우 에러
-		socket->write(Reply(ERR_NOOPERHOST).get_msg());
+		socket->write((Reply(ERR_NOOPERHOST).get_msg()).c_str());
 	password = _msg.get_param(1);
 	if (!check_password(password)) // 패스워드가 틀린 경우 에러
-		socket->write(Reply(ERR_PASSWDMISMATCH).get_msg());
+		socket->write((Reply(ERR_PASSWDMISMATCH).get_msg()).c_str());
 	if (member->get_mode() == OPER) // 멤버가 이미 오퍼레이터인 경우 응답
-		socket->write(Reply(RPL_YOUREOPER).get_msg());
+		socket->write((Reply(RPL_YOUREOPER).get_msg()).c_str());
 	member->set_mode('o');
 }
 
