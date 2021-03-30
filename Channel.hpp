@@ -48,6 +48,7 @@ class Channel
 private:
 	const std::string				_name;
 	std::string						_key;
+	std::string						_topic;
 	std::vector<Member *>			_member;
 	std::vector<char>				_mode;
 	//								_properties.op_members;
@@ -68,6 +69,8 @@ public:
 	const std::string & get_name();
 	bool find_mode(char c);
 	bool find_member(Member * member);
+	bool			set_topic(std::string const &topic);
+	std::string		get_topic();
 };
 
 #endif

@@ -30,10 +30,10 @@ void	QuitCommand::run(IrcServer &irc)
 		member = irc.find_member(socket->get_fd()); // 1. fd값으로 멤버를 찾는다.
 		if (member)
 		{
-			irc.delete_member(std::to_string(socket->get_fd())); // 2. 멤버를 _global_user에서 지운다.
+			irc.delete_member(member->get_nick()); // 2. 멤버를 _global_user에서 지운다.
 			delete member; //멤버 인스턴스를 제거
 		}
-		irc.get_socket_set().remove_socket(socket);
+		irc.get_socket_set().remove_socket(socket); // _fd_map에서 제거
 		delete socket; // 3. 소켓 연결을 끊는다. 다른 서버에는 전송하지 않는다. 다른서버에는 이 멤버가 등록되지 않은 상태이므로
 	}
 }

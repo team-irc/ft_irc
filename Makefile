@@ -26,6 +26,7 @@ SRC = \
 	command/QuitCommand.cpp		\
 	command/NamesCommand.cpp	\
 	command/SquitCommand.cpp	\
+	command/TopicCommand.cpp	\
 	command/ModeCommand.cpp
 
 

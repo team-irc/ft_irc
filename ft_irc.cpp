@@ -456,18 +456,22 @@ void		IrcServer::show_global_channel()
 	std::cout.width(20);
 	std::cout << "channel name";
 	std::cout.width(20);
+	std::cout << "topic";
+	std::cout.width(10);
 	std::cout << "users\n";
 	while (iter != _global_channel.end())
 	{
 		std::cout.width(20);
 		std::cout << (*iter).first;
-	
+
+		std::cout.width(20);
+		std::cout << (*iter).second->get_topic();
 		member_vector = (*iter).second->get_members();
 		std::vector<Member *>::iterator		member_iter;
 		member_iter = member_vector.begin();
 		while (member_iter != member_vector.end())
 		{
-			std::cout.width(20);
+			std::cout.width(10);
 			std::cout << (*member_iter)->get_nick();
 			member_iter++;
 		}
