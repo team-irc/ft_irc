@@ -55,7 +55,7 @@ public:
 	NickCommand	&operator=(NickCommand const &ref);
 	void	run(IrcServer &irc);
 private:
-	bool deal_exception(IrcServer &irc);
+	bool check_nick(const std::string &nick);
 };
 
 #endif

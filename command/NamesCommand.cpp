@@ -50,17 +50,20 @@ void	NamesCommand::run(IrcServer &irc)
 
 		while (first != last)
 		{
-			socket->write(get_channel_user_list(first->second).c_str());
-			socket->write("\n");
+			// if channel is visible
+			socket->write(Reply(RPL::NAMREPLY(), first->second->get_name(), get_channel_user_list(first->second)).get_msg().c_str());
 			++first;
 		}
+		if (!((get_user_list_who_not_join_any_channel(irc)).empty()))
+			socket->write(Reply(RPL::NAMREPLY(), "*", get_user_list_who_not_join_any_channel(irc)).get_msg().c_str());
+		socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
 	}
 	else
 	{
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
 			return ;
-		socket->write(get_channel_user_list(channel).c_str());
-		socket->write("\n");
+		socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
+		socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
 	}
 }
 
@@ -68,9 +71,9 @@ NamesCommand::NamesCommand(): Command()
 {
 }
 
-std::string NamesCommand::get_channel_user_list(Channel * channel)
+std::vector<std::string> NamesCommand::get_channel_user_list(Channel * channel)
 {
-	std::string						ret;
+	std::vector<std::string>		ret;
 	std::vector<Member *>			members;
 	std::vector<Member *>::iterator	first;
 	std::vector<Member *>::iterator	last;
@@ -78,14 +81,32 @@ std::string NamesCommand::get_channel_user_list(Channel * channel)
 	members = channel->get_members();
 	first = members.begin();
 	last = members.end();
-	ret += "Nicks from " + channel->get_name() + ": [";
 	while (first != last)
 	{
-		ret += (*first)->get_nick();
-		if (first + 1 != last)
-			ret += ", ";
+		ret.push_back((*first)->get_nick());
 		++first;
 	}
-	ret += " ]";
+	return (ret);
+}
+
+std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(IrcServer &irc)
+{
+	std::map<std::string, Member *>::iterator	first;
+	std::map<std::string, Member *>::iterator	last;
+	std::map<std::string, Member *>				global_user;
+	std::vector<std::string>					ret;
+
+	global_user = irc.get_global_user();
+	first = global_user.begin();
+	last = global_user.end();
+	while (first != last)
+	{
+		if ((first->second->get_joinned_channels()).empty())
+		{
+			write(1, first->second->get_nick().c_str(), 20);
+			ret.push_back(first->second->get_nick());
+		}
+		++first;
+	}
 	return (ret);
 }

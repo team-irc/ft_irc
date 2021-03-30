@@ -25,11 +25,15 @@ void	NickCommand::run(IrcServer &irc)
 	std::string	nickname;
 	int			hopcount;
 
-	if (!deal_exception(irc))
-		return ;
+	if (_msg.get_param_size() <= 0)
+		throw (Reply(ERR::NONICKNAMEGIVEN()));
 	socket = irc.get_current_socket();
 	nickname = _msg.get_param(0);
 	member = irc.get_member(nickname);
+	if (!check_nick(nickname))
+		throw (Reply(ERR::ERRONEUSNICKNAME(), nickname));
+	if (member)
+		throw (Reply(ERR::NICKNAMEINUSE(), nickname));
 	if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
 	{
 		member = irc.get_member(socket->get_fd());
@@ -137,35 +141,16 @@ NickCommand	&NickCommand::operator=(NickCommand const &ref)
 	return (*this);
 }
 
-bool NickCommand::deal_exception(IrcServer &irc)
+bool NickCommand::check_nick(const std::string &nick)
 {
 	const char			special[] = {'-', '|', '\\', '`', '^', '{', '}'};
-	std::string			nick;
-	const Member		*member;
-	Socket				*socket = irc.get_current_socket();
 
-	if (_msg.get_param_size() <= 0)
-		goto ERR_NONICKNAMEGIVEN;
-	nick = _msg.get_param(0);
+	if (!ft::isalpha(nick[0]))
+		return (false);
 	for (int i = 1; i < nick.length(); ++i)
 	{
-		if (((!ft::strchr(special, nick[i])) && !ft::isalpha(nick[i]) && !ft::isdigit(nick[i])) || !ft::isalpha(nick[0]))
-			goto ERR_ERRONEUSNICKNAME;
+		if (((!ft::strchr(special, nick[i])) && !ft::isalpha(nick[i]) && !ft::isdigit(nick[i])))
+			return (false);
 	}
-	member = irc.get_member(nick);
-	if (member)
-		goto ERR_NICKNAMEINUSE;
 	return (true);
-
-ERR_NONICKNAMEGIVEN:
-	socket->write((Reply(ERR::NONICKNAMEGIVEN()).get_msg()).c_str());
-	return (false);
-
-ERR_ERRONEUSNICKNAME:
-	socket->write((Reply(ERR::ERRONEUSNICKNAME(), nick).get_msg()).c_str());
-	return (false);
-
-ERR_NICKNAMEINUSE:
-	socket->write((Reply(ERR::NICKNAMEINUSE(), nick).get_msg()).c_str());
-	return (false);
 }

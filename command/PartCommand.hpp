@@ -34,8 +34,6 @@ public:
 	PartCommand	&operator=(PartCommand const &ref);
 
 	void	run(IrcServer &irc);
-private:
-	bool deal_exception(IrcServer &irc);
 };
 
 #endif

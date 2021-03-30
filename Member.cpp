@@ -75,6 +75,7 @@ const std::string	&Member::get_realname()									{ return (_realname); }
 void				Member::set_realname(const std::string &realname)		{ _realname = realname; }
 int					Member::get_fd()										{ return (_fd); }
 void				Member::set_fd(int fd)									{ _fd = fd; }
+std::set<Channel *>	Member::get_joinned_channels()							{ return (_joinned_channels); }
 //nick
 //user -> username hostname -> member.set_username(...) 
 //

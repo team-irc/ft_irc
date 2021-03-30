@@ -43,15 +43,19 @@ class IrcServer;
 
 class Command
 {
-	protected:
-		Message		_msg;
-	public:
-		Command();
-		Command(const Command &ref);
-		Command &operator=(const Command &ref);
-		virtual void run(IrcServer &irc) {};
-		void	set_message(const Message &msg);
-		virtual ~Command();
+protected:
+	Message		_msg;
+public:
+	Command();
+	Command(const Command &ref);
+	Command &operator=(const Command &ref);
+	void	set_message(const Message &msg);
+	virtual ~Command();
+public:
+	void execute(IrcServer &irc);
+	virtual void run(IrcServer &irc) = 0;
 };
+
+# include "ft_irc.hpp"
 
 #endif

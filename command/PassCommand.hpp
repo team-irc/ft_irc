@@ -17,8 +17,6 @@ public:
 	PassCommand(PassCommand const &copy);
 	PassCommand	&operator=(PassCommand const &ref);
 	void	run(IrcServer &irc);
-private:
-	bool deal_exception(IrcServer &irc);
 };
 
 #endif
