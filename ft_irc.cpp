@@ -244,7 +244,7 @@ void	IrcServer::client_msg(int fd)
 				msg = "QUIT :" + find_member(_current_sock->get_fd())->get_nick() + "\n";
 				cmd->set_message(Message(msg.c_str()));
 			}
-			cmd->run(*this);
+			cmd->execute(*this);
 			return ;
 		}
 		Message msg(buf);
@@ -253,7 +253,7 @@ void	IrcServer::client_msg(int fd)
 		if (cmd)
 		{
 			cmd->set_message(msg);
-			cmd->run(*this);
+			cmd->execute(*this);
 			cmd->set_message(NULL);
 			show_fd_map();
 			show_global_user();
@@ -366,6 +366,11 @@ int			IrcServer::get_fdmax()
 std::map<std::string, Channel *>	&IrcServer::get_global_channel()
 {
 	return (_global_channel);
+}
+
+std::map<std::string, Member *>		&IrcServer::get_global_user()
+{
+	return(_global_user);
 }
 
 bool		IrcServer::add_member(std::string &nickname, Member *new_member)

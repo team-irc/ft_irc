@@ -72,6 +72,7 @@ public:
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
 	std::map<std::string, Channel *>	&get_global_channel();
+	std::map<std::string, Member *>		&get_global_user();
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();

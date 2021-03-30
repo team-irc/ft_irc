@@ -322,11 +322,37 @@ Reply::Reply(RPL::YOUREOPER junk)
 	_msg = ":You are now an IRC operator";
 }
 
+Reply::Reply(RPL::NAMREPLY junk, const std::string &channel, std::vector<std::string> names)
+{
+	(void)junk;
+	//"<channel> :[[@|+]<nick> [[@|+]<nick> [...]]]"
+	std::vector<std::string>::iterator first;
+	std::vector<std::string>::iterator last;
+
+	first = names.begin();
+	last = names.end();
+	_msg = channel + " : ";
+	while (first != last)
+	{
+		_msg += *first;
+		_msg += ' ';
+		++first;
+	}
+}
+
+Reply::Reply(RPL::ENDOFNAMES junk, const std::string &channel)
+{
+	(void)junk;
+	//"<channel> :End of /NAMES list"
+	_msg = channel;
+	_msg += " :End of /NAMES list";
+}
+
 Reply::~Reply()
 {
 }
 
-std::string Reply::get_msg()
+std::string Reply::get_msg() const
 {
 	std::string	ret;
 

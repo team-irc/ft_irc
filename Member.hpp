@@ -47,6 +47,7 @@ public:
 	void				set_fd(int fd);
 	char				get_mode();
 	void				set_mode(char mode);
+	std::set<Channel *>	get_joinned_channels();
 	bool				check_mode(char mode, bool is_set);
 	const bool			is_setting() const;
 	bool				add_channel(Channel *channel);
