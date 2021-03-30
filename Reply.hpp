@@ -183,7 +183,8 @@ public:
 	explicit Reply(ERR::UMODEUNKNOWNFLAG);
 	explicit Reply(ERR::USERSDONTMATCH);
 public:
-	Reply(RPL::NONE);
+	explicit Reply(RPL::NONE);
+	explicit Reply(RPL::YOUREOPER);
 public:
 	~Reply();
 public:

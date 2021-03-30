@@ -1,7 +1,6 @@
 #include "ServerCommand.hpp"
 #include "ft_irc.hpp"
 
-
 // PASS 등록이 안된 경우엔 해당 에러 메시지 반환만 함
 
 void	ServerCommand::run(IrcServer &irc)
@@ -9,6 +8,8 @@ void	ServerCommand::run(IrcServer &irc)
 	SocketSet	&ss = irc.get_socket_set();
 	Socket		*socket = irc.get_current_socket();
 
+	if (!deal_exception(irc))
+		return ;
 	if (socket->get_type() == UNKNOWN) // 새로운 서버 추가요청을 받은경우 (패스워드 확인 필요)
 	{
 		if (socket->get_pass().empty())
@@ -65,4 +66,19 @@ ServerCommand	&ServerCommand::operator=(ServerCommand const &ref)
 {
 	_msg = ref._msg;
 	return (*this);
+}
+
+bool ServerCommand::deal_exception(IrcServer &irc)
+{
+	Socket									*sock = irc.get_current_socket();
+	std::map<std::string, int>				fd_map = irc.get_fd_map();
+	std::map<std::string, int>::iterator	ret = fd_map.find(_msg.get_param(0));
+
+	if (ret != fd_map.end())
+		goto ERR_ALREADYREGISTRED;
+	return (true);
+
+ERR_ALREADYREGISTRED:
+	sock->write(Reply(ERR::ALREADYREGISTRED()).get_msg().c_str());
+	return (false);
 }

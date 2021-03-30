@@ -14,10 +14,8 @@ void	UserCommand::run(IrcServer &irc)
 	Member	*member;
 	Socket	*sock = irc.get_current_socket();
 
-	if (_msg.get_param_size() < 4)
-		return (sock->write((Reply(ERR::NEEDMOREPARAMS(), "USER").get_msg()).c_str()));
-	else if (_msg.get_param_size() > 4)
-		return (sock->write("USER syntax ERROR\n"));
+	if (!deal_exception(irc))
+		return ;
 	if (sock->get_type() == UNKNOWN)
 	{
 		member = irc.find_member(irc.get_current_socket()->get_fd());
@@ -35,10 +33,6 @@ void	UserCommand::run(IrcServer &irc)
 				// KILL 메시지 전송
 			}
 		}
-	}
-	else if (sock->get_type() == CLIENT)
-	{
-		sock->write((Reply(ERR::ALREADYREGISTRED()).get_msg()).c_str());
 	}
 	else if (sock->get_type() == SERVER)
 	{
@@ -120,4 +114,23 @@ UserCommand	&UserCommand::operator=(UserCommand const &ref)
 {
 	_msg = ref._msg;
 	return (*this);
+}
+
+bool UserCommand::deal_exception(IrcServer &irc)
+{
+	Socket	*sock = irc.get_current_socket();
+
+	if (_msg.get_param_size() < 4)
+		goto ERR_NEEDMOREPARAMS;
+	if (sock->get_type() == CLIENT)
+		goto ERR_ALREADYREGISTRED;
+	return (true);
+
+ERR_NEEDMOREPARAMS:
+	sock->write((Reply(ERR::NEEDMOREPARAMS(), "USER").get_msg()).c_str());
+	return (false);
+
+ERR_ALREADYREGISTRED:
+	sock->write((Reply(ERR::ALREADYREGISTRED()).get_msg()).c_str());
+	return (false);
 }

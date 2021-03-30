@@ -57,3 +57,31 @@ std::vector<Member *>	Channel::get_members()
 
 const std::string & 	Channel::get_name()
 { return (_name); }
+
+bool Channel::find_mode(char c)
+{
+	std::vector<char>::iterator first = _mode.begin();
+	std::vector<char>::iterator last = _mode.end();
+
+	while (first != last)
+	{
+		if (*first == c)
+			return (true);
+		++first;
+	}
+	return (false);
+}
+
+bool Channel::find_member(Member * member)
+{
+	std::vector<Member *>::iterator first = _member.begin();
+	std::vector<Member *>::iterator last = _member.end();
+
+	while (first != last)
+	{
+		if ((*first)->get_nick() == member->get_nick())
+			return (true);
+		++first;
+	}
+	return (false);
+}

@@ -11,15 +11,14 @@
 
 class PassCommand : public Command
 {
-private:
-
 public:
 	PassCommand();
 	virtual ~PassCommand();
 	PassCommand(PassCommand const &copy);
 	PassCommand	&operator=(PassCommand const &ref);
-
 	void	run(IrcServer &irc);
+private:
+	bool deal_exception(IrcServer &irc);
 };
 
 #endif
