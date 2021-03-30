@@ -9,6 +9,7 @@
 #include "QuitCommand.hpp"
 #include "NamesCommand.hpp"
 #include "SquitCommand.hpp"
+#include "ModeCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -23,6 +24,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("PART", new PartCommand()));
 	_map.insert(std::pair<std::string, Command *>("PRIVMSG", new PrivmsgCommand()));
 	_map.insert(std::pair<std::string, Command *>("SQUIT", new SquitCommand()));
+	_map.insert(std::pair<std::string, Command *>("MODE", new ModeCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

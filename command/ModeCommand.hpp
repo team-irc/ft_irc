@@ -11,16 +11,21 @@ struct mode_set {
 	bool	is_set;
 };
 
+class Member;
+class Channel;
+
 class ModeCommand : public Command
 {
 	public:
 		ModeCommand();
-		ModeCommand(const ModeCommand &ref);
-		ModeCommand	&operator=(const ModeCommand &ref);
+		// ModeCommand(const ModeCommand &ref);
+		// ModeCommand	&operator=(const ModeCommand &ref);
 		virtual ~ModeCommand();
 		void	run(IrcServer &irc);
 	private:
+		void		check_target(IrcServer &irc);
 		std::string	parse_user_mode(Member *member, IrcServer &irc, char mode, mode_set set);
-}
+		std::string	parse_chan_mode(Channel *channel, IrcServer &irc, char mode, mode_set set);
+};
 
 #endif
