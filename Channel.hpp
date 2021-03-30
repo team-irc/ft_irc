@@ -66,6 +66,8 @@ public:
 	int		delete_member(Member *member);
 	std::vector<Member *> get_members();
 	const std::string & get_name();
+	bool find_mode(char c);
+	bool find_member(Member * member);
 };
 
 #endif

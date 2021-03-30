@@ -37,6 +37,8 @@ public:
 	OperCommand(OperCommand const &copy);
 	OperCommand	&operator=(OperCommand const &ref);
 	void	run(IrcServer &irc);
+private:
+	bool deal_exception(IrcServer &irc);
 };
 
 #endif

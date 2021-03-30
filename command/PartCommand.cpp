@@ -10,9 +10,9 @@ void	PartCommand::run(IrcServer &irc)
 	Socket			*socket;
 	Member			*member;
 
+	if (!deal_exception(irc))
+		return ;
 	socket = irc.get_current_socket();
-	if (_msg.get_param_size() < 1)
-		socket->write("ERR_NEEDMOREPARAMS\n");
 	_msg.get_param(0);
 	if (socket->get_type() == SERVER)
 	{
@@ -20,18 +20,8 @@ void	PartCommand::run(IrcServer &irc)
 		member = irc.find_member(socket->get_fd());
 		for (int i = 0; i < size; i++)
 		{
-			channel = irc.get_channel(channel_names[i]);	
-			if (channel == 0)
-			{
-				socket->write("ERR_NOSUCHCHANNEL\n");
-			}
-			else
-			{
-				// if (channel->(member))
-				// 	channel->delete_member(member);
-				// else
-				// 	socket->write("ERR_NOTONCHANNEL\n");
-			}
+			channel = irc.get_channel(channel_names[i]);
+			// 	channel->delete_member(member);
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); 
 	}
@@ -43,18 +33,8 @@ void	PartCommand::run(IrcServer &irc)
 		member = irc.find_member(socket->get_fd());
 		for (int i = 0; i < size; i++)
 		{
-			channel = irc.get_channel(channel_names[i]);	
-			if (channel == 0)
-			{
-				socket->write("ERR_NOSUCHCHANNEL\n");
-			}
-			else
-			{
-				// if (channel->find_member(member))
-				// 	channel->delete_member(member);
-				// else
-				// 	socket->write("ERR_NOTONCHANNEL\n");
-			}
+			channel = irc.get_channel(channel_names[i]);
+			// 	channel->delete_member(member);
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		// 2. 채널목록으로 채널을 가져온다.
@@ -86,4 +66,42 @@ PartCommand	&PartCommand::operator=(PartCommand const &ref)
 {
 	_msg = ref._msg;
 	return (*this);
+}
+
+bool PartCommand::deal_exception(IrcServer &irc)
+{
+	int			i = 0;
+	int			split_size;
+	std::string	*split_ret;
+	Channel		*channel;
+	Socket		*socket = irc.get_current_socket();
+
+	if (_msg.get_param_size() < 1)
+		goto ERR_NEEDMOREPARAMS;
+	split_size = ft::split(_msg.get_param(0), ',', split_ret);
+	while (i < split_size)
+	{
+		channel = irc.get_channel(split_ret[i]);
+		if (channel == NULL)
+			goto ERR_NOSUCHCHANNEL;
+		if (!channel->find_member(irc.find_member(socket->get_fd())))
+			goto ERR_NOTONCHANNEL;
+		++i;
+	}
+	delete[] split_ret;
+	return (true);
+
+ERR_NEEDMOREPARAMS:
+	socket->write(Reply(ERR::NEEDMOREPARAMS(), "PART").get_msg().c_str());
+	return (false);
+
+ERR_NOSUCHCHANNEL:
+	socket->write(Reply(ERR::NOSUCHCHANNEL(), split_ret[i]).get_msg().c_str());
+	delete[] split_ret;
+	return (false);
+
+ERR_NOTONCHANNEL:
+	socket->write(Reply(ERR::NOTONCHANNEL(), split_ret[i]).get_msg().c_str());
+	delete[] split_ret;
+	return (false);
 }

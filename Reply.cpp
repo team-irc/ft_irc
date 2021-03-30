@@ -315,6 +315,13 @@ Reply::Reply(RPL::NONE junk)
 	_msg = std::string();
 }
 
+Reply::Reply(RPL::YOUREOPER junk)
+{
+	(void)junk;
+	//":You are now an IRC operator"
+	_msg = ":You are now an IRC operator";
+}
+
 Reply::~Reply()
 {
 }
