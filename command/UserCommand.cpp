@@ -16,6 +16,8 @@ void	UserCommand::run(IrcServer &irc)
 
 	if (_msg.get_param_size() < 4)
 		return (sock->write((Reply(ERR::NEEDMOREPARAMS(), "USER").get_msg()).c_str()));
+	else if (_msg.get_param_size() > 4)
+		return (sock->write("USER syntax ERROR\n"));
 	if (sock->get_type() == UNKNOWN)
 	{
 		member = irc.find_member(irc.get_current_socket()->get_fd());
@@ -67,16 +69,19 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
 		irc.get_socket_set().change_socket_type(irc.get_current_socket()->get_fd(), CLIENT);
 
-		if (!irc.get_current_socket()->get_pass().empty())
+		if (irc.get_current_socket()->get_pass().empty())
 		{
-			if (irc.check_pass(irc.get_current_socket()))
-			{
-				
-			}
+			// pass가 비어있는 경우 역시 pass가 틀린 경우로 취급, 해당 소켓 연결 끊어야 함
+			irc.get_current_socket()->write("Bad password\n");
+			irc.delete_member(member->get_nick());
+			delete member;
+			irc.get_socket_set().remove_socket(irc.get_current_socket());
+			delete irc.get_current_socket();
 		}
 	}
 	else if (irc.get_current_socket()->get_type() == SERVER)
 	{
+		// 다른 서버에서 전송되는 경우는 확실하게 삽입이 된 경우
 		member->set_username(_msg.get_param(0));
 		member->set_hostname(_msg.get_param(1));
 		member->set_servername(_msg.get_param(2));
@@ -86,6 +91,16 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		_msg.set_prefix(member->get_nick());
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
 	}
+	else
+	{
+		// 위의 두가지 경우가 아니라면 에러이며 해당 멤버를 제거
+		irc.get_current_socket()->write("Bad password\n");
+		irc.delete_member(member->get_nick());
+		delete member;
+		irc.get_socket_set().remove_socket(irc.get_current_socket());
+		delete irc.get_current_socket();
+	}
+	
 }
 
 UserCommand::UserCommand() : Command()

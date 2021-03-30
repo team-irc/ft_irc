@@ -234,10 +234,16 @@ void	IrcServer::client_msg(int fd)
 		{	// 해당 클라이언트와 연결 종료
 			std::string msg;
 			if (_current_sock->get_type() == SERVER)
+			{
 				cmd = _cmd_creator.get_command("SQUIT");
+				cmd->set_message(NULL);
+			}
 			else
+			{
 				cmd = _cmd_creator.get_command("QUIT");
-			cmd->set_message(NULL);
+				msg = "QUIT :" + find_member(_current_sock->get_fd())->get_nick() + "\n";
+				cmd->set_message(Message(msg.c_str()));
+			}
 			cmd->run(*this);
 			return ;
 		}
@@ -248,6 +254,7 @@ void	IrcServer::client_msg(int fd)
 		{
 			cmd->set_message(msg);
 			cmd->run(*this);
+			cmd->set_message(NULL);
 			show_fd_map();
 			show_global_user();
 			show_global_channel();
