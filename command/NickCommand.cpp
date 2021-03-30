@@ -37,11 +37,15 @@ void	NickCommand::run(IrcServer &irc)
 		// USER가 먼저 들어온 경우
 		if (member)
 		{
+			// 해당 시점에서의 global_map에는 nick이 아닌 fd값이 key로 설정되어 있으며 nick으로 새롭게 추가하거나 완전히 제거해야 함
+			irc.delete_member(member->get_nick());
 			member->set_nick(nickname); // 1. 닉네임 설정
 			// 2. 패스워드 체크
 			if (irc.check_pass(socket))
 			{
 				// 등록 완료. NICK, USER 순서로 메시지 전송
+				// global_map에 nick으로 새롭게 추가함
+				irc.add_member(nickname, member);
 				socket->set_type(CLIENT); // 1. 소켓타입 변경
 				irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 2. nick 메세지 전송
 				// 3. USER 메세지 전송
@@ -59,7 +63,13 @@ void	NickCommand::run(IrcServer &irc)
 				irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
 			}
 			else
+			{
+				// 해당 클라이언트 제거 필요, 해당 시점에서 global user에는 있지만 메시지 전파가 되지 않았으므로 global user에서만 제거
 				socket->write("Bad password\n");
+				delete member;
+				irc.get_socket_set().remove_socket(irc.get_current_socket());
+				delete irc.get_current_socket();
+			}
 		}
 		else // 새로운 NICK 등록
 		{
