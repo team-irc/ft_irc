@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <map>
+# include <vector>
 
 // prefix replies(numeric) nick [error] <msg>
 // error는 해당 에러를 발생하는 문자열(ex. No such nick or channel의 경우엔 nick이나 channel의 이름)
@@ -185,10 +186,12 @@ public:
 public:
 	explicit Reply(RPL::NONE);
 	explicit Reply(RPL::YOUREOPER);
+	explicit Reply(RPL::NAMREPLY, const std::string &, std::vector<std::string>);
+	explicit Reply(RPL::ENDOFNAMES, const std::string &);
 public:
 	~Reply();
 public:
-	std::string get_msg();
+	std::string get_msg() const;
 };
 
 #endif

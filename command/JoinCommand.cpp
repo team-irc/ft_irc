@@ -21,8 +21,8 @@ void	JoinCommand::run(IrcServer &irc)
 	Socket			*socket = irc.get_current_socket();
 	Member			*member;
 
-	if (!deal_exception(irc))
-		return ;
+	if (_msg.get_param_size() < 1)
+		throw (Reply(ERR::NEEDMOREPARAMS(), "JOIN"));
 	if (socket->get_type() == UNKNOWN)
 		return ;
 	else if (socket->get_type() == SERVER)
@@ -88,36 +88,4 @@ JoinCommand	&JoinCommand::operator=(JoinCommand const &ref)
 {
 	_msg = ref._msg;
 	return (*this);
-}
-
-bool JoinCommand::deal_exception(IrcServer &irc)
-{
-	int			split_size;
-	Channel		*channel;
-	std::string	*split_ret;
-	Socket		*socket = irc.get_current_socket();
-
-	if (_msg.get_param_size() < 1)
-		goto ERR_NEEDMOREPARAMS;
-	split_size = ft::split(_msg.get_param(0), ',', split_ret);
-	for (int i = 0; i < split_size; ++i)
-	{
-		channel = irc.get_channel(split_ret[i]);
-		if (channel)
-		{
-			if (channel->find_mode('i'))
-				goto ERR_INVITEONLYCHAN;
-		}
-	}
-	delete[] split_ret;
-	return (true);
-
-ERR_NEEDMOREPARAMS:
-	socket->write(Reply(ERR::NEEDMOREPARAMS(), "JOIN").get_msg().c_str());
-	return (false);
-
-ERR_INVITEONLYCHAN:
-	delete[] split_ret;
-	socket->write(Reply(ERR::INVITEONLYCHAN(), channel->get_name()).get_msg().c_str());
-	return (false);
 }

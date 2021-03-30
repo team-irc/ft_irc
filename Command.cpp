@@ -23,3 +23,16 @@ void	Command::set_message(const Message &msg)
 Command::~Command()
 {
 }
+
+void Command::execute(IrcServer &irc)
+{
+	try
+	{
+		run(irc);
+		std::cout << _msg.get_command() << " Command executed" << std::endl;
+	}
+	catch (const Reply &rpl)
+	{
+		irc.get_current_socket()->write(rpl.get_msg().c_str());
+	}
+}
