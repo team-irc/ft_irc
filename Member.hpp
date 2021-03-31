@@ -15,6 +15,7 @@ private:
 	std::string				_servername;
 	std::string				_realname;
 	std::set<Channel *>		_joinned_channels;
+	std::string				_away;
 
 	// mode i: mark a users as invisible;
 	// mode s: marks a user for receipt of server notices;
@@ -47,6 +48,8 @@ public:
 	void				set_fd(int fd);
 	char				get_mode();
 	void				set_mode(char mode);
+	const std::string	&get_away();
+	void				set_away(const std::string &away);
 	std::set<Channel *>	get_joinned_channels();
 	bool				check_mode(char mode, bool is_set);
 	const bool			is_setting() const;

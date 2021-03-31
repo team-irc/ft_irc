@@ -35,6 +35,8 @@ void			PrivmsgCommand::send_member(IrcServer &irc, Member &member)
 
 	add_prefix(irc);
 	sock->write(_msg.get_msg());
+	if (!member.get_away().empty())
+		irc.get_current_socket()->write(Reply(RPL::AWAY(), member.get_nick(), member.get_away()).get_msg().c_str());
 }
 
 void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
@@ -86,16 +88,8 @@ void			PrivmsgCommand::run(IrcServer &irc)
 	}
 	else
 	{
-		
-		// Error	err(ERR_NOSUCHNICK);
-		// err.add_param(nickname);
-		// err.add_param(channel);
-		// socket->write(err.get_msg());
-		// 
-		err = ":servername 411 " + (irc.find_member(_msg.get_source_fd()))->get_nick() + " :No recipient given (privmsg)\n";
-		(irc.get_current_socket())->write(err.c_str());
+		(irc.get_current_socket())->write(Reply(ERR::NORECIPIENT(), "PRIVMSG").get_msg().c_str());
 	}
-	std::cout << "Privmsg executed" << std::endl;
 	// delete[] recvs;
 }
 
