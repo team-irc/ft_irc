@@ -30,7 +30,7 @@ void ListCommand::print_list(IrcServer &irc)
 	while (first != last)
 	{
 		Channel * channel = first->second;
-		if (channel->find_mode('p') || channel->find_mode('s'))
+		if (channel->check_mode('p', true) || channel->check_mode('s', true))
 			socket->write(Reply(RPL::LIST(), channel->get_name(), "0", channel->get_topic()).get_msg().c_str());
 		else
 			socket->write(Reply(RPL::LIST(), channel->get_name(), "1", channel->get_topic()).get_msg().c_str());
@@ -49,7 +49,7 @@ void ListCommand::print_list(IrcServer &irc, std::string *channel_list, int spli
 		Channel	*channel = irc.get_channel(channel_list[i]);
 		if (channel == NULL)
 			throw (Reply(ERR::NOSUCHCHANNEL(), channel->get_name()));
-		if (channel->find_mode('p') || channel->find_mode('s'))
+		if (channel->check_mode('p', true) || channel->check_mode('s', true))
 			socket->write(Reply(RPL::LIST(), channel->get_name(), "0", channel->get_topic()).get_msg().c_str());
 		else
 			socket->write(Reply(RPL::LIST(), channel->get_name(), "1", channel->get_topic()).get_msg().c_str());
