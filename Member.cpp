@@ -88,7 +88,6 @@ bool				Member::delete_channel(Channel *channel)
 	}
 }
 
-char			Member::get_mode() { return (_mode); }
 bool				Member::check_mode(char mode, bool is_set)
 {
 	if (mode == 'i')

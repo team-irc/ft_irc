@@ -59,20 +59,6 @@ std::vector<Member *>	Channel::get_members()
 const std::string & 	Channel::get_name()
 { return (_name); }
 
-bool Channel::find_mode(char c)
-{
-	std::vector<char>::iterator first = _mode.begin();
-	std::vector<char>::iterator last = _mode.end();
-
-	while (first != last)
-	{
-		if (*first == c)
-			return (true);
-		++first;
-	}
-	return (false);
-}
-
 bool Channel::find_member(Member * member)
 {
 	std::vector<Member *>::iterator first = _member.begin();
@@ -173,3 +159,5 @@ bool			Channel::check_mode(char mode, bool is_set)
 
 int				Channel::get_mode() { return (_mode); }
 void			Channel::set_mode(int mode) { _mode = mode; }
+int				Channel::get_limit() { return (_limit); }
+void			Channel::set_limit(int val) { _limit = val; }

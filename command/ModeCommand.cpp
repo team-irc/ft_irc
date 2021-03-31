@@ -37,6 +37,7 @@ void		ModeCommand::check_target(IrcServer &irc)
 		// 채널 동작
 		// 0. 메시지를 보낸 멤버가 채널 관리자인지 검사
 		//	- 아니면 에러 리턴(482)
+		_param_idx = 2;
 		for (int i = 0; i < param.length(); i++)
 		{
 			if (param.at(i) == '-')
@@ -131,11 +132,29 @@ static std::string	check_mode(Channel *channel, char mode, mode_set set, int mas
 	return (result);
 }
 
+static std::string	not_check_mode(Channel *channel, char mode, mode_set set, int mask)
+{
+	std::string		result;
+	int				new_mode = channel->get_mode();
+
+	if (channel->check_mode(mode, set.is_set))
+	{
+		new_mode = new_mode ^ mask;
+		channel->set_mode(new_mode);
+	}
+	if (set.mode != NONE && set.is_set)
+		result += '+';
+	else if (set.mode != NONE && !set.is_set)
+		result += '-';
+	result += mode;
+	return (result);
+}
+
 static bool			str_is_digit(std::string str)
 {
 	for (int i = 0; i < str.length(); i++)
 	{
-		if (!ft::isdigit(str.at(i))
+		if (!ft::isdigit(str.at(i)))
 			return (false);
 	}
 	return (true);
@@ -170,22 +189,22 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 		result += check_mode(channel, mode, set, 16);
 	else if (mode == 'l')
 	{
+		// param 필요(chan limit)
+		// param이 정수로 변환이 안된다면 그냥 무시하고 넘김
+		// 동일한 인자를 넣어도 값은 반환 됨
+		// -의 경우는 다른 플래그와 동일
 		if (set.is_set)
 		{
 			// +는 인자를 사용함, 인자가 안 맞으면 걍 넘김
 			if (_param_idx < _msg.get_param_size() && str_is_digit(_msg.get_param(_param_idx)))
 			{
-				// 
+				result += not_check_mode(channel, mode, set, 8);
+				channel->set_limit(ft::atoi(_msg.get_param(_param_idx).c_str()));
+				_param_idx++;
 			}
 		}
 		else
-		{
-
-		}
-		// param 필요(chan limit)
-		// param이 정수로 변환이 안된다면 그냥 무시하고 넘김
-		// 동일한 인자를 넣어도 값은 반환 됨
-
+			result += check_mode(channel, mode, set, 8);
 	}
 	else if (mode == 'b')
 	{
@@ -252,7 +271,6 @@ void	ModeCommand::run(IrcServer &irc)
 {
 	// _msg의 param을 분석해야 함
 	// - + 중복 허용됨
-	
 	if (irc.get_current_socket()->get_type() == UNKNOWN)
 	{
 		// error msg
