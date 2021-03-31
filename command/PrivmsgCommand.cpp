@@ -95,7 +95,6 @@ void			PrivmsgCommand::run(IrcServer &irc)
 		err = ":servername 411 " + (irc.find_member(_msg.get_source_fd()))->get_nick() + " :No recipient given (privmsg)\n";
 		(irc.get_current_socket())->write(err.c_str());
 	}
-	std::cout << "Privmsg executed" << std::endl;
 	// delete[] recvs;
 }
 

@@ -76,6 +76,8 @@ void				Member::set_realname(const std::string &realname)		{ _realname = realnam
 int					Member::get_fd()										{ return (_fd); }
 void				Member::set_fd(int fd)									{ _fd = fd; }
 std::set<Channel *>	Member::get_joinned_channels()							{ return (_joinned_channels); }
+const std::string	&Member::get_away()										{ return (_away); }
+void				Member::set_away(const std::string &away)				{ _away = away; }
 
 bool				Member::delete_channel(Channel *channel)
 {
