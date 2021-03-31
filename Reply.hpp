@@ -4,6 +4,7 @@
 # include <iostream>
 # include <map>
 # include <vector>
+# include <string>
 
 // prefix replies(numeric) nick [error] <msg>
 // error는 해당 에러를 발생하는 문자열(ex. No such nick or channel의 경우엔 nick이나 channel의 이름)
@@ -137,7 +138,10 @@ namespace RPL
 class Reply
 {
 private:
-	std::string	_msg;
+	std::string			_msg;
+	static std::string	_server_name;
+	static std::string	_user_name;
+	std::string			_errnum;
 public:
 	explicit Reply(ERR::NOSUCHNICK, const std::string &);
 	explicit Reply(ERR::NOSUCHSERVER, const std::string &);
@@ -191,10 +195,16 @@ public:
 	explicit Reply(RPL::LISTSTART);
 	explicit Reply(RPL::LIST, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::LISTEND);
+	explicit Reply(RPL::TOPIC, const std::string &channel, const std::string &topic);
 public:
 	~Reply();
+	Reply();
 public:
 	std::string get_msg() const;
+	static void		set_username(std::string const &username);
+	static void		set_servername(std::string const &servername);
 };
+
+
 
 #endif
