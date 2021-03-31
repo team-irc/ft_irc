@@ -12,8 +12,9 @@ public:
 public:
 	void run(IrcServer &irc);
 private:
-	std::vector<std::string> get_channel_user_list(Channel * channel);
-	std::vector<std::string> get_user_list_who_not_join_any_channel(IrcServer &irc);
+	bool						is_he_invisible(Member * member);
+	std::vector<std::string>	get_channel_user_list(Channel * channel);
+	std::vector<std::string>	get_user_list_who_not_join_any_channel(IrcServer &irc);
 };
 
 #endif

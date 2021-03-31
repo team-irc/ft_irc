@@ -188,6 +188,9 @@ public:
 	explicit Reply(RPL::YOUREOPER);
 	explicit Reply(RPL::NAMREPLY, const std::string &, std::vector<std::string>);
 	explicit Reply(RPL::ENDOFNAMES, const std::string &);
+	explicit Reply(RPL::LISTSTART);
+	explicit Reply(RPL::LIST, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::LISTEND);
 public:
 	~Reply();
 public:

@@ -50,8 +50,10 @@ void	NamesCommand::run(IrcServer &irc)
 
 		while (first != last)
 		{
-			// if channel is visible
-			socket->write(Reply(RPL::NAMREPLY(), first->second->get_name(), get_channel_user_list(first->second)).get_msg().c_str());
+			Channel * channel = first->second;
+
+			if (!(channel->find_mode('p') || channel->find_mode('s')))
+				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
 			++first;
 		}
 		if (!((get_user_list_who_not_join_any_channel(irc)).empty()))
@@ -62,13 +64,31 @@ void	NamesCommand::run(IrcServer &irc)
 	{
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
 			return ;
-		socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
-		socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
+		if (!(channel->find_mode('p') || channel->find_mode('s')))
+		{
+			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
+			socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
+		}
 	}
 }
 
 NamesCommand::NamesCommand(): Command()
 {
+}
+
+bool						is_he_invisible(Member * member)
+{
+	std::set<Channel *>				joinned_channels = member->get_joinned_channels();
+	std::set<Channel *>::iterator	first = joinned_channels.begin();
+	std::set<Channel *>::iterator	last = joinned_channels.end();
+
+	while (first != last)
+	{
+		if (!(first->find_mode('p') || first->find_mode('s')))
+			return (false);
+		++first;
+	}
+	return (true);
 }
 
 std::vector<std::string> NamesCommand::get_channel_user_list(Channel * channel)
@@ -101,10 +121,11 @@ std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(Ir
 	last = global_user.end();
 	while (first != last)
 	{
-		if ((first->second->get_joinned_channels()).empty())
+		Member *			member = first->second;
+		std::set<Channel *>	joinned_channels = member->get_joinned_channels();
+		if (joinned_channels.empty() || is_he_invisible(member))
 		{
-			write(1, first->second->get_nick().c_str(), 20);
-			ret.push_back(first->second->get_nick());
+			ret.push_back(member->get_nick());
 		}
 		++first;
 	}

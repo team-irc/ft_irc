@@ -348,6 +348,27 @@ Reply::Reply(RPL::ENDOFNAMES junk, const std::string &channel)
 	_msg += " :End of /NAMES list";
 }
 
+Reply::Reply(RPL::LISTSTART junk)
+{
+	(void)junk;
+	//"Channel :Users  Name"
+	_msg = "Channel :Users  Name";
+}
+
+Reply::Reply(RPL::LIST junk, const std::string &channel, const std::string &visible, const std::string &topic)
+{
+	(void)junk;
+	//"<channel> <# visible> :<topic>"
+	_msg = channel + " #" + visible + " :" + topic;
+}
+
+Reply::Reply(RPL::LISTEND junk)
+{
+	(void)junk;
+	//":End of /LIST"
+	_msg = ":End of /LIST";
+}
+
 Reply::~Reply()
 {
 }
