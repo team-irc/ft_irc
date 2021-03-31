@@ -50,9 +50,9 @@ void	NamesCommand::run(IrcServer &irc)
 
 		while (first != last)
 		{
-			Channel * channel = first->second;
+			channel = first->second;
 
-			if (!(channel->find_mode('p') || channel->find_mode('s')))
+			if (!(channel->check_mode('p', true) || channel->check_mode('s', true)))
 				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
 			++first;
 		}
@@ -64,7 +64,7 @@ void	NamesCommand::run(IrcServer &irc)
 	{
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
 			return ;
-		if (!(channel->find_mode('p') || channel->find_mode('s')))
+		if (!(channel->check_mode('p', true) || channel->check_mode('s', true)))
 		{
 			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
 			socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
@@ -76,7 +76,7 @@ NamesCommand::NamesCommand(): Command()
 {
 }
 
-bool						NamesCommand::is_he_invisible(Member * member)
+bool	NamesCommand::is_he_invisible(Member * member)
 {
 	std::set<Channel *>				joinned_channels = member->get_joinned_channels();
 	std::set<Channel *>::iterator	first = joinned_channels.begin();
@@ -85,7 +85,7 @@ bool						NamesCommand::is_he_invisible(Member * member)
 	while (first != last)
 	{
 		Channel * channel = *first;
-		if (!(channel->find_mode('p') || channel->find_mode('s')))
+		if (!(channel->check_mode('p', true) || channel->check_mode('s', true)))
 			return (false);
 		++first;
 	}

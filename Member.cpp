@@ -88,64 +88,34 @@ bool				Member::delete_channel(Channel *channel)
 	}
 }
 
-char			Member::get_mode() { return (_mode); }
 bool				Member::check_mode(char mode, bool is_set)
 {
-	if (is_set)
+	if (mode == 'i')
 	{
-		if (mode == 'i')
-		{
-			if (_mode & 8)
-				return (false);
-			return (true);
-		}
-		else if (mode == 'w')
-		{
-			if (_mode & 4)
-				return (false);
-			return (true);
-		}
-		else if (mode == 's')
-		{
-			if (_mode & 2)
-				return (false);
-			return (true);
-		}
-		else if (mode == 'o')
-		{
-			if (_mode & 1)
-				return (false);
-			return (true);
-		}
+		if (_mode & 8)
+			return (!is_set);
+		return (is_set);
 	}
-	else
+	else if (mode == 'w')
 	{
-		if (mode == 'i')
-		{
-			if (_mode & 8)
-				return (true);
-			return (false);
-		}
-		else if (mode == 'w')
-		{
-			if (_mode & 4)
-				return (true);
-			return (false);
-		}
-		else if (mode == 's')
-		{
-			if (_mode & 2)
-				return (true);
-			return (false);
-		}
-		else if (mode == 'o')
-		{
-			if (_mode & 1)
-				return (true);
-			return (false);
-		}
+		if (_mode & 4)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 's')
+	{
+		if (_mode & 2)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'o')
+	{
+		if (_mode & 1)
+			return (!is_set);
+		return (is_set);
 	}
 	return (false);
 }
 
+char				Member::get_mode() { return (_mode); }
 void				Member::set_mode(char mode) { _mode = mode; }
