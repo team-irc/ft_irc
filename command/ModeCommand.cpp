@@ -164,6 +164,7 @@ static bool			str_is_digit(std::string str)
 std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char mode, mode_set set)
 {
 	std::string		result;
+	Member			*member = 0;
 
 	if (mode == 'o')
 	{
@@ -173,7 +174,42 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 		//	- 없으면 에러 리턴(They Aren't on that channel)
 		// 3. 채널 관리자 벡터에 해당 멤버 추가하고 인덱스 증가
 		//	- 이미 해당 멤버가 관리자 멤버에 있다면 아무 동작 없음
-		// -가 들어오는 경우 채널의 관리자 벡터에서 제거함
+		// 4. -가 들어오는 경우 채널의 관리자 벡터에서 제거함
+		//	- 마찬가지로 이미 세팅이 된 상태라면 아무 동작 없음
+		if (_param_idx < _msg.get_param_size())
+		{
+			if ((member = irc.get_member(_msg.get_param(_param_idx))))
+			{
+				if (channel->find_member(member))
+				{
+					if (set.is_set && !channel->is_operator(member))
+					{
+						result += not_check_mode(channel, mode, set, 1024);
+						channel->add_operator(member);
+					}
+					else if (!set.is_set && channel->is_operator(member))
+					{
+						result += not_check_mode(channel, mode, set, 1024);
+						channel->delete_operator(member);
+					}
+				}
+				else
+				{
+					// error They aren't on that channel
+					std::string	msg = ":" + irc.get_servername() + " " +
+						Reply(ERR::USERNOTINCHANNEL(), member->get_nick(), channel->get_name()).get_msg();
+					irc.get_current_socket()->write(msg.c_str());
+				}
+			}
+			else
+			{
+				std::string	msg = ":" + irc.get_servername() + " " +
+					Reply(ERR::NOSUCHNICK(), _msg.get_param(_param_idx)).get_msg();
+				irc.get_current_socket()->write(msg.c_str());
+			}
+			if (member)
+				_param_idx++;
+		}
 	}
 	else if (mode == 'p')
 		result += check_mode(channel, mode, set, 512);
