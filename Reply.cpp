@@ -359,7 +359,10 @@ Reply::Reply(RPL::LIST junk, const std::string &channel, const std::string &visi
 {
 	(void)junk;
 	//"<channel> <visible> :<topic>"
-	_msg = channel + " " + visible + " :" + topic;
+	if (topic[0] == ':')
+		_msg = channel + " " + visible + ' ' + topic;
+	else
+		_msg = channel + " " + visible + " :" + topic;
 }
 
 Reply::Reply(RPL::LISTEND junk)

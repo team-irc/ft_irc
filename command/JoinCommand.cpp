@@ -72,7 +72,6 @@ void	JoinCommand::run(IrcServer &irc)
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
-	std::cout << "Join Command executed.\n";
 }
 
 JoinCommand::JoinCommand() : Command()
