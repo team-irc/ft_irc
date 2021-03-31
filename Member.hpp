@@ -51,6 +51,7 @@ public:
 	bool				check_mode(char mode, bool is_set);
 	const bool			is_setting() const;
 	bool				add_channel(Channel *channel);
+	bool				delete_channel(Channel *channel);
 };
 
 #endif

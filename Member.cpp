@@ -76,9 +76,18 @@ void				Member::set_realname(const std::string &realname)		{ _realname = realnam
 int					Member::get_fd()										{ return (_fd); }
 void				Member::set_fd(int fd)									{ _fd = fd; }
 std::set<Channel *>	Member::get_joinned_channels()							{ return (_joinned_channels); }
-//nick
-//user -> username hostname -> member.set_username(...) 
-//
+
+bool				Member::delete_channel(Channel *channel)
+{
+	if (_joinned_channels.find(channel) == _joinned_channels.end())
+		return (false);
+	else
+	{
+		_joinned_channels.erase(channel);
+		return (true);
+	}
+}
+
 char			Member::get_mode() { return (_mode); }
 bool				Member::check_mode(char mode, bool is_set)
 {

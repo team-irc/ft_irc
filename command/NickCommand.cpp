@@ -119,7 +119,6 @@ void	NickCommand::run(IrcServer &irc)
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
 	}
-	std::cout << "Nick Command executed.\n";
 }
 
 NickCommand::NickCommand() : Command()
