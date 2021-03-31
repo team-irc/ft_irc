@@ -35,13 +35,15 @@ void			PrivmsgCommand::send_member(IrcServer &irc, Member &member)
 
 	add_prefix(irc);
 	sock->write(_msg.get_msg());
+	if (!member.get_away().empty())
+		irc.get_current_socket()->write(Reply(RPL::AWAY(), member.get_nick(), member.get_away()).get_msg().c_str());
 }
 
 void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
 {
-	std::vector<Member *>	members = channel.get_members();
-	std::vector<Member *>::iterator begin = members.begin();
-	std::vector<Member *>::iterator end = members.end();
+	std::vector<ChanMember>	members = channel.get_members();
+	std::vector<ChanMember>::iterator begin = members.begin();
+	std::vector<ChanMember>::iterator end = members.end();
 	int			fd;
 	std::string	prefix;
 
@@ -49,11 +51,11 @@ void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
 	prefix = _msg.get_prefix().substr(0, _msg.get_prefix().find('!'));
 	while (begin != end)
 	{
-		fd = (*begin)->get_fd();
+		fd = (*begin)._member->get_fd();
 		// 해당 메시지를 보낸 유저에는 메시지를 전송하지 않아야 함
 		// 채널 내에 있을 수도 있고 없을 수도 있음(prefix로 구분?)
-		if (((*begin)->get_nick() != prefix) &&
-			((*begin)->get_fd() != _msg.get_source_fd()))
+		if (((*begin)._member->get_nick() != prefix) &&
+			((*begin)._member->get_fd() != _msg.get_source_fd()))
 			(irc.get_socket_set().find_socket(fd))->write(_msg.get_msg());
 		begin++;
 	}
@@ -86,16 +88,8 @@ void			PrivmsgCommand::run(IrcServer &irc)
 	}
 	else
 	{
-		
-		// Error	err(ERR_NOSUCHNICK);
-		// err.add_param(nickname);
-		// err.add_param(channel);
-		// socket->write(err.get_msg());
-		// 
-		err = ":servername 411 " + (irc.find_member(_msg.get_source_fd()))->get_nick() + " :No recipient given (privmsg)\n";
-		(irc.get_current_socket())->write(err.c_str());
+		(irc.get_current_socket())->write(Reply(ERR::NORECIPIENT(), "PRIVMSG").get_msg().c_str());
 	}
-	std::cout << "Privmsg executed" << std::endl;
 	// delete[] recvs;
 }
 

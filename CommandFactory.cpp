@@ -12,6 +12,7 @@
 #include "TopicCommand.hpp"
 #include "ModeCommand.hpp"
 #include "ListCommand.hpp"
+#include "AwayCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -29,6 +30,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("TOPIC", new TopicCommand()));
 	_map.insert(std::pair<std::string, Command *>("MODE", new ModeCommand()));
 	_map.insert(std::pair<std::string, Command *>("LIST", new ListCommand()));
+	_map.insert(std::pair<std::string, Command *>("AWAY", new AwayCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

@@ -35,6 +35,7 @@ Message::Message(const char *msg)
 		param = arr[idx];
 		if (param.at(0) == ':')
 		{
+			param = param.erase(0, 1);
 			idx++;
 			for (; idx < size; idx++)
 			{
@@ -151,6 +152,8 @@ const char	*Message::get_msg()
 	while (begin != end)
 	{
 		_msg += " ";
+		if (begin + 1 == end)
+			_msg += ":";
 		_msg += *begin;
 		begin++;
 	}

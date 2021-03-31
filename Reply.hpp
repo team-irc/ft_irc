@@ -195,8 +195,11 @@ public:
 	explicit Reply(RPL::LISTSTART);
 	explicit Reply(RPL::LIST, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::LISTEND);
-	explicit Reply(RPL::TOPIC, const std::string &channel, const std::string &topic);
-	explicit Reply(RPL::NOTOPIC err, const std::string &channel);
+	explicit Reply(RPL::NOTOPIC, const std::string &);
+	explicit Reply(RPL::TOPIC, const std::string &, const std::string &);
+	explicit Reply(RPL::AWAY, const std::string &, const std::string &);
+	explicit Reply(RPL::UNAWAY);
+	explicit Reply(RPL::NOWAWAY);
 public:
 	~Reply();
 	Reply();
