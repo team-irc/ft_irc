@@ -27,7 +27,8 @@ SRC = \
 	command/NamesCommand.cpp	\
 	command/SquitCommand.cpp	\
 	command/TopicCommand.cpp	\
-	command/ModeCommand.cpp
+	command/ModeCommand.cpp		\
+	command/ListCommand.cpp
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))

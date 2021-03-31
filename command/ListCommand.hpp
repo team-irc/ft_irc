@@ -9,6 +9,9 @@ public:
 	ListCommand();
 public:
 	void run(IrcServer &irc);
+private:
+	void print_list(IrcServer &irc);
+	void print_list(IrcServer &irc, std::string *channel_list, int split_size);
 };
 
 #endif

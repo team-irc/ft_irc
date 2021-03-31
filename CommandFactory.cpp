@@ -11,6 +11,7 @@
 #include "SquitCommand.hpp"
 #include "TopicCommand.hpp"
 #include "ModeCommand.hpp"
+#include "ListCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -27,6 +28,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("SQUIT", new SquitCommand()));
 	_map.insert(std::pair<std::string, Command *>("TOPIC", new SquitCommand()));
 	_map.insert(std::pair<std::string, Command *>("MODE", new ModeCommand()));
+	_map.insert(std::pair<std::string, Command *>("LIST", new ListCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
