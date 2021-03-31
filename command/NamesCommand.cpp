@@ -76,7 +76,7 @@ NamesCommand::NamesCommand(): Command()
 {
 }
 
-bool						is_he_invisible(Member * member)
+bool						NamesCommand::is_he_invisible(Member * member)
 {
 	std::set<Channel *>				joinned_channels = member->get_joinned_channels();
 	std::set<Channel *>::iterator	first = joinned_channels.begin();
@@ -84,7 +84,8 @@ bool						is_he_invisible(Member * member)
 
 	while (first != last)
 	{
-		if (!(first->find_mode('p') || first->find_mode('s')))
+		Channel * channel = *first;
+		if (!(channel->find_mode('p') || channel->find_mode('s')))
 			return (false);
 		++first;
 	}
