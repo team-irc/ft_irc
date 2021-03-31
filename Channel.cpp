@@ -98,3 +98,78 @@ std::string		Channel::get_topic()
 {
 	return (_topic);
 }
+
+// Channel mode: o(1024) p(512) s(256) i(128) t(64) n(32) m(16) l(8) b(4) v(2) k(1)
+bool			Channel::check_mode(char mode, bool is_set)
+{
+	if (mode == 'o')
+	{
+		if (_mode & 1024)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'p')
+	{
+		if (_mode & 512)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 's')
+	{
+		if (_mode & 256)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'i')
+	{
+		if (_mode & 128)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 't')
+	{
+		if (_mode & 64)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'n')
+	{
+		if (_mode & 32)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'm')
+	{
+		if (_mode & 16)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'l')
+	{
+		if (_mode & 8)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'b')
+	{
+		if (_mode & 4)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'v')
+	{
+		if (_mode & 2)
+			return (!is_set);
+		return (is_set);
+	}
+	else if (mode == 'k')
+	{
+		if (_mode & 1)
+			return (!is_set);
+		return (is_set);
+	}
+	return (false);
+}
+
+int				Channel::get_mode() { return (_mode); }
+void			Channel::set_mode(int mode) { _mode = mode; }

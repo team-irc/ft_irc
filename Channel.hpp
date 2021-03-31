@@ -50,7 +50,10 @@ private:
 	std::string						_key;
 	std::string						_topic;
 	std::vector<Member *>			_member;
-	std::vector<char>				_mode;
+	std::vector<std::string>		_ban_list;
+	std::vector<Member *>			_operators;
+	int								_mode;
+	int								_limit;
 	//								_properties.op_members;
 	//								_properties.create_member;
 	//								...
@@ -63,14 +66,19 @@ public:
 	Channel & operator = (const Channel & other);
 	~Channel();
 public:
-	void	add_member(Member *member);
-	int		delete_member(Member *member);
-	std::vector<Member *> get_members();
-	const std::string & get_name();
-	bool find_mode(char c);
-	bool find_member(Member * member);
-	bool			set_topic(std::string const &topic);
-	std::string		get_topic();
+	void					add_member(Member *member);
+	int						delete_member(Member *member);
+	std::vector<Member *>	get_members();
+	const std::string 		&get_name();
+	bool					find_mode(char c);
+	bool					find_member(Member * member);
+	bool					set_topic(std::string const &topic);
+	std::string				get_topic();
+	bool					check_mode(char mode, bool is_set);
+	int						get_mode();
+	void					set_mode(int mode);
+	int						get_limit();
+	void					set_limit(int limit);
 };
 
 #endif
