@@ -42,7 +42,6 @@
 
 // 채널 생성한 멤버에 관리자/생성자 권한 부여
 
-
 class Channel
 {
 private:

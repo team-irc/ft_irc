@@ -363,10 +363,7 @@ Reply::Reply(RPL::LIST junk, const std::string &channel, const std::string &visi
 {
 	_errnum = std::to_string(junk.ERRNO);
 	//"<channel> <# visible> :<topic>"
-  if (topic[0] == ':')
-		_msg = channel + " " + visible + ' ' + topic;
-	else
-		_msg = channel + " " + visible + " :" + topic;
+	_msg = channel + " " + visible + " :" + topic;
 }
 
 Reply::Reply(RPL::LISTEND junk)
@@ -374,6 +371,34 @@ Reply::Reply(RPL::LISTEND junk)
 	_errnum = std::to_string(junk.ERRNO);
 	//":End of /LIST"
 	_msg = ":End of /LIST";
+}
+
+Reply::Reply(RPL::TOPIC junk, const std::string &channel, const std::string &topic)
+{
+	_errnum = std::to_string(junk.ERRNO);
+	//"<channel> :<topic>"
+	_msg = channel + " :" + topic;
+}
+
+Reply::Reply(RPL::AWAY junk, const std::string &nick, const std::string &away_message)
+{
+	_errnum = std::to_string(junk.ERRNO);
+	//"<nick> :<away message>"
+	_msg = nick + " :" + away_message;
+}
+
+Reply::Reply(RPL::UNAWAY junk)
+{
+	_errnum = std::to_string(junk.ERRNO);
+	//":You are no longer marked as being away"
+	_msg = ":You are no longer marked as being away";
+}
+
+Reply::Reply(RPL::NOWAWAY junk)
+{
+	_errnum = std::to_string(junk.ERRNO);
+	//":You have been marked as being away"
+	_msg = ":You have been marked as being away";
 }
 
 Reply::~Reply()
@@ -387,13 +412,6 @@ std::string 	Reply::get_msg() const
 	ret = ":" + _server_name + " " + _errnum + " " + _user_name + " ";
 	ret += _msg + "\n";
 	return (ret);
-}
-
-Reply::Reply(RPL::TOPIC junk, const std::string &channel, const std::string &topic)
-{
-	_errnum = std::to_string(junk.ERRNO);
-	_errnum = std::to_string(junk.ERRNO);
-	_msg = "#" + channel + " :" + topic;
 }
 
 void		Reply::set_username(std::string const &username)
