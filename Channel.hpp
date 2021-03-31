@@ -78,6 +78,11 @@ public:
 	void					set_mode(int mode);
 	int						get_limit();
 	void					set_limit(int limit);
+	bool					is_operator(Member *oper);
+	void					add_operator(Member *member);
+	bool					is_ban_list(std::string const &mask);
+	void					add_ban_list(std::string const &mask);
+	void					delete_operator(Member *member);
 };
 
 #endif

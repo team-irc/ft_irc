@@ -161,3 +161,53 @@ int				Channel::get_mode() { return (_mode); }
 void			Channel::set_mode(int mode) { _mode = mode; }
 int				Channel::get_limit() { return (_limit); }
 void			Channel::set_limit(int val) { _limit = val; }
+
+bool			Channel::is_operator(Member *oper)
+{
+	std::vector<Member *>::iterator		begin = _operators.begin();
+	std::vector<Member *>::iterator		end = _operators.end();
+
+	while (begin != end)
+	{
+		if ((*begin) == oper)
+			return (true);
+		begin++;
+	}
+	return (false);
+}
+
+void			Channel::add_operator(Member *member)
+{ _operators.push_back(member); }
+
+void			Channel::delete_operator(Member *member)
+{
+	std::vector<Member *>::iterator	begin = _operators.begin();
+	std::vector<Member *>::iterator	end = _operators.end();
+
+	while (begin != end)
+	{
+		if ((*begin) == member)
+		{
+			_operators.erase(begin);
+			return ;
+		}
+		begin++;
+	}
+}
+
+bool			Channel::is_ban_list(std::string const &mask)
+{
+	std::vector<std::string>::iterator		begin = _ban_list.begin();
+	std::vector<std::string>::iterator		end = _ban_list.end();
+
+	while (begin != end)
+	{
+		if ((*begin) == mask)
+			return (true);
+		begin++;
+	}
+	return (false);
+}
+
+void			Channel::add_ban_list(std::string const &mask)
+{ _ban_list.push_back(mask); }
