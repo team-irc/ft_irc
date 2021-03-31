@@ -233,8 +233,7 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 				irc.get_current_socket()->write(
 					Reply(ERR::NOSUCHNICK(), _msg.get_param(_param_idx)).get_msg().c_str());
 			}
-			if (member)
-				_param_idx++;
+			_param_idx++;
 		}
 	}
 	else if (mode == 'p')
@@ -303,6 +302,7 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 			}
 			result.clear();
 			delete[] split;
+			_param_idx++;
 		}
 		else
 		{
@@ -327,15 +327,52 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 	{
 		// param 필요(nick)
 		// 추가 된다면 값이 반환되고, 안되면 반환 안됨
+		if (_param_idx < _msg.get_param_size())
+		{
+			if ((member = irc.get_member(_msg.get_param(_param_idx))))
+			{
+				if (channel->find_member(member))
+				{
+					if (set.is_set && !channel->is_voice(member))
+					{
+						result += not_check_mode(channel, mode, set, 2);
+						channel->add_voice(member);
+					}
+					else if (!set.is_set && channel->is_voice(member))
+					{
+						result += not_check_mode(channel, mode, set, 2);
+						channel->delete_voice(member);
+					}
+				}
+				else
+				{
+					// error They aren't on that channel
+					irc.get_current_socket()->write(
+						Reply(ERR::USERNOTINCHANNEL(), member->get_nick(), channel->get_name()).get_msg().c_str());
+				}
+			}
+			else
+			{
+				irc.get_current_socket()->write(
+					Reply(ERR::NOSUCHNICK(), _msg.get_param(_param_idx)).get_msg().c_str());
+			}
+			_param_idx++;
+		}
 	}
 	else if (mode == 'k')
 	{
 		// param 필요(key)
 		// 동일한 인자를 넣어도 값은 반환 됨
+		if (_param_idx < _msg.get_param_size())
+		{
+			std::string		key = _msg.get_param(_param_idx);
+			result += not_check_mode(channel, mode, set, 1);
+		}
 	}
 	else
 	{
-		// error
+		irc.get_current_socket()->write(
+			Reply(ERR::UNKNOWNMODE(), std::to_string(mode)).get_msg().c_str());
 	}
 	return (result);
 }
