@@ -4,14 +4,14 @@ Channel::Channel(const std::string channel_name, const std::string key, Member *
 	: _name(channel_name), _key(key), _topic()
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
-	_member.push_back(first_member);
+	_member.push_back(ChanMember(first_member, true, true));
 };
 
 Channel::Channel(const std::string channel_name, Member *first_member)
 	: _name(channel_name), _topic()
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
-	_member.push_back(first_member);
+	_member.push_back(ChanMember(first_member, true, true));
 };
 
 Channel::Channel(const Channel & other): _name(other._name), _member(other._member), _topic(other._topic)
@@ -33,17 +33,17 @@ Channel::~Channel()
 
 void Channel::add_member(Member *member)
 {
-	_member.push_back(member);
+	_member.push_back(ChanMember(member, false, false));
 };
 
 int	Channel::delete_member(Member *member)
 {
-	std::vector<Member *>::iterator	iter;
+	std::vector<ChanMember>::iterator	iter;
 
 	iter = _member.begin();
 	while (iter != _member.end())
 	{
-		if (*iter == member)
+		if ((*iter)._member == member)
 		{
 			_member.erase(iter);
 			return (1);
@@ -53,7 +53,7 @@ int	Channel::delete_member(Member *member)
 	return (0);
 };
 
-std::vector<Member *>	Channel::get_members()
+std::vector<ChanMember>	&Channel::get_members()
 { return (_member); }
 
 const std::string & 	Channel::get_name()
@@ -61,12 +61,12 @@ const std::string & 	Channel::get_name()
 
 bool Channel::find_member(Member * member)
 {
-	std::vector<Member *>::iterator first = _member.begin();
-	std::vector<Member *>::iterator last = _member.end();
+	std::vector<ChanMember>::iterator first = _member.begin();
+	std::vector<ChanMember>::iterator last = _member.end();
 
 	while (first != last)
 	{
-		if ((*first)->get_nick() == member->get_nick())
+		if ((*first)._member == member)
 			return (true);
 		++first;
 	}
@@ -86,6 +86,7 @@ std::string		Channel::get_topic()
 }
 
 // Channel mode: o(1024) p(512) s(256) i(128) t(64) n(32) m(16) l(8) b(4) v(2) k(1)
+// o, b, v는 별도의 확인 함수 사용 필요함(is_operator, is_ban_list, is_voice_list)
 bool			Channel::check_mode(char mode, bool is_set)
 {
 	if (mode == 'o')
@@ -162,14 +163,14 @@ void			Channel::set_mode(int mode) { _mode = mode; }
 int				Channel::get_limit() { return (_limit); }
 void			Channel::set_limit(int val) { _limit = val; }
 
-bool			Channel::is_operator(Member *oper)
+bool			Channel::is_operator(Member *member)
 {
-	std::vector<Member *>::iterator		begin = _operators.begin();
-	std::vector<Member *>::iterator		end = _operators.end();
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
 
 	while (begin != end)
 	{
-		if ((*begin) == oper)
+		if ((*begin)._member == member && (*begin)._is_operator)
 			return (true);
 		begin++;
 	}
@@ -177,18 +178,31 @@ bool			Channel::is_operator(Member *oper)
 }
 
 void			Channel::add_operator(Member *member)
-{ _operators.push_back(member); }
-
-void			Channel::delete_operator(Member *member)
 {
-	std::vector<Member *>::iterator	begin = _operators.begin();
-	std::vector<Member *>::iterator	end = _operators.end();
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
 
 	while (begin != end)
 	{
-		if ((*begin) == member)
+		if ((*begin)._member == member)
 		{
-			_operators.erase(begin);
+			(*begin)._is_operator = true;
+			return ;
+		}
+		begin++;
+	}
+}
+
+void			Channel::delete_operator(Member *member)
+{
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
+
+	while (begin != end)
+	{
+		if ((*begin)._member == member)
+		{
+			(*begin)._is_operator = false;
 			return ;
 		}
 		begin++;
@@ -211,3 +225,65 @@ bool			Channel::is_ban_list(std::string const &mask)
 
 void			Channel::add_ban_list(std::string const &mask)
 { _ban_list.push_back(mask); }
+
+void			Channel::delete_ban_list(std::string const &mask)
+{
+	std::vector<std::string>::iterator		begin = _ban_list.begin();
+	std::vector<std::string>::iterator		end = _ban_list.end();
+
+	while (begin != end)
+	{
+		if ((*begin) == mask)
+		{
+			_ban_list.erase(begin);
+			return ;
+		}
+		begin++;
+	}
+}
+
+bool			Channel::is_voice(Member *member)
+{
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
+
+	while (begin != end)
+	{
+		if ((*begin)._member == member && (*begin)._is_voice)
+			return (true);
+		begin++;
+	}
+	return (false);
+}
+
+void			Channel::add_voice(Member *member)
+{
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
+
+	while (begin != end)
+	{
+		if ((*begin)._member == member)
+		{
+			(*begin)._is_voice = true;
+			return ;
+		}
+		begin++;
+	}
+}
+
+void			Channel::delete_voice(Member *member)
+{
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
+
+	while (begin != end)
+	{
+		if ((*begin)._member == member)
+		{
+			(*begin)._is_voice = true;
+			return ;
+		}
+		begin++;
+	}
+}

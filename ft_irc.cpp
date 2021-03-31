@@ -450,7 +450,7 @@ void		IrcServer::show_global_user()
 void		IrcServer::show_global_channel()
 {
 	std::map<std::string, Channel *>::iterator iter = _global_channel.begin();
-	std::vector<Member *>	member_vector;
+	std::vector<ChanMember>	member_vector;
 
 	std::cout << "================== _global_channel ==================\n";
 	std::cout.width(20);
@@ -467,12 +467,12 @@ void		IrcServer::show_global_channel()
 		std::cout.width(20);
 		std::cout << (*iter).second->get_topic();
 		member_vector = (*iter).second->get_members();
-		std::vector<Member *>::iterator		member_iter;
+		std::vector<ChanMember>::iterator		member_iter;
 		member_iter = member_vector.begin();
 		while (member_iter != member_vector.end())
 		{
 			std::cout.width(10);
-			std::cout << (*member_iter)->get_nick();
+			std::cout << (*member_iter)._member->get_nick();
 			member_iter++;
 		}
 		iter++;

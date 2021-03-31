@@ -242,10 +242,16 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 	}
 	else if (mode == 'b')
 	{
-		// 0. param이 없다면 ban mask list를 전송
-		// 1. param이 있으면 해당 마스크를 벡터에 추가
-		//	- 이미 있는 멤버면 아무 동작 안함
-		// 2. -의 경우도 똑같이 동작 함
+		if (_param_idx < _msg.get_param_size())
+		{
+			// 1. param이 있으면 해당 마스크를 벡터에 추가
+			//	- 이미 있는 멤버면 아무 동작 안함
+			// 2. -의 경우도 똑같이 동작 함
+		}
+		else
+		{
+			// 0. param이 없다면 ban mask list를 전송
+		}
 	}
 	else if (mode == 'v')
 	{

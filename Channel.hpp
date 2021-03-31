@@ -42,15 +42,24 @@
 
 // 채널 생성한 멤버에 관리자/생성자 권한 부여
 
+struct	ChanMember
+{
+	Member		*_member;
+	bool		_is_operator;
+	bool		_is_voice;
+
+	ChanMember(Member *member, bool is_oper, bool is_voice) :
+		_member(member), _is_operator(is_oper), _is_voice(is_voice) {}
+};
+
 class Channel
 {
 private:
 	const std::string				_name;
 	std::string						_key;
 	std::string						_topic;
-	std::vector<Member *>			_member;
+	std::vector<ChanMember>			_member;
 	std::vector<std::string>		_ban_list;
-	std::vector<Member *>			_operators;
 	int								_mode;
 	int								_limit;
 	//								_properties.op_members;
@@ -67,7 +76,7 @@ public:
 public:
 	void					add_member(Member *member);
 	int						delete_member(Member *member);
-	std::vector<Member *>	get_members();
+	std::vector<ChanMember>	&get_members();
 	const std::string 		&get_name();
 	bool					find_member(Member * member);
 	bool					set_topic(std::string const &topic);
@@ -75,13 +84,21 @@ public:
 	bool					check_mode(char mode, bool is_set);
 	int						get_mode();
 	void					set_mode(int mode);
+
 	int						get_limit();
 	void					set_limit(int limit);
-	bool					is_operator(Member *oper);
+
+	bool					is_operator(Member *member);
 	void					add_operator(Member *member);
+	void					delete_operator(Member *member);
+
 	bool					is_ban_list(std::string const &mask);
 	void					add_ban_list(std::string const &mask);
-	void					delete_operator(Member *member);
+	void					delete_ban_list(std::string const &mask);
+
+	bool					is_voice(Member *member);
+	void					add_voice(Member *member);
+	void					delete_voice(Member *member);
 };
 
 #endif

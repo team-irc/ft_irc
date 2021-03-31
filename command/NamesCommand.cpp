@@ -94,17 +94,17 @@ bool	NamesCommand::is_he_invisible(Member * member)
 
 std::vector<std::string> NamesCommand::get_channel_user_list(Channel * channel)
 {
-	std::vector<std::string>		ret;
-	std::vector<Member *>			members;
-	std::vector<Member *>::iterator	first;
-	std::vector<Member *>::iterator	last;
+	std::vector<std::string>			ret;
+	std::vector<ChanMember>				members;
+	std::vector<ChanMember>::iterator	first;
+	std::vector<ChanMember>::iterator	last;
 
 	members = channel->get_members();
 	first = members.begin();
 	last = members.end();
 	while (first != last)
 	{
-		ret.push_back((*first)->get_nick());
+		ret.push_back((*first)._member->get_nick());
 		++first;
 	}
 	return (ret);
