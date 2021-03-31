@@ -95,6 +95,7 @@ public:
 	bool					is_ban_list(std::string const &mask);
 	void					add_ban_list(std::string const &mask);
 	void					delete_ban_list(std::string const &mask);
+	std::vector<std::string> &get_ban_list();
 
 	bool					is_voice(Member *member);
 	void					add_voice(Member *member);

@@ -160,6 +160,34 @@ static bool			str_is_digit(std::string str)
 	return (true);
 }
 
+static void			parse_ban_list(std::string input, std::string *&ret)
+{
+	ret = new std::string[3];
+	std::string		*split;
+	int				size = ft::split(input, '!', split);
+
+	ret[0] = split[0];
+	if (size == 1)
+	{
+		// nick!*@* 이 되는 경우
+		ret[1] = "*";
+		ret[2] = "*";
+	}
+	else
+	{
+		std::string	tmp = split[1];
+		delete[] split;
+		size = ft::split(tmp, '@', split);
+		ret[1] = split[0];
+		// nick!user@* 이 되는 경우
+		if (size == 1)
+			ret[2] = "*";
+		else
+			ret[2] = split[1]; // nick!user@host가 되는 경우
+	}
+	delete[] split;
+}
+
 // Channel mode: o(1024) p(512) s(256) i(128) t(64) n(32) m(16) l(8) b(4) v(2) k(1)
 std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char mode, mode_set set)
 {
@@ -242,15 +270,57 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 	}
 	else if (mode == 'b')
 	{
+		// 1. param이 있으면 해당 마스크를 벡터에 추가
+		//	- 이미 있는 멤버면 아무 동작 안함
+		// 2. -의 경우도 똑같이 동작 함
 		if (_param_idx < _msg.get_param_size())
 		{
-			// 1. param이 있으면 해당 마스크를 벡터에 추가
-			//	- 이미 있는 멤버면 아무 동작 안함
-			// 2. -의 경우도 똑같이 동작 함
+			// 1-1 ban_list parsing
+			std::string		*split;
+			std::string		ban_mask;
+
+			parse_ban_list(_msg.get_param(_param_idx), split);
+			ban_mask = split[0] + "!" + split[1] + "@" + split[2];
+			if (set.is_set)
+			{
+				result += not_check_mode(channel, mode, set, 4);
+				if (!channel->is_ban_list(ban_mask))
+				{
+					channel->add_ban_list(ban_mask);
+					result += " " + ban_mask + "\n";
+					irc.get_current_socket()->write(result.c_str());
+				}
+			}
+			else
+			{
+				result += not_check_mode(channel, mode, set, 4);
+				if (channel->is_ban_list(ban_mask))
+				{
+					channel->delete_ban_list(ban_mask);
+					result += " " + ban_mask + "\n";
+					irc.get_current_socket()->write(result.c_str());
+				}
+			}
+			result.clear();
+			delete[] split;
 		}
 		else
 		{
 			// 0. param이 없다면 ban mask list를 전송
+			std::vector<std::string>	ban_list = channel->get_ban_list();
+			std::vector<std::string>::iterator	begin = ban_list.begin();
+			std::vector<std::string>::iterator	end = ban_list.end();
+
+			while (begin != end)
+			{
+				// 해당 ban 리스트를 출력
+				std::string msg = channel->get_name() + " " + (*begin) + "\n";
+				irc.get_current_socket()->write(msg.c_str());
+				begin++;
+			}
+			// end of ban list 출력
+			std::string msg = channel->get_name() + " " + ": End of channel ban list\n";
+			irc.get_current_socket()->write(msg.c_str());
 		}
 	}
 	else if (mode == 'v')
