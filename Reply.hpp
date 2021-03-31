@@ -195,6 +195,7 @@ public:
 	explicit Reply(RPL::LISTSTART);
 	explicit Reply(RPL::LIST, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::LISTEND);
+	explicit Reply(RPL::NOTOPIC, const std::string &);
 	explicit Reply(RPL::TOPIC, const std::string &, const std::string &);
 	explicit Reply(RPL::AWAY, const std::string &, const std::string &);
 	explicit Reply(RPL::UNAWAY);
@@ -207,7 +208,5 @@ public:
 	static void		set_username(std::string const &username);
 	static void		set_servername(std::string const &servername);
 };
-
-
 
 #endif

@@ -414,10 +414,17 @@ std::string 	Reply::get_msg() const
 	return (ret);
 }
 
+Reply::Reply(RPL::NOTOPIC err, const std::string &channel)
+{
+	_errnum = std::to_string(err.ERRNO);
+	_msg = "#" + channel + " :No topic is set";
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;
 }
+
 void		Reply::set_servername(std::string const &servername)
 {
 	_server_name = servername;
