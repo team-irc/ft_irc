@@ -392,9 +392,13 @@ std::string 	Reply::get_msg() const
 Reply::Reply(RPL::TOPIC junk, const std::string &channel, const std::string &topic)
 {
 	_errnum = std::to_string(junk.ERRNO);
-	_errnum = std::to_string(junk.ERRNO);
 	_msg = "#" + channel + " :" + topic;
 }
+
+Reply::Reply(RPL::NOTOPIC err, const std::string &channel)
+{
+	_errnum = std::to_string(err.ERRNO);
+	_msg = "#" + channel + " :No topic is set";
 
 void		Reply::set_username(std::string const &username)
 {

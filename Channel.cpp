@@ -53,7 +53,7 @@ int	Channel::delete_member(Member *member)
 	return (0);
 };
 
-std::vector<Member *>	Channel::get_members()
+std::vector<Member *>	&Channel::get_members()
 { return (_member); }
 
 const std::string & 	Channel::get_name()

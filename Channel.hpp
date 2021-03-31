@@ -68,7 +68,7 @@ public:
 public:
 	void					add_member(Member *member);
 	int						delete_member(Member *member);
-	std::vector<Member *>	get_members();
+	std::vector<Member *>	&get_members();
 	const std::string 		&get_name();
 	bool					find_member(Member * member);
 	bool					set_topic(std::string const &topic);
