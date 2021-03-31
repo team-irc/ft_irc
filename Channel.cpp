@@ -242,6 +242,10 @@ void			Channel::delete_ban_list(std::string const &mask)
 	}
 }
 
+std::vector<std::string>	&Channel::get_ban_list()
+{ return (_ban_list); }
+
+
 bool			Channel::is_voice(Member *member)
 {
 	std::vector<ChanMember>::iterator		begin = _member.begin();

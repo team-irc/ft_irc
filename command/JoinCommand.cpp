@@ -49,9 +49,6 @@ void	JoinCommand::run(IrcServer &irc)
 			}
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
-		std::string msg = ":" + irc.get_servername() + " " + std::to_string(RPL::TOPIC().ERRNO) + " " + member->get_nick() + " ";
-		socket->write(msg.c_str());
-		socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
 		
 		// :u2!~u2a@121.135.181.42 JOIN :#abc
 		// :irc.example.net 332 u2 #abc :hello world // RPL_TOPIC
@@ -78,8 +75,11 @@ void	JoinCommand::run(IrcServer &irc)
 				member->add_channel(channel);
 				channel->add_member(member);
 			}
+			socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
+			// socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_members()).get_msg().c_str());
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+		
 	}
 }
 

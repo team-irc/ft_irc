@@ -11,31 +11,41 @@ void	TopicCommand::run(IrcServer &irc)
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() != SERVER && socket->get_type() != CLIENT)
-	{
 		return ;
-	}
 	// 공통 확인 사항(1. 채널에 속한 멤버인지? 2. 채널이 존재하는지? 3. 채널에 토픽이 존재하는지? 4. 채널 모드가 허용하는지?)
 	if (socket->get_type() == SERVER)
 		member = irc.get_member(_msg.get_prefix());
 	member = irc.find_member(socket->get_fd());
+
 	channel_name = _msg.get_param(0);
 	channel = irc.get_channel(channel_name);
 	if (!channel)
-		socket->write("ERR NO SUCH CHANNEL");
+		throw(Reply(ERR::NOSUCHCHANNEL(), channel_name));
 	if (!channel->find_member(member))
-		socket->write("ERR NOT ON CHANNEL");
-	if (_msg.get_param_size() == 1) // 토픽 조회 
+		throw(Reply(ERR::NOTONCHANNEL(), channel_name));
+	if (_msg.get_param_size() == 1) // 1. 토픽 조회 
 	{
 		topic = channel->get_topic();
 		if (topic.empty())
-			socket->write("RPL NO TOPIC");
+			throw(Reply(RPL::NOTOPIC(), channel_name));
 		else
-			socket->write(topic.c_str()); // RPL TOPIC
+		{
+			socket->write(Reply(RPL::TOPIC(), channel_name, topic).get_msg().c_str());
+		}
 	}
-	else // 토픽 설정 (1. 채널 모드가 )
+	else // 2. 토픽 설정 (채널모드 i 라면 operator만 가능)
 	{
-		topic = _msg.get_param(1);
-		channel->set_topic(topic);
+		int	flag;
+		if (channel->check_mode('i', flag) == 1 && !channel->is_operator(member))
+			throw(Reply(ERR::CHANOPRIVSNEEDED(), channel_name));
+		else
+		{
+			topic = _msg.get_param(1);
+			channel->set_topic(topic);
+			if (_msg.get_prefix().empty())
+				_msg.set_prefix(member->get_nick());
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+		}
 	}
 }
 
