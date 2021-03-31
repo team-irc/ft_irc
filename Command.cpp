@@ -1,4 +1,5 @@
 #include "Command.hpp"
+#include "Reply.hpp"
 
 Command::Command() : _msg()
 {
@@ -26,6 +27,13 @@ Command::~Command()
 
 void Command::execute(IrcServer &irc)
 {
+	Reply	reply;
+	
+	if (irc.get_current_socket()->get_type() == CLIENT)
+	{
+		reply.set_servername(irc.get_servername());
+		reply.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
+	}
 	try
 	{
 		run(irc);

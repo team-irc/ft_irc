@@ -49,6 +49,15 @@ void	JoinCommand::run(IrcServer &irc)
 			}
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+		std::string msg = ":" + irc.get_servername() + " " + std::to_string(RPL::TOPIC().ERRNO) + " " + member->get_nick() + " ";
+		socket->write(msg.c_str());
+		socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
+		
+		// :u2!~u2a@121.135.181.42 JOIN :#abc
+		// :irc.example.net 332 u2 #abc :hello world // RPL_TOPIC
+		// :irc.example.net 333 u2 #abc u1 1617164706 // 
+		// :irc.example.net 353 u2 = #abc :u2 @u1 // RPL_NAMREPLY
+		// :irc.example.net 366 u2 #abc :End of NAMES list // RPL_ENDOFNAMES
 	}
 	else if (socket->get_type() == CLIENT)
 	{

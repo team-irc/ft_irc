@@ -23,6 +23,7 @@ class ModeCommand : public Command
 		virtual ~ModeCommand();
 		void	run(IrcServer &irc);
 	private:
+		int			_param_idx;
 		void		check_target(IrcServer &irc);
 		std::string	parse_user_mode(Member *member, IrcServer &irc, char mode, mode_set set);
 		std::string	parse_chan_mode(Channel *channel, IrcServer &irc, char mode, mode_set set);

@@ -1,6 +1,9 @@
 #include "ft_irc.hpp"
 #include <signal.h>
 
+std::string Reply::_user_name = "";
+std::string Reply::_server_name = "";
+
 int main(int argc, char **argv)
 {
 	try
