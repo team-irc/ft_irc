@@ -12,6 +12,8 @@ public:
 	~KickCommand();
 public:
 	void run(IrcServer &irc);
-}
+private:
+	void kick_notification(const std::string &, IrcServer &);
+};
 
 #endif

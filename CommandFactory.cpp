@@ -13,6 +13,7 @@
 #include "ModeCommand.hpp"
 #include "ListCommand.hpp"
 #include "AwayCommand.hpp"
+#include "KickCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -31,6 +32,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("MODE", new ModeCommand()));
 	_map.insert(std::pair<std::string, Command *>("LIST", new ListCommand()));
 	_map.insert(std::pair<std::string, Command *>("AWAY", new AwayCommand()));
+	_map.insert(std::pair<std::string, Command *>("KICK", new KickCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

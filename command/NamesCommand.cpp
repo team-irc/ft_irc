@@ -52,7 +52,7 @@ void	NamesCommand::run(IrcServer &irc)
 		{
 			channel = first->second;
 
-			if (!(channel->check_mode('p', true) || channel->check_mode('s', true)))
+			if (channel->check_mode('p', false) && channel->check_mode('s', false))
 				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
 			++first;
 		}
@@ -64,7 +64,7 @@ void	NamesCommand::run(IrcServer &irc)
 	{
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
 			return ;
-		if (!(channel->check_mode('p', true) || channel->check_mode('s', true)))
+		if (channel->check_mode('p', false) && channel->check_mode('s', false))
 		{
 			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
 			socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
@@ -85,7 +85,7 @@ bool	NamesCommand::is_he_invisible(Member * member)
 	while (first != last)
 	{
 		Channel * channel = *first;
-		if (!(channel->check_mode('p', true) || channel->check_mode('s', true)))
+		if (channel->check_mode('p', false) && channel->check_mode('s', false))
 			return (false);
 		++first;
 	}

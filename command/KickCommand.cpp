@@ -1,5 +1,19 @@
 #include "KickCommand.hpp"
 
+void KickCommand::kick_notification(const std::string & comment, IrcServer & irc)
+{
+	Channel * channel = irc.get_channel();
+	std::vector<ChanMember>	members = channel->get_members();
+	std::vector<ChanMember>::iterator begin = members.begin();
+	std::vector<ChanMember>::iterator end = members.end();
+
+	while (begin != end)
+	{
+		irc.get_socket_set().find_socket(begin->_member->get_fd())->write(comment.c_str());
+		++begin;
+	}
+}
+
 
 void KickCommand::run(IrcServer &irc)
 {
@@ -9,23 +23,27 @@ void KickCommand::run(IrcServer &irc)
 	std::string	comment;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() == SOCKET_TYPE::UNKNOWN)
+	if (socket->get_type() == UNKNOWN)
 		return ; //err
 	if (_msg.get_param_size() < 2)
-		return (socket->write((Reply(ERR::NEEDMOREPARAMS).get_msg()).c_str()));
+		throw (Reply(ERR::NEEDMOREPARAMS(), "KICK"));
+	if (socket->get_type() == CLIENT)
+	{
+		if (!(channel = irc.get_channel(_msg.get_param(0))))
+		throw (Reply(ERR::NOSUCHCHANNEL(), _msg.get_param(0)));
 
-	if (!(channel = irc.get_channel(_msg.get_param(0))))
-		return (socket->write((Reply(ERR::NOSUCHANNEL).get_msg()).c_str()));
-
-	if (!(member = irc.get_member(_msg.get_param(1))))
-		return ;
-
-	if (_msg.get_param_size() == 3)
-		comment = _msg.get_param(2);
-	else
-		comment = member->get_nick() + "has kicked";
-	channel->delete_member(member);
-	socket->write(comment.c_str());
+		if (!(member = irc.get_member(_msg.get_param(1))))
+			throw (Reply(ERR::NOTONCHANNEL(), _msg.get_param(1)));
+		if (_msg.get_param_size() == 3)
+			comment = _msg.get_param(2);
+		else
+			comment = member->get_nick() + "has kicked";
+		kick_notification(comment, irc);
+		channel->delete_member(member);
+	}
+	else if (socket->get_type() == SERVER)
+	{
+	}
 }
 
 KickCommand::KickCommand(): Command()
