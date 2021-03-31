@@ -196,16 +196,14 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 				else
 				{
 					// error They aren't on that channel
-					std::string	msg = ":" + irc.get_servername() + " " +
-						Reply(ERR::USERNOTINCHANNEL(), member->get_nick(), channel->get_name()).get_msg();
-					irc.get_current_socket()->write(msg.c_str());
+					irc.get_current_socket()->write(
+						Reply(ERR::USERNOTINCHANNEL(), member->get_nick(), channel->get_name()).get_msg().c_str());
 				}
 			}
 			else
 			{
-				std::string	msg = ":" + irc.get_servername() + " " +
-					Reply(ERR::NOSUCHNICK(), _msg.get_param(_param_idx)).get_msg();
-				irc.get_current_socket()->write(msg.c_str());
+				irc.get_current_socket()->write(
+					Reply(ERR::NOSUCHNICK(), _msg.get_param(_param_idx)).get_msg().c_str());
 			}
 			if (member)
 				_param_idx++;
@@ -286,8 +284,7 @@ std::string	ModeCommand::parse_user_mode(Member *member, IrcServer &irc, char mo
 		if (set.is_set && _msg.get_prefix().empty())
 		{
 			// +이고 클라이언트에서 보낸 경우(prefix가 없음)
-			std::string msg = ":" + irc.get_servername() + " " + Reply(ERR::NOPRIVILEGES()).get_msg();
-			irc.get_current_socket()->write(msg.c_str());
+			irc.get_current_socket()->write(Reply(ERR::NOPRIVILEGES()).get_msg().c_str());
 		}
 		else
 			result += check_mode(member, mode, set, 1); //-이거나 서버에서 전송 된 +인 경우
@@ -297,8 +294,7 @@ std::string	ModeCommand::parse_user_mode(Member *member, IrcServer &irc, char mo
 	{
 		// error msg
 		// :irc.example.net 501 test :Unknown mode "+p"
-		std::string msg = ":" + irc.get_servername() + " " + mode + " " + Reply(ERR::UMODEUNKNOWNFLAG()).get_msg();
-		irc.get_current_socket()->write(msg.c_str());
+		irc.get_current_socket()->write(Reply(ERR::UMODEUNKNOWNFLAG()).get_msg().c_str());
 	}
 	return (result);
 }
@@ -310,8 +306,7 @@ void	ModeCommand::run(IrcServer &irc)
 	if (irc.get_current_socket()->get_type() == UNKNOWN)
 	{
 		// error msg
-		std::string	msg = ":" + irc.get_servername() + " " + Reply(ERR::NOTREGISTERED()).get_msg();
-		irc.get_current_socket()->write(msg.c_str());
+		irc.get_current_socket()->write(Reply(ERR::NOTREGISTERED()).get_msg().c_str());
 	}
 	else
 	{
