@@ -40,9 +40,11 @@ void	JoinCommand::run(IrcServer &irc)
 			{
 				channel = new Channel(channel_names[i], member);
 				irc.add_channel(channel_names[i], channel);
+				member->add_channel(channel);
 			}
 			else
 			{
+				member->add_channel(channel);
 				channel->add_member(member);
 			}
 		}
@@ -60,9 +62,11 @@ void	JoinCommand::run(IrcServer &irc)
 			{
 				channel = new Channel(channel_names[i], member);
 				irc.add_channel(channel_names[i], channel);
+				member->add_channel(channel);
 			}
 			else
 			{
+				member->add_channel(channel);
 				channel->add_member(member);
 			}
 		}
