@@ -1,20 +1,20 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string channel_name, const std::string key, Member *first_member)
-	: _name(channel_name), _key(key), _topic()
+	: _name(channel_name), _key(key), _topic(), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(ChanMember(first_member, true, true));
 };
 
 Channel::Channel(const std::string channel_name, Member *first_member)
-	: _name(channel_name), _topic()
+	: _name(channel_name), _topic(), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(ChanMember(first_member, true, true));
 };
 
-Channel::Channel(const Channel & other): _name(other._name), _member(other._member), _topic(other._topic)
+Channel::Channel(const Channel & other): _name(other._name), _member(other._member), _topic(other._topic), _limit(other._limit)
 {
 };
 
@@ -52,6 +52,20 @@ int	Channel::delete_member(Member *member)
 	}
 	return (0);
 };
+
+bool					Channel::is_member(Member *member)
+{
+	std::vector<ChanMember>::iterator	iter;
+
+	iter = _member.begin();
+	while (iter != _member.end())
+	{
+		if ((*iter)._member == member)
+			return (true);
+		iter++;
+	}
+	return (false);
+}
 
 std::vector<ChanMember>	&Channel::get_members()
 { return (_member); }
@@ -160,8 +174,8 @@ bool			Channel::check_mode(char mode, bool is_set)
 
 int				Channel::get_mode() { return (_mode); }
 void			Channel::set_mode(int mode) { _mode = mode; }
-int				Channel::get_limit() { return (_limit); }
-void			Channel::set_limit(int val) { _limit = val; }
+size_t			Channel::get_limit() { return (_limit); }
+void			Channel::set_limit(size_t val) { _limit = val; }
 
 bool			Channel::is_operator(Member *member)
 {
@@ -294,3 +308,27 @@ void			Channel::delete_voice(Member *member)
 
 void			Channel::set_key(std::string const &key)
 { _key = key; }
+
+bool				Channel::add_invited_member(Member *member)
+{
+	std::pair<std::set<Member *>::iterator, bool> ret;
+
+	ret = _invited_member.insert(member);
+	return (ret.second);
+}
+
+bool				Channel::is_invited_member(Member *member)
+{
+	std::set<Member *>::iterator	iter;
+
+	iter = _invited_member.find(member);
+	if (iter == _invited_member.end())
+		return (false);
+	else
+		return (true);
+}
+
+std::set<Member *>	&Channel::get_invited_member()
+{
+	return (_invited_member);
+}

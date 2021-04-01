@@ -2,7 +2,7 @@
 
 void KickCommand::kick_notification(const std::string & comment, IrcServer & irc)
 {
-	Channel * channel = irc.get_channel();
+	Channel * channel = irc.get_channel(comment);
 	std::vector<ChanMember>	members = channel->get_members();
 	std::vector<ChanMember>::iterator begin = members.begin();
 	std::vector<ChanMember>::iterator end = members.end();

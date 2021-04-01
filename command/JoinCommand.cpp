@@ -121,13 +121,15 @@ void	JoinCommand::run(IrcServer &irc)
 			}
 			else
 			{
+				if (channel->is_member(member))
+					throw(Reply(ERR::USERONCHANNEL(), member->get_nick(), channel->get_name()));
 				if (member->get_joinned_channels().size() > MEMBER_CONST::JOINED_CHANNEL_LIMIT)
 					throw(Reply(ERR::TOOMANYCHANNELS(), channel->get_name()));
-				if (channel->get_ban_list().find(member) != 0)
+				if (channel->is_ban_list(member->get_nick()))
 					throw(Reply(ERR::BANNEDFROMCHAN(), channel->get_name()));
-				if (channel->get_members().size() + 1 > channel->get_limit())
+				if (channel->get_members().size() >= channel->get_limit())
 					throw(Reply(ERR::CHANNELISFULL(), channel->get_name()));
-				if (channel->check_mode('i', 1) && !channel->check_invitation(member))
+				if (channel->check_mode('i', 0) && !channel->is_invited_member(member))
 					throw(Reply(ERR::INVITEONLYCHAN(), channel->get_name()));
 				else
 				{
