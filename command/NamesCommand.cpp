@@ -38,9 +38,11 @@ void	NamesCommand::run(IrcServer &irc)
 {
 	Socket							*socket;
 	Channel							*channel;
+	Member							*current_user;
 	std::string						ret;
 
 	socket = irc.get_current_socket();
+	current_user = irc.find_member(socket->get_fd());
 	if (socket->get_type() == UNKNOWN)
 		return ;
 	if (_msg.get_param_size() == 0)
@@ -52,7 +54,7 @@ void	NamesCommand::run(IrcServer &irc)
 		{
 			channel = first->second;
 
-			if (channel->check_mode('p', true) && channel->check_mode('s', true))
+			if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
 				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
 			++first;
 		}
@@ -63,12 +65,10 @@ void	NamesCommand::run(IrcServer &irc)
 	else
 	{
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
-			return ;
-		if (channel->check_mode('p', true) && channel->check_mode('s', true))
-		{
+			return ; // no error reply for NamesCommand
+		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
 			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
-			socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
-		}
+		socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
 	}
 }
 
@@ -94,22 +94,6 @@ std::vector<std::string> NamesCommand::get_channel_user_list(Channel * channel)
 	return (ret);
 }
 
-bool	NamesCommand::is_he_invisible(Member * member)
-{
-	std::set<Channel *>				joinned_channels = member->get_joinned_channels();
-	std::set<Channel *>::iterator	first = joinned_channels.begin();
-	std::set<Channel *>::iterator	last = joinned_channels.end();
-
-	while (first != last)
-	{
-		Channel * channel = *first;
-		if (channel->check_mode('p', true) && channel->check_mode('s', true))
-			return (false);
-		++first;
-	}
-	return (true);
-}
-
 std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(IrcServer &irc)
 {
 	std::map<std::string, Member *>::iterator	first;
@@ -124,7 +108,7 @@ std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(Ir
 	{
 		Member *			member = first->second;
 		std::set<Channel *>	joinned_channels = member->get_joinned_channels();
-		if (joinned_channels.empty() || is_he_invisible(member))
+		if (joinned_channels.empty())
 		{
 			ret.push_back(member->get_nick());
 		}
