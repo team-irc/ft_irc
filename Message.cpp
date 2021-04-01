@@ -6,6 +6,8 @@ Message::Message() :
 
 void remove_crlf(std::string *str)
 {
+	if (str->empty())
+		return ;
 	if (str->at(str->size() - 1) == ASCII_CONST::CR || str->at(str->size() - 1) == ASCII_CONST::LF)
 		str->resize(str->size() - 1);
 }
@@ -30,14 +32,14 @@ Message::Message(const char *msg)
 	_command = arr[idx++];
 	remove_crlf(&_command);
 	std::string param;
-	while (idx < size)
+	while (arr[idx].empty() == false)
 	{
 		param = arr[idx];
 		if (param.at(0) == ':')
 		{
 			param = param.erase(0, 1);
 			idx++;
-			for (; idx < size; idx++)
+			for (; idx < size; ++idx)
 			{
 				param += " ";
 				param += arr[idx];
