@@ -291,3 +291,6 @@ void			Channel::delete_voice(Member *member)
 		begin++;
 	}
 }
+
+void			Channel::set_key(std::string const &key)
+{ _key = key; }

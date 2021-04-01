@@ -100,6 +100,8 @@ public:
 	bool					is_voice(Member *member);
 	void					add_voice(Member *member);
 	void					delete_voice(Member *member);
+
+	void					set_key(std::string const &key);
 };
 
 #endif
