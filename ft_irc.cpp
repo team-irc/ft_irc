@@ -261,9 +261,7 @@ void	IrcServer::client_msg(int fd)
 		}
 		else
 		{
-			std::string reply;
-			reply = "no such command : " + msg.get_command();
-			_current_sock->write(reply.c_str());
+			_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
 		}
 	} while (result);
 }
