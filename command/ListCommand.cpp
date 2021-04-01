@@ -25,15 +25,16 @@ void ListCommand::print_list(IrcServer &irc)
 	std::map<std::string, Channel *>	        global_channel	= irc.get_global_channel();
 	std::map<std::string, Channel *>::iterator  first			= global_channel.begin();
 	std::map<std::string, Channel *>::iterator	last			= global_channel.end();
+	Member										*current_user	= irc.find_member(socket->get_fd());
 
 	socket->write(Reply(RPL::LISTSTART()).get_msg().c_str());
 	while (first != last)
 	{
-		Channel * channel = first->second;
-		if (channel->check_mode('p', true) || channel->check_mode('s', true))
-			socket->write(Reply(RPL::LIST(), channel->get_name(), "0", channel->get_topic()).get_msg().c_str());
-		else
-			socket->write(Reply(RPL::LIST(), channel->get_name(), "1", channel->get_topic()).get_msg().c_str());
+		Channel *	channel = first->second;
+		int			member_counter = channel->get_members().size();
+
+		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
+			socket->write(Reply(RPL::LIST(), channel->get_name(), std::to_string(member_counter), channel->get_topic()).get_msg().c_str());
 		++first;
 	}
 	socket->write(Reply(RPL::LISTEND()).get_msg().c_str());
@@ -46,13 +47,14 @@ void ListCommand::print_list(IrcServer &irc, std::string *channel_list, int spli
 	socket->write(Reply(RPL::LISTSTART()).get_msg().c_str());
 	for (int i = 0; i < split_size; ++i)
 	{
-		Channel	*channel = irc.get_channel(channel_list[i]);
+		Channel	*	channel = irc.get_channel(channel_list[i]);
+		Member *	current_user = irc.find_member(socket->get_fd());
+		int			member_counter;
 		if (channel == NULL)
-			throw (Reply(ERR::NOSUCHCHANNEL(), channel->get_name()));
-		if (channel->check_mode('p', true) || channel->check_mode('s', true))
-			socket->write(Reply(RPL::LIST(), channel->get_name(), "0", channel->get_topic()).get_msg().c_str());
-		else
-			socket->write(Reply(RPL::LIST(), channel->get_name(), "1", channel->get_topic()).get_msg().c_str());
+			return ; // no error reply for NamesCommand
+		member_counter = channel->get_members().size();
+		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
+			socket->write(Reply(RPL::LIST(), channel->get_name(), std::to_string(member_counter), channel->get_topic()).get_msg().c_str());
 	}
 	socket->write(Reply(RPL::LISTEND()).get_msg().c_str());
 }

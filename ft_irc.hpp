@@ -20,6 +20,7 @@
 #include "CommandFactory.hpp"
 #include "Member.hpp"
 #include "Channel.hpp"
+#include "Reply.hpp"
 
 #define DEBUG 0
 

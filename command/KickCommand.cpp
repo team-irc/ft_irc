@@ -1,8 +1,7 @@
 #include "KickCommand.hpp"
 
-void KickCommand::kick_notification(const std::string & comment, IrcServer & irc)
+void KickCommand::kick_notification(const std::string & comment, Channel * channel, IrcServer & irc)
 {
-	Channel * channel = irc.get_channel(comment);
 	std::vector<ChanMember>	members = channel->get_members();
 	std::vector<ChanMember>::iterator begin = members.begin();
 	std::vector<ChanMember>::iterator end = members.end();
@@ -30,7 +29,7 @@ void KickCommand::run(IrcServer &irc)
 	if (socket->get_type() == CLIENT)
 	{
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
-		throw (Reply(ERR::NOSUCHCHANNEL(), _msg.get_param(0)));
+			throw (Reply(ERR::NOSUCHCHANNEL(), _msg.get_param(0)));
 
 		if (!(member = irc.get_member(_msg.get_param(1))))
 			throw (Reply(ERR::NOTONCHANNEL(), _msg.get_param(1)));
@@ -38,7 +37,7 @@ void KickCommand::run(IrcServer &irc)
 			comment = _msg.get_param(2);
 		else
 			comment = member->get_nick() + "has kicked";
-		kick_notification(comment, irc);
+		kick_notification(comment, channel, irc);
 		channel->delete_member(member);
 	}
 	else if (socket->get_type() == SERVER)

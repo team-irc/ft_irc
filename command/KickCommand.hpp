@@ -13,7 +13,7 @@ public:
 public:
 	void run(IrcServer &irc);
 private:
-	void kick_notification(const std::string &, IrcServer &);
+	void kick_notification(const std::string &, Channel *, IrcServer &);
 };
 
 #endif
