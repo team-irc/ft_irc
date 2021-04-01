@@ -261,7 +261,8 @@ void	IrcServer::client_msg(int fd)
 		}
 		else
 		{
-			_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
+			if (buf[0] != '\n')
+				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
 		}
 	} while (result);
 }
