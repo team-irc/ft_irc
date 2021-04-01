@@ -1,6 +1,10 @@
 #include "TopicCommand.hpp"
 #include "ft_irc.hpp"
 
+/*
+
+*/
+
 void	TopicCommand::run(IrcServer &irc)
 {
 	Socket			*socket;
@@ -10,20 +14,18 @@ void	TopicCommand::run(IrcServer &irc)
 	std::string		topic;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() != SERVER && socket->get_type() != CLIENT)
+	if (socket->get_type() != SERVER && socket->get_type() != CLIENT) // 서버나  클라이언트에서 보낸 메세지가 아니면 무시
 		return ;
-	// 공통 확인 사항(1. 채널에 속한 멤버인지? 2. 채널이 존재하는지? 3. 채널에 토픽이 존재하는지? 4. 채널 모드가 허용하는지?)
-	if (socket->get_type() == SERVER)
+	if (socket->get_type() == SERVER) // 서버에서 왔다면, prefix를 통해서 멤버를 찾는다.
 		member = irc.get_member(_msg.get_prefix());
-	member = irc.find_member(socket->get_fd());
-
+	member = irc.find_member(socket->get_fd()); // 클라이언트에서 왔다면, fd를 통해서 멤버를 찾는다.
 	channel_name = _msg.get_param(0);
 	channel = irc.get_channel(channel_name);
-	if (!channel)
+	if (!channel) // 채널이 없다면 에러
 		throw(Reply(ERR::NOSUCHCHANNEL(), channel_name));
-	if (!channel->find_member(member))
+	if (!channel->find_member(member)) // 맴버가 채널에 속해있지 않다면 에러
 		throw(Reply(ERR::NOTONCHANNEL(), channel_name));
-	if (_msg.get_param_size() == 1) // 1. 토픽 조회 
+	if (_msg.get_param_size() == 1) // 1. 토픽 조회하는 경우
 	{
 		topic = channel->get_topic();
 		if (topic.empty())
@@ -33,10 +35,9 @@ void	TopicCommand::run(IrcServer &irc)
 			socket->write(Reply(RPL::TOPIC(), channel_name, topic).get_msg().c_str());
 		}
 	}
-	else // 2. 토픽 설정 (채널모드 i 라면 operator만 가능)
+	else // 2. 토픽 설정하는 경우
 	{
-		int	flag;
-		if (channel->check_mode('i', flag) == 1 && !channel->is_operator(member))
+		if (channel->check_mode('i', 0) == 1 && !channel->is_operator(member)) // 채널 모드가 i라면 오퍼레이터만 가능
 			throw(Reply(ERR::CHANOPRIVSNEEDED(), channel_name));
 		else
 		{

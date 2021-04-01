@@ -3,12 +3,19 @@
 
 #include <string>
 #include <set>
+#include "Socket.hpp"
 class Channel;
+
+namespace MEMBER_CONST
+{
+	const size_t	JOINED_CHANNEL_LIMIT = 10;
+}
 
 class Member
 {
 private:
-	int						_fd;
+	int						_fd; // deprecated
+	Socket					*_socket;
 	std::string				_nick;
 	std::string				_username;
 	std::string				_hostname;
@@ -46,6 +53,8 @@ public:
 	void				set_realname(const std::string &realname);
 	int					get_fd();
 	void				set_fd(int fd);
+	Socket				*get_socket();
+	void				set_socket(Socket *socket);
 	char				get_mode();
 	void				set_mode(char mode);
 	const std::string	&get_away();
