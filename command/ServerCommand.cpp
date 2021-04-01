@@ -47,7 +47,6 @@ void	ServerCommand::run(IrcServer &irc)
 		irc.send_msg_server(socket->get_fd(), _msg.get_origin());
 		irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd());
 	}
-	std::cout << "SERVER command executed.\n";
 }
 
 ServerCommand::ServerCommand() : Command()
