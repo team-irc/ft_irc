@@ -225,7 +225,11 @@ void	IrcServer::client_msg(int fd)
 			else
 			{
 				cmd = _cmd_creator.get_command("QUIT");
-				msg = "QUIT :" + find_member(_current_sock->get_fd())->get_nick() + "\n";
+				Member *member = find_member(_current_sock->get_fd());
+				if (member)
+					msg = "QUIT :" + member->get_nick() + "\n";
+				else
+					msg = "QUIT\n";
 				cmd->set_message(Message(msg.c_str()));
 			}
 			cmd->execute(*this);
