@@ -31,7 +31,7 @@ void		ModeCommand::check_target(IrcServer &irc)
 		return (irc.get_current_socket()->write(result.c_str()));
 	}
 	param = _msg.get_param(1);
-	msg = ":" + irc.get_servername() + " " + _msg.get_command() + " ";
+	msg = ":" + irc.get_servername() + " " + _msg.get_command() + " " + _msg.get_param(0) + " ";
 	if (channel)
 	{
 		// 채널 동작
@@ -63,6 +63,16 @@ void		ModeCommand::check_target(IrcServer &irc)
 	{
 		// 0. 해당 멤버가 메시지를 보낸 유저인지 검사
 		//	- 아니면 에러 리턴(502)
+		Member *sender = irc.find_member(irc.get_current_socket()->get_fd());
+		if (_msg.get_prefix().empty() && sender)
+		{
+			if (sender->get_nick() != _msg.get_param(0))
+			{
+				msg = ":" + irc.get_servername() + " " + Reply(ERR::USERSDONTMATCH()).get_msg();
+				irc.get_current_socket()->write(msg.c_str());
+				return ;
+			}
+		}
 		for (int i = 0; i < param.length(); i++)
 		{
 			if (param.at(i) == '-')
@@ -93,7 +103,11 @@ void		ModeCommand::check_target(IrcServer &irc)
 	else
 		msg = ":" + irc.get_servername() + " " + Reply(ERR::NOSUCHNICK(), _msg.get_param(0)).get_msg();
 	if (!result.empty())
-		irc.get_current_socket()->write(msg.c_str());
+	{
+		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
+		if (_msg.get_prefix().empty())
+			irc.get_current_socket()->write(msg.c_str());
+	}
 }
 
 static std::string	check_mode(Member *member, char mode, mode_set set, int mask)
