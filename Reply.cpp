@@ -380,23 +380,23 @@ Reply::Reply(RPL::TOPIC junk, const std::string &channel, const std::string &top
 	_msg = channel + " :" + topic;
 }
 
-Reply::Reply(RPL::AWAY junk, const std::string &nick, const std::string &away_message)
+Reply::Reply(RPL::AWAY reply, const std::string &nick, const std::string &away_message)
 {
-	_errnum = std::to_string(junk.ERRNO);
+	_errnum = std::to_string(reply.ERRNO);
 	//"<nick> :<away message>"
 	_msg = nick + " :" + away_message;
 }
 
-Reply::Reply(RPL::UNAWAY junk)
+Reply::Reply(RPL::UNAWAY reply)
 {
-	_errnum = std::to_string(junk.ERRNO);
+	_errnum = std::to_string(reply.ERRNO);
 	//":You are no longer marked as being away"
 	_msg = ":You are no longer marked as being away";
 }
 
-Reply::Reply(RPL::NOWAWAY junk)
+Reply::Reply(RPL::NOWAWAY reply)
 {
-	_errnum = std::to_string(junk.ERRNO);
+	_errnum = std::to_string(reply.ERRNO);
 	//":You have been marked as being away"
 	_msg = ":You have been marked as being away";
 }
@@ -405,6 +405,22 @@ Reply::Reply(RPL::INVITING reply, const std::string &channel_name, const std::st
 {
 	_errnum = std::to_string(reply.ERRNO);
 	_msg = channel_name + " " + nick_name;
+}
+
+Reply::Reply(RPL::ISON reply, const std::vector<std::string> & name_list)
+{
+	_errnum = std::to_string(reply.ERRNO);
+	std::vector<std::string>::const_iterator first = name_list.begin();
+	std::vector<std::string>::const_iterator last = name_list.end();
+
+	_msg += ": ";
+	while (first != last)
+	{
+		_msg += *first;
+		if (first + 1 != last)
+			_msg += " ";
+		++first;
+	}
 }
 
 Reply::~Reply()
