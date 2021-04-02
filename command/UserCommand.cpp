@@ -31,6 +31,7 @@ void	UserCommand::run(IrcServer &irc)
 			std::string	key = std::to_string(irc.get_current_socket()->get_fd());
 			member = new Member(key, _msg.get_param(0), _msg.get_param(1), _msg.get_param(2), _msg.get_param(3), 0);
 			member->set_fd(irc.get_current_socket()->get_fd());
+			member->set_socket(irc.get_current_socket());
 			if (!irc.add_member(key, member)) {
 				// KILL 메시지 전송
 			}
@@ -52,7 +53,6 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 {
 	if (irc.get_current_socket()->get_type() == UNKNOWN && irc.check_pass(irc.get_current_socket()))
 	{
-		// user 메시지 전송
 		member->set_username(_msg.get_param(0));
 		member->set_hostname(_msg.get_param(1));
 		member->set_servername(_msg.get_param(2));
@@ -61,6 +61,7 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		std::string msg = "NICK " + member->get_nick() + " 0\n";
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
 
+		// user 메시지 전송
 		_msg.set_prefix(member->get_nick());
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
 		irc.get_socket_set().change_socket_type(irc.get_current_socket()->get_fd(), CLIENT);

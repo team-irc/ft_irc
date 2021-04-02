@@ -401,6 +401,12 @@ Reply::Reply(RPL::NOWAWAY junk)
 	_msg = ":You have been marked as being away";
 }
 
+Reply::Reply(RPL::INVITING reply, const std::string &channel_name, const std::string &nick_name)
+{
+	_errnum = std::to_string(reply.ERRNO);
+	_msg = channel_name + " " + nick_name;
+}
+
 Reply::~Reply()
 {
 }

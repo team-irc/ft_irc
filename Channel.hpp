@@ -5,6 +5,11 @@
 #include <vector>
 #include "Member.hpp"
 
+namespace CHANNEL_CONST
+{
+	const size_t	DEFAULT_MEMBER_LIMIT = 10;
+}
+
 // channel의 이름은 최대 50자이며 대소문자를 구분하지 않고 &, #, +, !로 시작함
 // 공백, ctrl+G, 쉼표를 포함하지 않아야 함
 // 콜론은 채널 마스크의 구분 기호로 사용
@@ -59,9 +64,10 @@ private:
 	std::string						_key;
 	std::string						_topic;
 	std::vector<ChanMember>			_member;
+	std::set<Member *>				_invited_member;
 	std::vector<std::string>		_ban_list;
 	int								_mode;
-	int								_limit;
+	size_t							_limit;
 	//								_properties.op_members;
 	//								_properties.create_member;
 	//								...
@@ -76,6 +82,8 @@ public:
 public:
 	void					add_member(Member *member);
 	int						delete_member(Member *member);
+	bool					is_member(Member *member);
+
 	std::vector<ChanMember>	&get_members();
 	const std::string 		&get_name();
 	bool					find_member(Member * member);
@@ -85,8 +93,8 @@ public:
 	int						get_mode();
 	void					set_mode(int mode);
 
-	int						get_limit();
-	void					set_limit(int limit);
+	size_t					get_limit();
+	void					set_limit(size_t limit);
 
 	bool					is_operator(Member *member);
 	void					add_operator(Member *member);
@@ -100,8 +108,11 @@ public:
 	bool					is_voice(Member *member);
 	void					add_voice(Member *member);
 	void					delete_voice(Member *member);
-
 	void					set_key(std::string const &key);
+
+	bool					is_invited_member(Member *member);
+	bool					add_invited_member(Member *member);
+	std::set<Member *>		&get_invited_member();
 };
 
 #endif

@@ -200,6 +200,7 @@ public:
 	explicit Reply(RPL::AWAY, const std::string &, const std::string &);
 	explicit Reply(RPL::UNAWAY);
 	explicit Reply(RPL::NOWAWAY);
+	explicit Reply(RPL::INVITING, const std::string &, const std::string &);
 public:
 	~Reply();
 	Reply();

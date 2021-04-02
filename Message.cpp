@@ -175,8 +175,8 @@ const char	*Message::get_msg()
 	while (begin != end)
 	{
 		_msg += " ";
-		if (begin + 1 == end)
-			_msg += ":";
+		// if (begin + 1 == end)
+		// 	_msg += ":";
 		_msg += *begin;
 		begin++;
 	}

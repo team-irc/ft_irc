@@ -121,3 +121,5 @@ bool				Member::check_mode(char mode, bool is_set)
 
 char				Member::get_mode() { return (_mode); }
 void				Member::set_mode(char mode) { _mode = mode; }
+Socket				*Member::get_socket() { return (_socket); }
+void				Member::set_socket(Socket *socket) { _socket = socket; }

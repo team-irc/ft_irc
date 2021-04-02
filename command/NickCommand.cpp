@@ -80,6 +80,7 @@ void	NickCommand::run(IrcServer &irc)
 			member = new Member();
 			member->set_nick(nickname);
 			member->set_fd(socket->get_fd());
+			member->set_socket(irc.get_current_socket());
 			_msg.set_prefix(nickname);
 			irc.add_member(nickname, member);
 		}
@@ -107,6 +108,7 @@ void	NickCommand::run(IrcServer &irc)
 			member = new Member();
 			member->set_nick(nickname);
 			member->set_fd(socket->get_fd());
+			member->set_socket(irc.get_current_socket());
 			irc.add_member(nickname, member);
 		}
 		else

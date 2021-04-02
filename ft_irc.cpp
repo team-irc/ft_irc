@@ -134,22 +134,6 @@ void	IrcServer::send_map_data(int fd)
 	std::cout << "end map data" << std::endl;
 }
 
-void	IrcServer::show_map_data()
-{
-	std::map<std::string, int>::iterator begin = _fd_map.begin();
-	std::map<std::string, int>::iterator end = _fd_map.end();
-
-	std::cout << "============MAP DATA=============\n";
-	while (begin != end)
-	{
-		std::cout << "key(server name): " << begin->first << std::endl;
-		std::cout << "value(fd): " << begin->second << std::endl;
-		std::cout << "-----------------\n";
-		begin++;
-	}
-	std::cout << "=================================\n";
-}
-
 /*
 ** CR 또는 LF까지만 버퍼를 읽어온다
 */
@@ -241,7 +225,11 @@ void	IrcServer::client_msg(int fd)
 			else
 			{
 				cmd = _cmd_creator.get_command("QUIT");
-				msg = "QUIT :" + find_member(_current_sock->get_fd())->get_nick() + "\n";
+				Member *member = find_member(_current_sock->get_fd());
+				if (member)
+					msg = "QUIT :" + member->get_nick() + "\n";
+				else
+					msg = "QUIT\n";
 				cmd->set_message(Message(msg.c_str()));
 			}
 			cmd->execute(*this);
@@ -403,18 +391,20 @@ void		IrcServer::add_fd_map(const std::string &key, int fd)
 void		IrcServer::show_fd_map()
 {
 	std::cout << "================== _fd_map ======================\n";
-	std::cout.width(5);
-	std::cout << "fd";
 	std::cout.width(20);
-	std::cout << "server_name\n";
+	std::cout << "server_name";
+	std::cout.width(5);
+	std::cout << "fd\n";
 
 	std::map<std::string, int>::iterator	iter = _fd_map.begin();
 	while (iter != _fd_map.end())
 	{
-		std::cout.width(5);
-		std::cout << (*iter).second;
 		std::cout.width(20);
 		std::cout << (*iter).first;
+
+		std::cout.width(5);
+		std::cout << (*iter).second;
+		
 		std::cout << "\n";
 		iter++;
 	}
@@ -426,18 +416,18 @@ void		IrcServer::show_global_user()
 	std::map<std::string, Member *>::iterator iter = _global_user.begin();
 
 	std::cout << "================== _global_user ==================\n";
-	std::cout.width(20);
+	std::cout.width(10);
 	std::cout << "nickname";
-	std::cout.width(20);
+	std::cout.width(10);
 	std::cout << "username";
 	std::cout.width(10);
 	std::cout << "fd\n";
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
-		std::cout.width(20);
+		std::cout.width(10);
 		std::cout << member->get_nick();
-		std::cout.width(20);
+		std::cout.width(10);
 		std::cout << member->get_username();
 		std::cout.width(10);
 		std::cout << member->get_fd() << "\n";
@@ -446,25 +436,33 @@ void		IrcServer::show_global_user()
 	return ;
 }
 
+#include <bitset>
+
 void		IrcServer::show_global_channel()
 {
 	std::map<std::string, Channel *>::iterator iter = _global_channel.begin();
 	std::vector<ChanMember>	member_vector;
 
 	std::cout << "================== _global_channel ==================\n";
-	std::cout.width(20);
-	std::cout << "channel name";
-	std::cout.width(20);
+	std::cout.width(10);
+	std::cout << "name";
+	std::cout.width(10);
 	std::cout << "topic";
+	std::cout.width(20);
+	std::cout << "mode";
 	std::cout.width(10);
 	std::cout << "users\n";
 	while (iter != _global_channel.end())
 	{
-		std::cout.width(20);
+		std::cout.width(10);
 		std::cout << (*iter).first;
 
-		std::cout.width(20);
+		std::cout.width(10);
 		std::cout << (*iter).second->get_topic();
+
+		std::cout.width(20);
+		std::cout << std::bitset<16>((*iter).second->get_mode()); // 사용 금지?
+
 		member_vector = (*iter).second->get_members();
 		std::vector<ChanMember>::iterator		member_iter;
 		member_iter = member_vector.begin();
