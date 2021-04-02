@@ -110,6 +110,7 @@ void	NickCommand::run(IrcServer &irc)
 			member->set_fd(socket->get_fd());
 			member->set_socket(irc.get_current_socket());
 			irc.add_member(nickname, member);
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
 		else
 		{

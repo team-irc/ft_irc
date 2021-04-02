@@ -37,6 +37,16 @@ void		ModeCommand::check_target(IrcServer &irc)
 		// 채널 동작
 		// 0. 메시지를 보낸 멤버가 채널 관리자인지 검사
 		//	- 아니면 에러 리턴(482)
+		Member *sender = irc.find_member(irc.get_current_socket()->get_fd());
+		if (sender)
+		{
+			if (channel->is_operator(sender) == false)
+			{
+				msg = Reply(ERR::CHANOPRIVSNEEDED(), channel->get_name()).get_msg();
+				irc.get_current_socket()->write(msg.c_str());
+				return ;
+			}
+		}
 		_param_idx = 2;
 		for (int i = 0; i < param.length(); i++)
 		{
@@ -57,7 +67,12 @@ void		ModeCommand::check_target(IrcServer &irc)
 			}
 		}
 		if (!result.empty())
-			msg += result + "\n";
+		{
+			msg += result; // parameter 인자 값 추가해야 함
+			for (int i = 2; i < _msg.get_param_size(); i++)
+				msg += " " + _msg.get_param(i);
+			msg += "\n";
+		}
 	}
 	else if (member)
 	{
@@ -68,7 +83,7 @@ void		ModeCommand::check_target(IrcServer &irc)
 		{
 			if (sender->get_nick() != _msg.get_param(0))
 			{
-				msg = ":" + irc.get_servername() + " " + Reply(ERR::USERSDONTMATCH()).get_msg();
+				msg = Reply(ERR::USERSDONTMATCH()).get_msg();
 				irc.get_current_socket()->write(msg.c_str());
 				return ;
 			}

@@ -19,9 +19,10 @@ static int	split_for_message(const char *msg, char c, std::string *& arr)
 	std::string *tmp_split_ret;
 	int			tmp_size;
 
-	if (ft::strchr(msg, ':') != NULL)
+	if (ft::strchr(msg + 1, ':') != NULL)
 	{
 		// 첫 번쨰 콜론 기준으로 문자열 반갈죽
+		if (msg[i] == ':') ++i;
 		while (msg[i] != ':')
 			tmp[0] += msg[i++];
 		while (msg[i])
@@ -54,8 +55,10 @@ Message::Message(const char *msg)
 	int size = split_for_message(msg, ' ', arr);
 	if (msg[0] == ':')
 	{
-		_prefix = arr[idx++];
-		_prefix_no_collon = _prefix.substr(1);
+		if (arr[0][0] == ':')
+			_prefix = arr[idx++].substr(1);
+		else
+			_prefix = arr[idx++];
 	}
 	for (int i = 0; i < arr[idx].size(); i++)
 		arr[idx][i] = std::toupper(arr[idx][i]);
@@ -75,7 +78,7 @@ Message::Message(const char *msg)
 
 Message::Message(const Message &ref) :
 	_source_fd(ref._source_fd), _dest(ref._dest), _msg(ref._msg), _origin(ref._origin), _paths(ref._paths),
-	_prefix(ref._prefix), _prefix_no_collon(ref._prefix_no_collon), _command(ref._command), _param(ref._param),
+	_prefix(ref._prefix), _command(ref._command), _param(ref._param),
 	_size(ref._size), _hopcount(ref._hopcount)
 {}
 
@@ -89,7 +92,6 @@ Message		&Message::operator=(const Message &ref)
 		_origin = ref._origin;
 		_paths = ref._paths;
 		_prefix = ref._prefix;
-		_prefix_no_collon = ref._prefix_no_collon;
 		_command = ref._command;
 		_param = ref._param;
 		_size = ref._size;
@@ -139,11 +141,7 @@ void		Message::set_param_at(int idx, const std::string &val)
 void		Message::set_prefix(const std::string &prefix)
 {
 	if (_prefix.empty())
-	{
-		_prefix = ":";
 		_prefix += prefix;
-		_prefix_no_collon = prefix;
-	}
 }
 
 void		Message::set_source_fd(const int fd)
@@ -166,7 +164,7 @@ const char	*Message::get_msg()
 
 	_msg.clear();
 	if (!_prefix.empty())
-		_msg += _prefix + " ";
+		_msg += ":" + _prefix + " ";
 	_msg += _command;
 	if (_param.size() > 15)
 		throw (Error("msg out of range"));
@@ -204,5 +202,5 @@ const int			Message::get_param_size() const
 
 const std::string	&Message::get_prefix() const
 {
-	return (_prefix_no_collon);
+	return (_prefix);
 }

@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string channel_name, const std::string key, Member *first_member)
-	: _name(channel_name), _key(key), _topic(), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
+	: _name(channel_name), _key(key), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(ChanMember(first_member, true, true));
