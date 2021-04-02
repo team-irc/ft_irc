@@ -19,9 +19,10 @@ static int	split_for_message(const char *msg, char c, std::string *& arr)
 	std::string *tmp_split_ret;
 	int			tmp_size;
 
-	if (ft::strchr(msg, ':') != NULL)
+	if (ft::strchr(msg + 1, ':') != NULL)
 	{
 		// 첫 번쨰 콜론 기준으로 문자열 반갈죽
+		if (msg[i] == ':') ++i; // 문자열 첫번째에 있는 콜론은 무시
 		while (msg[i] != ':')
 			tmp[0] += msg[i++];
 		while (msg[i])
