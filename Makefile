@@ -32,6 +32,7 @@ SRC = \
 	command/AwayCommand.cpp		\
 	command/KickCommand.cpp		\
 	command/InviteCommand.cpp	\
+	command/VersionCommand.cpp	\
 	command/IsonCommand.cpp		\
 	command/OperCommand.cpp
 	command/UserhostCommand.cpp	\

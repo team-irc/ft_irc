@@ -468,6 +468,13 @@ Reply::Reply(RPL::NOTOPIC err, const std::string &channel)
 	_msg = "#" + channel + " :No topic is set";
 }
 
+Reply::Reply(RPL::VERSION rpl, const std::string &version, const std::string &debug_level, 
+				const std::string &server, const std::string &comments)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = version + "." + debug_level + " " + server + " :" + comments;
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;

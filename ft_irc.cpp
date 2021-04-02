@@ -1,6 +1,6 @@
 #include "ft_irc.hpp"
 
-IrcServer::IrcServer(int argc, char **argv)
+IrcServer::IrcServer(int argc, char **argv) : _version(SERVER_CONST::VERSION), _debug_level(std::to_string(DEBUG))
 {
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
@@ -204,6 +204,19 @@ static int	read_until_crlf(int fd, char *buffer, int *len)
 	return (0);
 }
 
+bool	IrcServer::is_reply_code(std::string const &command)
+{
+	int		num;
+
+	if (command.length() == 3)
+	{
+		num = ft::atoi(command.c_str());
+		if (num >= 200 && num < 600)
+			return (true);
+	}
+	return (false);
+}
+
 void	IrcServer::client_msg(int fd)
 {
 	char			buf[BUFFER_SIZE];
@@ -251,8 +264,13 @@ void	IrcServer::client_msg(int fd)
 		}
 		else
 		{
-			// RPL/ERR code 확인해서 숫자면 그대로 목적지로 전송
-			if (buf[0] != '\n')
+			if (is_reply_code(msg.get_command()))
+			{
+				Member		*member;
+				member = get_member(msg.get_param(0));
+				member->get_socket()->write(msg.get_msg());
+			}
+			else if (buf[0] != '\n')
 				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
 		}
 	} while (result);
@@ -402,6 +420,17 @@ void		IrcServer::delete_fd_map(std::string const &key)
 	_fd_map.erase(key);
 }
 
+int			IrcServer::find_fd_map(std::string const &server_name)
+{
+	std::map<std::string, int>::iterator	iter;
+
+	iter = _fd_map.find(server_name);
+	if (iter == _fd_map.end())
+		return (0);
+	else
+		return ((*iter).second);
+}
+
 void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
@@ -509,6 +538,12 @@ std::string			IrcServer::get_servername()
 
 std::map<std::string, int>	&IrcServer::get_fd_map()
 { return (_fd_map); }
+
+std::string			IrcServer::get_version()
+{ return (_version); }
+
+std::string			IrcServer::get_debug_level()
+{ return (_debug_level); }
 
 // void				IrcServer::sigint_handler(int type)
 // {
