@@ -63,7 +63,7 @@ void KickCommand::run(IrcServer &irc)
 	Member			*target_member;
 	std::string		target_member_name;
 	std::string		channel_name;	
-	Channel	*channel;
+	Channel			*channel;
 
 
 	socket = irc.get_current_socket();

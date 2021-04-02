@@ -34,6 +34,7 @@ SRC = \
 	command/InviteCommand.cpp	\
 	command/IsonCommand.cpp		\
 	command/OperCommand.cpp
+	command/UserhostCommand.cpp	\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
