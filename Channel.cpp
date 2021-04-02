@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string channel_name, const std::string key, Member *first_member)
-	: _name(channel_name), _key(key), _topic(), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
+	: _name(channel_name), _key(key), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(ChanMember(first_member, true, true));
@@ -69,6 +69,22 @@ bool					Channel::is_member(Member *member)
 
 std::vector<ChanMember>	&Channel::get_members()
 { return (_member); }
+
+std::vector<std::string> Channel::get_member_list()
+{
+	std::vector<std::string>			ret;
+	std::vector<ChanMember>::iterator	first;
+	std::vector<ChanMember>::iterator	last;
+
+	first = _member.begin();
+	last = _member.end();
+	while (first != last)
+	{
+		ret.push_back((*first)._member->get_nick());
+		++first;
+	}
+	return (ret);
+}
 
 const std::string & 	Channel::get_name()
 { return (_name); }

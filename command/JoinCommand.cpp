@@ -50,13 +50,8 @@ JOIN #foo,#bar                  ; join channels #foo and #bar.
 
 /*
 ** 처리 안함 리스트
-** ERR_BANNEDFROMCHAN
 ** ERR_BADCHANNELKEY
-** ERR_CHANNELISFULL
 ** ERR_BADCHANMASK
-** ERR_NOSUCHCHANNEL
-** ERR_TOOMANYCHANNELS
-** RPL_TOPIC
 */
 
 void	JoinCommand::run(IrcServer &irc)
@@ -72,6 +67,8 @@ void	JoinCommand::run(IrcServer &irc)
 		throw (Reply(ERR::NEEDMOREPARAMS(), "JOIN"));
 	if (socket->get_type() == UNKNOWN)
 		return ;
+	if ((_msg.get_param(0)[0] != '&') && (_msg.get_param(0)[0] != '#') && (_msg.get_param(0)[0] != '+'))
+		throw (Reply(ERR::NOSUCHCHANNEL(), _msg.get_param(0)));
 	else if (socket->get_type() == SERVER)
 	{
 		number_of_channel = ft::split(_msg.get_param(0), ',', channel_names);
@@ -138,7 +135,7 @@ void	JoinCommand::run(IrcServer &irc)
 				}
 			}
 			socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
-			// socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_members()).get_msg().c_str());
+			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		

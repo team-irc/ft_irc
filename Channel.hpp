@@ -85,6 +85,7 @@ public:
 	bool					is_member(Member *member);
 
 	std::vector<ChanMember>	&get_members();
+	std::vector<std::string>	get_member_list();
 	const std::string 		&get_name();
 	bool					find_member(Member * member);
 	bool					set_topic(std::string const &topic);

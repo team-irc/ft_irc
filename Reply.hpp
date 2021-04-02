@@ -6,6 +6,8 @@
 # include <vector>
 # include <string>
 
+class Member;
+
 // prefix replies(numeric) nick [error] <msg>
 // error는 해당 에러를 발생하는 문자열(ex. No such nick or channel의 경우엔 nick이나 channel의 이름)
 
@@ -189,6 +191,7 @@ public:
 	explicit Reply(ERR::USERSDONTMATCH);
 public:
 	explicit Reply(RPL::NONE);
+	explicit Reply(RPL::USERHOST, std::vector<Member *>);
 	explicit Reply(RPL::YOUREOPER);
 	explicit Reply(RPL::NAMREPLY, const std::string &, std::vector<std::string>);
 	explicit Reply(RPL::ENDOFNAMES, const std::string &);
@@ -202,6 +205,7 @@ public:
 	explicit Reply(RPL::NOWAWAY);
 	explicit Reply(RPL::INVITING, const std::string &, const std::string &);
 	explicit Reply(RPL::VERSION, const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::ISON, const std::vector<std::string> &);
 public:
 	~Reply();
 	Reply();

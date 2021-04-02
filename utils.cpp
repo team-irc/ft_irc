@@ -33,10 +33,16 @@ int ft::split(const std::string str, char c, std::string *& ret)
 
 	size = 0;
 	str_counter = 0;
-	for (int i = 0; i < str.length(); ++i)
+	for (int i = 0; i < str.length();)
 	{
 		if (str[i] == c)
+		{
 			++size;
+			while (str[i] == c)
+				++i;
+		}
+		else
+			++i;
 	}
 	++size;
 	ret = new std::string[size + 1];

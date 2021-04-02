@@ -79,18 +79,13 @@ void			PrivmsgCommand::run(IrcServer &irc)
 	std::string		msg = _msg.get_param(1);
 	std::string		err;
 
-	if (param_size == 1)
-		check_receiver(irc, recvs[0]);
-	else if (param_size > 1)
-	{
-		for (int i = 0; i < param_size; i++)
-			check_receiver(irc, recvs[i]);
-	}
-	else
-	{
-		(irc.get_current_socket())->write(Reply(ERR::NORECIPIENT(), "PRIVMSG").get_msg().c_str());
-	}
-	// delete[] recvs;
+	if (_msg.get_param_size() == 0)
+		throw (Reply(ERR::NORECIPIENT(), "PRIVMSG"));
+	if (_msg.get_param_size() == 1)
+		throw (Reply(ERR::NOTEXTTOSEND()));
+	for (int i = 0; i < param_size; i++)
+		check_receiver(irc, recvs[i]);
+	delete[] recvs;
 }
 
 // privmsg #hi hihi

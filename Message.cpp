@@ -4,12 +4,43 @@ Message::Message() :
 	_prefix(std::string()), _command(std::string()), _param(std::vector<std::string>()), _size(0)
 {}
 
-void remove_crlf(std::string *str)
+static void remove_crlf(std::string *str)
 {
 	if (str->empty())
 		return ;
 	if (str->at(str->size() - 1) == ASCII_CONST::CR || str->at(str->size() - 1) == ASCII_CONST::LF)
 		str->resize(str->size() - 1);
+}
+
+static int	split_for_message(const char *msg, char c, std::string *& arr)
+{
+	int			i = 0;
+	std::string	tmp[2];
+	std::string *tmp_split_ret;
+	int			tmp_size;
+
+	if (ft::strchr(msg + 1, ':') != NULL)
+	{
+		// 첫 번쨰 콜론 기준으로 문자열 반갈죽
+		if (msg[i] == ':') ++i; // 문자열 첫번째에 있는 콜론은 무시
+		while (msg[i] != ':')
+			tmp[0] += msg[i++];
+		while (msg[i])
+			tmp[1] += msg[i++];
+		tmp_size = ft::split(tmp[0].c_str(), c, tmp_split_ret);
+		arr = new std::string[tmp_size + 1];
+		i = 0;
+		while (i < tmp_size)
+		{
+			arr[i] = tmp_split_ret[i];
+			++i;
+		}
+		arr[i - 1] = tmp[1];
+		delete[] tmp_split_ret;
+		return (tmp_size + 1);
+	}
+	else
+		return (ft::split(msg, c, arr));
 }
 
 Message::Message(const char *msg)
@@ -21,11 +52,13 @@ Message::Message(const char *msg)
 		return ;
 	_origin = msg;
 	std::string *arr;
-	int size = ft::split(msg, ' ', arr);
+	int size = split_for_message(msg, ' ', arr);
 	if (msg[0] == ':')
 	{
-		_prefix = arr[idx++];
-		_prefix_no_collon = _prefix.substr(1);
+		if (arr[0][0] == ':')
+			_prefix = arr[idx++].substr(1);
+		else
+			_prefix = arr[idx++];
 	}
 	for (int i = 0; i < arr[idx].size(); i++)
 		arr[idx][i] = std::toupper(arr[idx][i]);
@@ -35,26 +68,17 @@ Message::Message(const char *msg)
 	while (arr[idx].empty() == false)
 	{
 		param = arr[idx];
-		if (param.at(0) == ':')
-		{
-			param = param.erase(0, 1);
-			idx++;
-			for (; idx < size; ++idx)
-			{
-				param += " ";
-				param += arr[idx];
-			}
-		}
 		remove_crlf(&param);
 		_param.push_back(param);
 		idx++;
 	}
+	std::cout << std::endl;
 	delete[] arr;
 }
 
 Message::Message(const Message &ref) :
 	_source_fd(ref._source_fd), _dest(ref._dest), _msg(ref._msg), _origin(ref._origin), _paths(ref._paths),
-	_prefix(ref._prefix), _prefix_no_collon(ref._prefix_no_collon), _command(ref._command), _param(ref._param),
+	_prefix(ref._prefix), _command(ref._command), _param(ref._param),
 	_size(ref._size), _hopcount(ref._hopcount)
 {}
 
@@ -68,7 +92,6 @@ Message		&Message::operator=(const Message &ref)
 		_origin = ref._origin;
 		_paths = ref._paths;
 		_prefix = ref._prefix;
-		_prefix_no_collon = ref._prefix_no_collon;
 		_command = ref._command;
 		_param = ref._param;
 		_size = ref._size;
@@ -118,11 +141,7 @@ void		Message::set_param_at(int idx, const std::string &val)
 void		Message::set_prefix(const std::string &prefix)
 {
 	if (_prefix.empty())
-	{
-		_prefix = ":";
 		_prefix += prefix;
-		_prefix_no_collon = prefix;
-	}
 }
 
 void		Message::set_source_fd(const int fd)
@@ -145,7 +164,7 @@ const char	*Message::get_msg()
 
 	_msg.clear();
 	if (!_prefix.empty())
-		_msg += _prefix + " ";
+		_msg += ":" + _prefix + " ";
 	_msg += _command;
 	if (_param.size() > 15)
 		throw (Error("msg out of range"));
@@ -183,5 +202,5 @@ const int			Message::get_param_size() const
 
 const std::string	&Message::get_prefix() const
 {
-	return (_prefix_no_collon);
+	return (_prefix);
 }

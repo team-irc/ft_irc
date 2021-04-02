@@ -26,10 +26,11 @@ void	PartCommand::run(IrcServer &irc)
 				throw (Reply(ERR::NOSUCHCHANNEL(), channel_names[i]));
 			if (!channel->find_member(member))
 				throw (Reply(ERR::NOTONCHANNEL(), channel_names[i]));
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+			channel->send_msg_to_members(_msg.get_msg());
 			channel->delete_member(member);
 			member->delete_channel(channel);
 		}
-		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); 
 	}
 	else if (socket->get_type() == CLIENT) // 클라이언트에서 온 경우
 	{
@@ -43,10 +44,11 @@ void	PartCommand::run(IrcServer &irc)
 				throw (Reply(ERR::NOSUCHCHANNEL(), channel_names[i]));
 			if (!channel->find_member(member))
 				throw (Reply(ERR::NOTONCHANNEL(), channel_names[i]));
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+			channel->send_msg_to_members(_msg.get_msg());
 			channel->delete_member(member);
 			member->delete_channel(channel);
 		}
-		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 	else
 	{

@@ -15,6 +15,8 @@ IrcServer::IrcServer(int argc, char **argv) : _version(SERVER_CONST::VERSION), _
 		_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_fd_map.insert(std::pair<std::string, int>(_server_name, _listen_socket->get_fd()));
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
+		_oper_id = "TheOper";
+		_oper_pwd = "ThePwd";
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -391,6 +393,28 @@ void		IrcServer::delete_member(const std::string &nickname)
 	_global_user.erase(nickname);
 }
 
+void		IrcServer::send_user_data(int fd)
+{
+	std::string									msg;
+
+	std::map<std::string, Member *>::iterator	begin = _global_user.begin();
+	std::map<std::string, Member *>::iterator	end = _global_user.end();
+
+	while (begin != end)
+	{
+		// NICK, USER 순서로 제공된 fd에 메시지 전송
+		msg = "NICK " + begin->second->get_nick() + " 1\n";;
+		send_msg(fd, msg.c_str());
+		msg = ":" + begin->second->get_nick() + " USER " +
+			begin->second->get_username() + " " +
+			begin->second->get_servername() + " " +
+			begin->second->get_hostname() + " " +
+			begin->second->get_realname() + "\n";
+		send_msg(fd, msg.c_str());
+		begin++;
+	}
+}
+
 void		IrcServer::delete_fd_map(std::string const &key)
 {
 	_fd_map.erase(key);
@@ -532,3 +556,10 @@ std::string			IrcServer::get_debug_level()
 // 	cmd->run(*this);
 // 	// 사용한 메모리들 정리 작업 추가
 // }
+
+bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
+{
+	if (_oper_id == id && _oper_pwd == pwd)
+		return (true);
+	return (false);
+}
