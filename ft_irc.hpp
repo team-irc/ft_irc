@@ -24,10 +24,17 @@
 
 #define DEBUG 0
 
+namespace SERVER_CONST
+{
+	const std::string	VERSION = "ft_irc_0.1";
+}
+
 class IrcServer
 {
 private:
 	std::string						_server_name;
+	std::string						_version;
+	std::string						_debug_level;
 	std::string						_my_pass;
 	Socket							*_listen_socket;
 	// std::vector<Socket *>		_socket_vector;
@@ -65,10 +72,16 @@ public:
 	void				send_msg_server(int fd, const char *msg);
 	void				add_channel(std::string &channel_name, Channel *channel);
 	bool				add_member(std::string &nickname, Member *new_member);
-	void				add_fd_map(const std::string &key, int fd);
+	
 	void				send_map_data(int my_fd);
 	void				delete_member(const std::string &nickname);
-	void				delete_fd_map(std::string const &key);
+
+	void						add_fd_map(const std::string &key, int fd);
+	void						delete_fd_map(std::string const &key);
+	std::map<std::string, int>	&get_fd_map();
+	int							find_fd_map(std::string const &server_name);
+	
+
 	Channel				*get_channel(std::string channel_name);
 	Member				*get_member(std::string nick);
 	Member				*get_member(int fd);
@@ -77,7 +90,10 @@ public:
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();
-	std::map<std::string, int>			&get_fd_map();
+	
+
+	std::string			get_version();
+	std::string			get_debug_level();
 	
 private:
 
@@ -94,6 +110,8 @@ private:
 	void				show_global_user();
 	void				show_global_channel();
 	void				fd_event_loop();
+
+	bool				is_reply_code(std::string const &command);
 };
 
 void error_handling(const std::string buf);
