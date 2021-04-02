@@ -73,7 +73,7 @@ void	InviteCommand::run(IrcServer &irc)
 		_msg.set_prefix(member->get_nick() + "!~" + member->get_username() + "@" + irc.get_servername());
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
-	if (socket->get_type() == SERVER)
+	else if (socket->get_type() == SERVER)
 	{
 		invited_member = irc.get_member(_msg.get_param(0));
 		channel = irc.get_channel(_msg.get_param(1));
@@ -85,6 +85,10 @@ void	InviteCommand::run(IrcServer &irc)
 		
 		// 다른 서버에 메세지 전파
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+	}
+	else
+	{
+		return ;
 	}
 }
 
