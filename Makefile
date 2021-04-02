@@ -34,7 +34,7 @@ SRC = \
 	command/InviteCommand.cpp	\
 	command/VersionCommand.cpp	\
 	command/IsonCommand.cpp		\
-	command/OperCommand.cpp
+	command/OperCommand.cpp		\
 	command/UserhostCommand.cpp	\
 
 
