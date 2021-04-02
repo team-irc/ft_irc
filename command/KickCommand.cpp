@@ -58,10 +58,13 @@ void			KickCommand::add_prefix(IrcServer &irc)
 
 void KickCommand::run(IrcServer &irc)
 {
-	Socket	*socket;
-	Member	*member;
-	Member	*target_member;
+	Socket			*socket;
+	Member			*member;
+	Member			*target_member;
+	std::string		target_member_name;
+	std::string		channel_name;	
 	Channel	*channel;
+
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
@@ -70,18 +73,24 @@ void KickCommand::run(IrcServer &irc)
 			throw(Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		member = irc.find_member(socket->get_fd());
 
-		target_member = irc.get_member(_msg.get_param(1));
-		if (!target_member) // 그런 멤버가 없는경우
-			throw(Reply(ERR::NOSUCHNICK(), _msg.get_param(1)));
+		channel_name = _msg.get_param(0);
+		target_member_name = _msg.get_param(1);
 
-		channel = irc.get_channel(_msg.get_param(0));
-		if (!channel) // 그런 채널이 없는경우
-			throw(Reply(ERR::NOSUCHCHANNEL(), _msg.get_param(0)));
+		target_member = irc.get_member(target_member_name);
+		if (!target_member)					// 타겟 멤버가 없는경우
+			throw(Reply(ERR::NOSUCHNICK(), target_member_name));
 
-		if (channel->find_member(target_member) == false) // kick 당한 멤버가 채널에 없는경우
+		channel = irc.get_channel(channel_name);
+		if (!channel) 						// 그런 채널이 없는경우
+			throw(Reply(ERR::NOSUCHCHANNEL(), channel_name));
+
+		if (!channel->find_member(member))	// 멤버가 채널에 없는경우
 			throw(Reply(ERR::NOTONCHANNEL(), channel->get_name()));
 
-		if (!channel->is_operator(member)) // kick 명령자가 채널 오퍼레이터가 아닌 경우
+		if (!channel->find_member(member))	// 타겟 멤버가 채널에 없는경우
+			throw(Reply(ERR::NOSUCHNICK(), target_member_name));
+
+		if (!channel->is_operator(member))	// kick 명령자가 채널 오퍼레이터가 아닌 경우
 			throw(Reply(ERR::CHANOPRIVSNEEDED(), channel->get_name()));
 		
 		// 다른 서버에 메세지 전파
@@ -100,8 +109,11 @@ void KickCommand::run(IrcServer &irc)
 	}
 	else if (socket->get_type() == SERVER)
 	{
-		target_member = irc.get_member(_msg.get_param(1));
-		channel = irc.get_channel(_msg.get_param(0));
+		target_member_name = _msg.get_param(1);
+		channel_name = _msg.get_param(0);
+
+		target_member = irc.get_member(target_member_name);
+		channel = irc.get_channel(channel_name);
 		
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		channel->send_msg_to_members(_msg.get_msg());
