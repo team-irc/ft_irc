@@ -15,6 +15,8 @@ IrcServer::IrcServer(int argc, char **argv)
 		_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_fd_map.insert(std::pair<std::string, int>(_server_name, _listen_socket->get_fd()));
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
+		_oper_id = "TheOper";
+		_oper_pwd = "ThePwd";
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -249,6 +251,7 @@ void	IrcServer::client_msg(int fd)
 		}
 		else
 		{
+			// RPL/ERR code 확인해서 숫자면 그대로 목적지로 전송
 			if (buf[0] != '\n')
 				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
 		}
@@ -518,3 +521,10 @@ std::map<std::string, int>	&IrcServer::get_fd_map()
 // 	cmd->run(*this);
 // 	// 사용한 메모리들 정리 작업 추가
 // }
+
+bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
+{
+	if (_oper_id == id && _oper_pwd == pwd)
+		return (true);
+	return (false);
+}

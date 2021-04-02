@@ -45,6 +45,9 @@ private:
 	// std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
+
+	std::string						_oper_id;
+	std::string						_oper_pwd;
 	
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
@@ -79,6 +82,9 @@ public:
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();
 	std::map<std::string, int>			&get_fd_map();
+
+	// Operator
+	bool				check_oper(std::string const &id, std::string const &pwd);
 	
 private:
 

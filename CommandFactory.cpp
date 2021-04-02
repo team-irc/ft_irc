@@ -16,6 +16,7 @@
 #include "KickCommand.hpp"
 #include "InviteCommand.hpp"
 #include "IsonCommand.hpp"
+#include "OperCommand.hpp"
 #include "UserhostCommand.hpp"
 
 CommandFactory::CommandFactory()
@@ -38,6 +39,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("KICK", new KickCommand()));
 	_map.insert(std::pair<std::string, Command *>("INVITE", new InviteCommand()));
 	_map.insert(std::pair<std::string, Command *>("ISON", new IsonCommand()));
+	_map.insert(std::pair<std::string, Command *>("OPER", new OperCommand()));
 	_map.insert(std::pair<std::string, Command *>("USERHOST", new UserhostCommand()));
 }
 

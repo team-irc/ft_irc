@@ -35,11 +35,19 @@ void		ModeCommand::check_target(IrcServer &irc)
 	if (channel)
 	{
 		// 채널 동작
-		// 0. 메시지를 보낸 멤버가 채널 관리자인지 검사
+		// 0-1. 메시지를 보낸 유저가 해당 채널에 속한 유저인지 검사
+		//	- 아니면 에러 리턴(442)
+		// 0-2. 메시지를 보낸 멤버가 채널 관리자인지 검사
 		//	- 아니면 에러 리턴(482)
 		Member *sender = irc.find_member(irc.get_current_socket()->get_fd());
-		if (sender)
+		if (_msg.get_prefix().empty() && sender)
 		{
+			if (channel->is_member(sender) == false)
+			{
+				msg = Reply(ERR::NOTONCHANNEL(), channel->get_name()).get_msg();
+				irc.get_current_socket()->write(msg.c_str());
+				return ;
+			}
 			if (channel->is_operator(sender) == false)
 			{
 				msg = Reply(ERR::CHANOPRIVSNEEDED(), channel->get_name()).get_msg();
@@ -72,6 +80,8 @@ void		ModeCommand::check_target(IrcServer &irc)
 			for (int i = 2; i < _msg.get_param_size(); i++)
 				msg += " " + _msg.get_param(i);
 			msg += "\n";
+			// 해당 채널에 속한 멤버들에게 메시지 전송
+			channel->send_msg_to_members(msg.c_str());
 		}
 	}
 	else if (member)
@@ -120,7 +130,7 @@ void		ModeCommand::check_target(IrcServer &irc)
 	if (!result.empty())
 	{
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
-		if (_msg.get_prefix().empty())
+		if (_msg.get_prefix().empty() && channel == NULL)
 			irc.get_current_socket()->write(msg.c_str());
 	}
 }
