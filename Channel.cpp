@@ -332,3 +332,18 @@ std::set<Member *>	&Channel::get_invited_member()
 {
 	return (_invited_member);
 }
+
+void				Channel::send_msg_to_members(const char *msg)
+{
+	std::vector<ChanMember>::iterator	member_iter;
+	Socket								*socket;
+
+	member_iter = _member.begin();
+	while (member_iter != _member.end())
+	{
+		socket = (*member_iter)._member->get_socket();
+		if (socket->get_type() == CLIENT)
+			socket->write(msg);
+		member_iter++;
+	}
+}

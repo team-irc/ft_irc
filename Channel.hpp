@@ -113,6 +113,8 @@ public:
 	bool					is_invited_member(Member *member);
 	bool					add_invited_member(Member *member);
 	std::set<Member *>		&get_invited_member();
+
+	void					send_msg_to_members(const char *msg);
 };
 
 #endif
