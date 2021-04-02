@@ -13,7 +13,7 @@ public:
 public:
 	void run(IrcServer &irc);
 private:
-	void kick_notification(const std::string &, Channel *, IrcServer &);
+	void add_prefix(IrcServer &irc);
 };
 
 #endif
