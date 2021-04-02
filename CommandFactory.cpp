@@ -15,6 +15,7 @@
 #include "AwayCommand.hpp"
 #include "KickCommand.hpp"
 #include "InviteCommand.hpp"
+#include "IsonCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -35,6 +36,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("AWAY", new AwayCommand()));
 	_map.insert(std::pair<std::string, Command *>("KICK", new KickCommand()));
 	_map.insert(std::pair<std::string, Command *>("INVITE", new InviteCommand()));
+	_map.insert(std::pair<std::string, Command *>("ISON", new IsonCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

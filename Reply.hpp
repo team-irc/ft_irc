@@ -201,6 +201,7 @@ public:
 	explicit Reply(RPL::UNAWAY);
 	explicit Reply(RPL::NOWAWAY);
 	explicit Reply(RPL::INVITING, const std::string &, const std::string &);
+	explicit Reply(RPL::ISON, const std::vector<std::string> &);
 public:
 	~Reply();
 	Reply();
