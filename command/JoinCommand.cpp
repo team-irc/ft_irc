@@ -52,7 +52,6 @@ JOIN #foo,#bar                  ; join channels #foo and #bar.
 ** 처리 안함 리스트
 ** ERR_BANNEDFROMCHAN
 ** ERR_BADCHANNELKEY
-** ERR_CHANNELISFULL
 ** ERR_BADCHANMASK
 ** ERR_NOSUCHCHANNEL
 ** ERR_TOOMANYCHANNELS

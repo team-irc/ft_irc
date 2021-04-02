@@ -85,7 +85,7 @@ void			PrivmsgCommand::run(IrcServer &irc)
 		throw (Reply(ERR::NOTEXTTOSEND()));
 	for (int i = 0; i < param_size; i++)
 		check_receiver(irc, recvs[i]);
-	// delete[] recvs;
+	delete[] recvs;
 }
 
 // privmsg #hi hihi

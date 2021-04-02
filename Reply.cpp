@@ -1,4 +1,5 @@
 #include "Reply.hpp"
+#include "Member.hpp"
 
 Reply::Reply()
 {
@@ -317,6 +318,31 @@ Reply::Reply(RPL::NONE junk)
 	_errnum = std::to_string(junk.ERRNO);
 	// dummy;
 	_msg = std::string();
+}
+
+Reply::Reply(RPL::USERHOST reply, std::vector<Member *> member_list)
+{
+	_errnum = std::to_string(reply.ERRNO);
+	// ":[<reply>{<space><reply>}]"
+	std::vector<Member *>::iterator first = member_list.begin();
+	std::vector<Member *>::iterator last = member_list.end();
+
+	_msg += " :";
+	while (first != last)
+	{
+		_msg += (*first)->get_nick();
+		if ((*first)->check_mode('o', false))
+			_msg += '*';
+		_msg += '=';
+		if ((*first)->get_away().empty())
+			_msg += '+';
+		else
+			_msg += '-';
+		_msg += (*first)->get_hostname();
+		if (first + 1 != last)
+			_msg += ' ';
+		++first;
+	}
 }
 
 Reply::Reply(RPL::YOUREOPER junk)
