@@ -372,6 +372,28 @@ void		IrcServer::delete_member(const std::string &nickname)
 	_global_user.erase(nickname);
 }
 
+void		IrcServer::send_user_data(int fd)
+{
+	std::string									msg;
+
+	std::map<std::string, Member *>::iterator	begin = _global_user.begin();
+	std::map<std::string, Member *>::iterator	end = _global_user.end();
+
+	while (begin != end)
+	{
+		// NICK, USER 순서로 제공된 fd에 메시지 전송
+		msg = "NICK " + begin->second->get_nick() + " 1\n";;
+		send_msg(fd, msg.c_str());
+		msg = ":" + begin->second->get_nick() + " USER " +
+			begin->second->get_username() + " " +
+			begin->second->get_servername() + " " +
+			begin->second->get_hostname() + " " +
+			begin->second->get_realname() + "\n";
+		send_msg(fd, msg.c_str());
+		begin++;
+	}
+}
+
 void		IrcServer::delete_fd_map(std::string const &key)
 {
 	_fd_map.erase(key);

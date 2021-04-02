@@ -28,6 +28,7 @@ void	ServerCommand::run(IrcServer &irc)
 			irc.send_msg_server(socket->get_fd(), _msg.get_origin());
 			ss.change_socket_type(_msg.get_source_fd(), SERVER);
 			irc.send_map_data(socket->get_fd());
+			irc.send_user_data(socket->get_fd());
 			irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd());
 		}
 		else
