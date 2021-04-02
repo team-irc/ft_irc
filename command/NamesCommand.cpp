@@ -55,7 +55,7 @@ void	NamesCommand::run(IrcServer &irc)
 			channel = first->second;
 
 			if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
-				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
+				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
 			++first;
 		}
 		if (!((get_user_list_who_not_join_any_channel(irc)).empty()))
@@ -67,31 +67,13 @@ void	NamesCommand::run(IrcServer &irc)
 		if (!(channel = irc.get_channel(_msg.get_param(0))))
 			return ; // no error reply for NamesCommand
 		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
-			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), get_channel_user_list(channel)).get_msg().c_str());
+			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
 		socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
 	}
 }
 
 NamesCommand::NamesCommand(): Command()
 {
-}
-
-std::vector<std::string> NamesCommand::get_channel_user_list(Channel * channel)
-{
-	std::vector<std::string>			ret;
-	std::vector<ChanMember>				members;
-	std::vector<ChanMember>::iterator	first;
-	std::vector<ChanMember>::iterator	last;
-
-	members = channel->get_members();
-	first = members.begin();
-	last = members.end();
-	while (first != last)
-	{
-		ret.push_back((*first)._member->get_nick());
-		++first;
-	}
-	return (ret);
 }
 
 std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(IrcServer &irc)
