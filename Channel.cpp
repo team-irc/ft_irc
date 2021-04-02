@@ -70,6 +70,22 @@ bool					Channel::is_member(Member *member)
 std::vector<ChanMember>	&Channel::get_members()
 { return (_member); }
 
+std::vector<std::string> Channel::get_member_list()
+{
+	std::vector<std::string>			ret;
+	std::vector<ChanMember>::iterator	first;
+	std::vector<ChanMember>::iterator	last;
+
+	first = _member.begin();
+	last = _member.end();
+	while (first != last)
+	{
+		ret.push_back((*first)._member->get_nick());
+		++first;
+	}
+	return (ret);
+}
+
 const std::string & 	Channel::get_name()
 { return (_name); }
 
