@@ -68,6 +68,7 @@ public:
 	void				add_fd_map(const std::string &key, int fd);
 	void				send_map_data(int my_fd);
 	void				delete_member(const std::string &nickname);
+	void				send_user_data(int fd);
 	void				delete_fd_map(std::string const &key);
 	Channel				*get_channel(std::string channel_name);
 	Member				*get_member(std::string nick);
