@@ -28,7 +28,6 @@ private:
 
 	// 		*path;
 	std::string					_prefix;
-	std::string					_prefix_no_collon;
 
 	// :tolsun.oulu.fi
 	// command는 3자리 숫자거나 유효한 IRC 명령
