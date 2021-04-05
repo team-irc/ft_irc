@@ -83,3 +83,29 @@ bool	ft::isdigit(int c)
 {
 	return ((c >= '0' && c <= '9') ? true : false);
 }
+
+void	ft::get_current_time(std::string &result)
+{
+	time_t		t;
+	std::string	*tmp;
+
+	time(&t);
+	result = ctime(&t);
+	// "Www Mmm dd hh:mm:ss yyyy"
+	ft::split(result, ' ', tmp);
+	//요일 월 일 연도 -- 시:분 UTC
+	tmp[3].resize(5);
+	tmp[4].resize(4);
+	result.clear();
+	result += tmp[0] + " " + tmp[1] +  " " + tmp[2] + " " + tmp[4] + " -- " + tmp[3] + " UTC";
+	// Monday April 05 2021 -- 04:25 UTC - 출력 값
+	delete[] tmp;
+}
+
+char	*get_up_time(char *start_time)
+{
+	time_t		t;
+
+	time(&t);
+	return (ctime(&t));
+}
