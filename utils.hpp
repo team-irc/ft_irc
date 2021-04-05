@@ -21,6 +21,8 @@ namespace ft
 
 	char	*get_up_time(char *start_time);
 
+	int		read_until_crlf(int fd, char *buffer, int *len)
+
 };
 
 namespace	ASCII_CONST

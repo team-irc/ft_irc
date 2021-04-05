@@ -109,3 +109,68 @@ char	*get_up_time(char *start_time)
 	time(&t);
 	return (ctime(&t));
 }
+
+int	ft::read_until_crlf(int fd, char *buffer, int *len)
+{
+	if (DEBUG)
+		std::cout << "read_until_crlf start\n";
+	int					i = 0;
+	int					read_size = 0;
+	int					insert_idx = 0;
+	char				buf[BUFFER_SIZE];
+	static std::string	remember;
+	int					rem_size = 0;
+
+	memset(buf, 0, BUFFER_SIZE);
+	// buf에 remember를 삽입
+	if (!remember.empty())
+	{
+		rem_size = remember.length();
+		strncpy(buf, remember.c_str(), rem_size);
+		insert_idx += rem_size;
+	}
+	while (insert_idx < BUFFER_SIZE)
+	{
+		if (remember.empty())
+		{
+			if (!(read_size = read(fd, buf, BUFFER_SIZE - insert_idx)))
+				break;
+		}
+		else
+		{
+			strncpy(buf, remember.c_str(), rem_size);
+			remember.clear();
+		}
+		for (i = 0; i < read_size + rem_size; i++)
+		{
+			if (buf[i] == ASCII_CONST::CR || buf[i] == ASCII_CONST::LF)
+			{
+				if (rem_size == 0)
+				{
+					strncpy(buffer + insert_idx, buf, i + 1);
+					buffer[i + insert_idx + 1] = 0;
+				}
+				else
+				{
+					strncpy(buffer, buf, i + 1);
+					buffer[i + 1] = 0;
+				}
+				// strncpy(buffer + (rem_size == 0 ? insert_idx : 0), buf, i + 1);
+				// buffer[i + (rem_size == 0 ? insert_idx : 0) + 1] = 0;
+				for (int j = 1; buf[i + j]; ++j)
+					remember += buf[i + j];
+				*len = i + insert_idx;
+				if (remember.empty())
+					return (0);
+				return (1);
+			}
+		}
+		rem_size = 0;
+		// write(1, buf, read_size);
+		strncpy(buffer + insert_idx, buf, read_size);
+		insert_idx += read_size;
+	}
+	buffer[insert_idx] = 0;
+	*len = BUFFER_SIZE;
+	return (0);
+}
