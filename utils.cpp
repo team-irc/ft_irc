@@ -127,8 +127,6 @@ void	ft::get_up_time(time_t start, std::string &result)
 
 int	ft::read_until_crlf(int fd, char *buffer, int *len)
 {
-	if (DEBUG)
-		std::cout << "read_until_crlf start\n";
 	int					i = 0;
 	int					read_size = 0;
 	int					insert_idx = 0;

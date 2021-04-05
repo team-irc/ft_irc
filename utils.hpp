@@ -5,8 +5,9 @@
 #include <time.h>
 #include <limits.h>
 #include <ctime>
+#include <unistd.h>
 
-#define BUF_SIZE 512
+#define BUFFER_SIZE 512
 
 namespace ft
 {
@@ -25,7 +26,7 @@ namespace ft
 
 	void	get_up_time(time_t start, std::string &result);
 
-	int		read_until_crlf(int fd, char *buffer, int *len)
+	int		read_until_crlf(int fd, char *buffer, int *len);
 
 };
 
