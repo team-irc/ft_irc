@@ -19,7 +19,11 @@
 #include "IsonCommand.hpp"
 #include "OperCommand.hpp"
 #include "UserhostCommand.hpp"
+<<<<<<< HEAD
 #include "TimeCommand.hpp"
+=======
+#include "InfoCommand.hpp"
+>>>>>>> upstream/master
 
 CommandFactory::CommandFactory()
 {
@@ -44,7 +48,11 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("ISON", new IsonCommand()));
 	_map.insert(std::pair<std::string, Command *>("OPER", new OperCommand()));
 	_map.insert(std::pair<std::string, Command *>("USERHOST", new UserhostCommand()));
+<<<<<<< HEAD
 	_map.insert(std::pair<std::string, Command *>("TIME", new TimeCommand()));
+=======
+	_map.insert(std::pair<std::string, Command *>("INFO", new InfoCommand()));
+>>>>>>> upstream/master
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
