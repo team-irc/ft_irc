@@ -15,8 +15,7 @@ IrcServer::IrcServer(int argc, char **argv) : _version(SERVER_CONST::VERSION), _
 		_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_fd_map.insert(std::pair<std::string, int>(_server_name, _listen_socket->get_fd()));
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
-		_oper_id = "TheOper";
-		_oper_pwd = "ThePwd";
+		time(&_start_time);
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -597,7 +596,10 @@ std::string			IrcServer::get_debug_level()
 
 bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
 {
-	if (_oper_id == id && _oper_pwd == pwd)
+	if (SERVER_CONST::OPERID == id && SERVER_CONST::OPERPWD == pwd)
 		return (true);
 	return (false);
 }
+
+time_t		IrcServer::get_start_time()
+{ return (_start_time); }

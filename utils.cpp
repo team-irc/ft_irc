@@ -187,4 +187,43 @@ bool	ft::check_mask(std::string const &str, std::string const &mask)
 	ret = check_str(str, *marker);
 	delete marker;
 	return (ret);
+void	ft::get_current_time(std::string &result)
+{
+	time_t		t;
+	std::string	*tmp;
+
+	time(&t);
+	result = ctime(&t);
+	// "Www Mmm dd hh:mm:ss yyyy"
+	ft::split(result, ' ', tmp);
+	//요일 월 일 연도 -- 시:분 UTC
+	tmp[3].resize(5);
+	tmp[4].resize(4);
+	result.clear();
+	result += tmp[0] + " " + tmp[1] +  " " + tmp[2] + " " + tmp[4] + " -- " + tmp[3] + " UTC";
+	// Monday April 05 2021 -- 04:25 UTC - 출력 값
+	delete[] tmp;
+}
+
+void	ft::get_up_time(time_t start, std::string &result)
+{
+	time_t		t;
+	std::string	*tmp;
+	int			cnt;
+
+	time(&t);
+	t -= start;
+	result = "Server Up ";
+	result += std::to_string((long)(t / (60 * 60 * 24))) + " days ";
+	t = t % (60 * 60 * 24);
+	result += std::to_string((long)(t / (60 * 60))) + ":";
+	t = t % (60 * 60);
+	if ((t / 60) == 0)
+		result += "0";
+	result += std::to_string((long)(t / 60)) + ":";
+	t = t % 60;
+	if ((t / 10) == 0)
+		result += "0";
+	result += std::to_string(t);
+	delete[] tmp;
 }

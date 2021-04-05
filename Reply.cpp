@@ -410,7 +410,7 @@ Reply::Reply(RPL::AWAY rpl, const std::string &nick, const std::string &away_mes
 {
 	_errnum = std::to_string(rpl.ERRNO);
 	//"<nick> :<away message>"
-	_msg = nick + " :" + away_message;
+	_msg = nick + " " + away_message;
 }
 
 Reply::Reply(RPL::UNAWAY rpl)
@@ -499,6 +499,48 @@ Reply::Reply(RPL::ENDOFLINKS rpl, const std::string &mask)
 	_errnum = std::to_string(rpl.ERRNO);
 	_msg = mask + " :End of /LINKS list";
 }
+
+Reply::Reply(RPL::TIME time, const std::string &servername, const std::string &val)
+{
+	_errnum = std::to_string(time.ERRNO);
+	_msg = servername + " :" + val;
+}
+
+// STATS
+
+Reply::Reply(RPL::STATSUPTIME time, const std::string &val)
+{
+	_errnum = std::to_string(time.ERRNO);
+	_msg = ":" + val;
+}
+
+// ADMIN
+
+Reply::Reply(RPL::ADMINME admin, const std::string &server)
+{
+	_errnum = std::to_string(admin.ERRNO);
+	_msg = server + " :Administrative info";
+}
+
+Reply::Reply(RPL::ADMINLOC1 adloc1, const std::string &info)
+{
+	_errnum = std::to_string(adloc1.ERRNO);
+	_msg = ":" + info;
+}
+
+Reply::Reply(RPL::ADMINLOC2 adloc2, const std::string &info)
+{
+	_errnum = std::to_string(adloc2.ERRNO);
+	_msg = ":" + info;
+}
+
+Reply::Reply(RPL::ADMINEMAIL admail, const std::string &info)
+{
+	_errnum = std::to_string(admail.ERRNO);
+	_msg = ":" + info;
+}
+
+
 
 void		Reply::set_username(std::string const &username)
 {

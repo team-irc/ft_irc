@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <ctime>
 
 namespace ft
 {
@@ -19,6 +20,10 @@ namespace ft
 	bool	isdigit(int c);
 
 	bool	check_mask(std::string const &str, std::string const &mask);
+
+	void	get_current_time(std::string &result);
+
+	void	get_up_time(time_t start, std::string &result);
 
 };
 

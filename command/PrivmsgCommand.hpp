@@ -45,17 +45,17 @@ class Member;
 
 class PrivmsgCommand : public Command
 {
-	public:
-		PrivmsgCommand();
-		PrivmsgCommand(const PrivmsgCommand &ref);
-		PrivmsgCommand	&operator=(const PrivmsgCommand &ref);
-		virtual ~PrivmsgCommand();
-		void	run(IrcServer &irc);
-	private:
-		void	add_prefix(IrcServer &irc);
-		void	check_receiver(IrcServer &irc, const std::string &recv);
-		void	send_channel(IrcServer &irc, Channel &channel);
-		void	send_member(IrcServer &irc, Member &member);
+public:
+	PrivmsgCommand();
+	PrivmsgCommand(const PrivmsgCommand &ref);
+	PrivmsgCommand	&operator=(const PrivmsgCommand &ref);
+	virtual ~PrivmsgCommand();
+	void	run(IrcServer &irc);
+private:
+	void	add_prefix(IrcServer &irc);
+	void	check_receiver(IrcServer &irc, const std::string &recv);
+	void	send_channel(IrcServer &irc, Channel &channel);
+	void	send_member(IrcServer &irc, Member &member);
 };
 
 #endif
