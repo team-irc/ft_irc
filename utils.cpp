@@ -102,12 +102,27 @@ void	ft::get_current_time(std::string &result)
 	delete[] tmp;
 }
 
-char	*get_up_time(char *start_time)
+void	ft::get_up_time(time_t start, std::string &result)
 {
 	time_t		t;
+	std::string	*tmp;
+	int			cnt;
 
 	time(&t);
-	return (ctime(&t));
+	t -= start;
+	result = "Server Up ";
+	result += std::to_string((long)(t / (60 * 60 * 24))) + " days ";
+	t = t % (60 * 60 * 24);
+	result += std::to_string((long)(t / (60 * 60))) + ":";
+	t = t % (60 * 60);
+	if ((t / 60) == 0)
+		result += "0";
+	result += std::to_string((long)(t / 60)) + ":";
+	t = t % 60;
+	if ((t / 10) == 0)
+		result += "0";
+	result += std::to_string(t);
+	delete[] tmp;
 }
 
 int	ft::read_until_crlf(int fd, char *buffer, int *len)
