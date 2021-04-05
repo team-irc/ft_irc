@@ -475,6 +475,19 @@ Reply::Reply(RPL::VERSION rpl, const std::string &version, const std::string &de
 	_msg = version + "." + debug_level + " " + server + " :" + comments;
 }
 
+Reply::Reply(RPL::LINKS rpl, const std::string &mask, const std::string &server, const std::string &hopcount, const std::string &server_info)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = mask + " " + server + " :" +hopcount + " " + server_info;
+}
+
+
+Reply::Reply(RPL::ENDOFLINKS rpl, const std::string &mask)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = mask + " :End of /LINKS list";
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;
