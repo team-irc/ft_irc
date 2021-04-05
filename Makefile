@@ -39,6 +39,7 @@ SRC = \
 	command/TimeCommand.cpp		\
 	command/InfoCommand.cpp		\
 	command/NoticeCommand.cpp	\
+	command/AdminCommand.cpp	\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))

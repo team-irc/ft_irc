@@ -22,6 +22,7 @@
 #include "TimeCommand.hpp"
 #include "InfoCommand.hpp"
 #include "NoticeCommand.hpp"
+#include "AdminCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -49,6 +50,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("TIME", new TimeCommand()));
 	_map.insert(std::pair<std::string, Command *>("INFO", new InfoCommand()));
 	_map.insert(std::pair<std::string, Command *>("NOTICE", new NoticeCommand()));
+	_map.insert(std::pair<std::string, Command *>("ADMIN", new AdminCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
