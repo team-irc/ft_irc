@@ -206,6 +206,8 @@ public:
 	explicit Reply(RPL::INVITING, const std::string &, const std::string &);
 	explicit Reply(RPL::VERSION, const std::string &, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::ISON, const std::vector<std::string> &);
+	explicit Reply(RPL::INFO, const std::string &);
+	explicit Reply(RPL::ENDOFINFO);
 public:
 	~Reply();
 	Reply();
