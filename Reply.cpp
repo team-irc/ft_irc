@@ -449,6 +449,18 @@ Reply::Reply(RPL::ISON rpl, const std::vector<std::string> & name_list)
 	}
 }
 
+Reply::Reply(RPL::INFO rpl, const std::string & string)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg += ":" + string;
+}
+
+Reply::Reply(RPL::ENDOFINFO rpl)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = ":End of /INFO list";
+}
+
 Reply::~Reply()
 {
 }

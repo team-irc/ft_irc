@@ -43,6 +43,10 @@ void	ServerCommand::run(IrcServer &irc)
 	Socket		*socket = irc.get_current_socket();
 
 
+	if (socket->get_type() == CLIENT)
+	{
+		throw (Reply(ERR::UNKNOWNCOMMAND(), "SERVER"));
+	}
 	if (irc.get_fd_map().find(_msg.get_param(0)) != irc.get_fd_map().end())
 		throw (Reply(ERR::ALREADYREGISTRED()));
 	if (socket->get_type() == UNKNOWN) // 새로운 서버 추가요청을 받은경우 (패스워드 확인 필요)
@@ -69,10 +73,6 @@ void	ServerCommand::run(IrcServer &irc)
 		{
 			irc.get_current_socket()->write("ERROR :Bad password\n");
 		}
-	}
-	else if (socket->get_type() == CLIENT)
-	{
-		socket->write("ERROR :Server not configured here\n");
 	}
 	else if (socket->get_type() == SERVER) // 다른 서버에서 서버가 추가되었음을 알리는 경우 (패스워드 확인 필요 없음)
 	{
