@@ -410,7 +410,7 @@ Reply::Reply(RPL::AWAY rpl, const std::string &nick, const std::string &away_mes
 {
 	_errnum = std::to_string(rpl.ERRNO);
 	//"<nick> :<away message>"
-	_msg = nick + " :" + away_message;
+	_msg = nick + " " + away_message;
 }
 
 Reply::Reply(RPL::UNAWAY rpl)

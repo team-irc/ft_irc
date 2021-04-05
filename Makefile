@@ -37,6 +37,7 @@ SRC = \
 	command/OperCommand.cpp		\
 	command/UserhostCommand.cpp	\
 	command/InfoCommand.cpp		\
+	command/NoticeCommand.cpp	\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
