@@ -79,7 +79,7 @@ void			NoticeCommand::run(IrcServer &irc)
 
 	if (_msg.get_param_size() == 0)
 		return ;
-	if (_msg.get_param_size() == 1)
+	if (_msg.get_param_size() == 1 || _msg.get_param(1).empty())
 		return ;
 	param_size = ft::split(_msg.get_param(0), ',', recvs);
 	msg = _msg.get_param(1);

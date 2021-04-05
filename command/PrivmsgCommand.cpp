@@ -81,7 +81,7 @@ void			PrivmsgCommand::run(IrcServer &irc)
 
 	if (_msg.get_param_size() == 0)
 		throw (Reply(ERR::NORECIPIENT(), "PRIVMSG"));
-	if (_msg.get_param_size() == 1)
+	if (_msg.get_param_size() == 1 || _msg.get_param(1).empty())
 		throw (Reply(ERR::NOTEXTTOSEND()));
 	param_size = ft::split(_msg.get_param(0), ',', recvs);
 	msg = _msg.get_param(1);
