@@ -487,6 +487,12 @@ Reply::Reply(RPL::VERSION rpl, const std::string &version, const std::string &de
 	_msg = version + "." + debug_level + " " + server + " :" + comments;
 }
 
+Reply::Reply(RPL::TIME time, const std::string &servername, const std::string &val)
+{
+	_errnum = std::to_string(time.ERRNO);
+	_msg = servername + " :" + val;
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;

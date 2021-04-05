@@ -2,6 +2,7 @@
 # define UTILS_HPP
 
 #include <iostream>
+#include <time.h>
 
 namespace ft
 {
@@ -15,6 +16,10 @@ namespace ft
 	bool	isalpha(int c);
 
 	bool	isdigit(int c);
+
+	void	get_current_time(std::string &result);
+
+	char	*get_up_time(char *start_time);
 
 };
 
