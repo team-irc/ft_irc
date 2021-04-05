@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <map>
+#include <ctime>
 
 #define BUF_SIZE 512
 #include "Socket.hpp"
@@ -27,6 +28,11 @@
 namespace SERVER_CONST
 {
 	const std::string	VERSION = "ft_irc_0.1";
+	const std::string	OPERID = "TheOper";
+	const std::string	OPERPWD = "ThePwd";
+	const std::string	ADMININFO1 = "Debian User";
+	const std::string	ADMININFO2 = "Debian City";
+	const std::string	ADMINEMAIL = "irc@irc.example.com";
 }
 
 class IrcServer
@@ -43,6 +49,8 @@ private:
 	Socket							*_current_sock;
 	CommandFactory					_cmd_creator;
 
+	time_t							_start_time;
+
 	// 연결된 서버/클라이언트에 접근하기 위한 fd 제공
 	std::map<std::string, int>	_fd_map;
 	// irc 네트워크상에 있는 유저의 정보 저장
@@ -52,9 +60,6 @@ private:
 	// std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
-
-	std::string						_oper_id;
-	std::string						_oper_pwd;
 	
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
@@ -92,6 +97,7 @@ public:
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();
+	time_t				get_start_time();
   
 	std::string			get_version();
 	std::string			get_debug_level();

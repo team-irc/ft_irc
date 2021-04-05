@@ -2,7 +2,7 @@
 # define UTILS_HPP
 
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 namespace ft
 {
@@ -19,7 +19,7 @@ namespace ft
 
 	void	get_current_time(std::string &result);
 
-	char	*get_up_time(char *start_time);
+	void	get_up_time(time_t start, std::string &result);
 
 };
 
