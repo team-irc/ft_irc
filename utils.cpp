@@ -118,28 +118,28 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	int					read_size = 0;
 	int					insert_idx = 0;
 	char				buf[BUFFER_SIZE];
-	static std::string	remember;
+	static std::string	remember[OPEN_MAX];
 	int					rem_size = 0;
 
 	memset(buf, 0, BUFFER_SIZE);
-	// buf에 remember를 삽입
-	if (!remember.empty())
+	// buf에 remember[fd]를 삽입
+	if (!remember[fd].empty())
 	{
-		rem_size = remember.length();
-		strncpy(buf, remember.c_str(), rem_size);
+		rem_size = remember[fd].length();
+		strncpy(buf, remember[fd].c_str(), rem_size);
 		insert_idx += rem_size;
 	}
 	while (insert_idx < BUFFER_SIZE)
 	{
-		if (remember.empty())
+		if (remember[fd].empty())
 		{
 			if (!(read_size = read(fd, buf, BUFFER_SIZE - insert_idx)))
 				break;
 		}
 		else
 		{
-			strncpy(buf, remember.c_str(), rem_size);
-			remember.clear();
+			strncpy(buf, remember[fd].c_str(), rem_size);
+			remember[fd].clear();
 		}
 		for (i = 0; i < read_size + rem_size; i++)
 		{
@@ -158,9 +158,9 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 				// strncpy(buffer + (rem_size == 0 ? insert_idx : 0), buf, i + 1);
 				// buffer[i + (rem_size == 0 ? insert_idx : 0) + 1] = 0;
 				for (int j = 1; buf[i + j]; ++j)
-					remember += buf[i + j];
+					remember[fd] += buf[i + j];
 				*len = i + insert_idx;
-				if (remember.empty())
+				if (remember[fd].empty())
 					return (0);
 				return (1);
 			}

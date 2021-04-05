@@ -11,7 +11,6 @@
 #include <netdb.h>
 #include <map>
 
-#define BUF_SIZE 512
 #include "Socket.hpp"
 #include "SocketSet.hpp"
 #include "utils.hpp"

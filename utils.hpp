@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <time.h>
+#include <limits.h>
+
+#define BUF_SIZE 512
 
 namespace ft
 {
