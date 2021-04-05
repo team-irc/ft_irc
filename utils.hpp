@@ -2,6 +2,8 @@
 # define UTILS_HPP
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 namespace ft
 {
@@ -15,6 +17,8 @@ namespace ft
 	bool	isalpha(int c);
 
 	bool	isdigit(int c);
+
+	bool	check_mask(std::string const &str, std::string const &mask);
 
 };
 

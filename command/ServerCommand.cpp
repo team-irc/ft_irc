@@ -41,6 +41,7 @@ void	ServerCommand::run(IrcServer &irc)
 {
 	SocketSet	&ss = irc.get_socket_set();
 	Socket		*socket = irc.get_current_socket();
+	Server		*new_server;
 
 
 	if (socket->get_type() == CLIENT)
@@ -60,14 +61,14 @@ void	ServerCommand::run(IrcServer &irc)
 		}
 		else if (irc.check_pass(socket))
 		{
-			// 1. 현재 fd의 소켓 타입 변경
-			// 2. 이 메세지가 온 fd를 제외하고 && 모든 서버타입 소켓에 새로 등록된 SERVER 메세지 전송
-			_msg.set_param_at(1, "0");
-			irc.send_msg_server(socket->get_fd(), _msg.get_origin());
-			ss.change_socket_type(_msg.get_source_fd(), SERVER);
-			irc.send_map_data(socket->get_fd());
-			irc.send_user_data(socket->get_fd());
-			irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd());
+			_msg.set_param_at(1, "0"); // 1. 홉카운트 설정
+			_msg.set_prefix(irc.get_servername());
+			irc.send_msg_server(socket->get_fd(), _msg.get_origin()); // 2. 다른 서버에 메세지 전파
+			ss.change_socket_type(_msg.get_source_fd(), SERVER); // 3. 소켓 타입 변경
+			irc.send_map_data(socket->get_fd()); // 4. 맵 데이터 전송
+			irc.send_user_data(socket->get_fd()); // 5. 유저 데이터 전송
+			irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd()); // 6. fd_map에 추가.
+			irc.add_server(_msg.get_param(0), _msg.get_param(1), _msg.get_param(2), socket); // 7. _global_server에 추가
 		}
 		else
 		{
@@ -79,8 +80,9 @@ void	ServerCommand::run(IrcServer &irc)
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
 		_msg.set_param_at(1, std::to_string(hopcount));
-		irc.send_msg_server(socket->get_fd(), _msg.get_origin());
+		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd());
+		irc.add_server(_msg.get_param(0), _msg.get_param(1), _msg.get_param(2), socket);
 	}
 }
 

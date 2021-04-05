@@ -43,7 +43,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _server_name + " :connect!\n";
+	msg = "SERVER " + _server_name + " 0 :connect!\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -120,20 +120,22 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 
 void	IrcServer::send_map_data(int fd)
 {
-	if (DEBUG)
-		std::cout << "send_map_data called." << std::endl;
-	std::map<std::string, int>::iterator begin;
-	std::map<std::string, int>::iterator end;
+	std::map<std::string, Server *>::iterator begin;
+	std::map<std::string, Server *>::iterator end;
+	Server			*server;
+	std::string		msg;
 
-	begin = _fd_map.begin();
-	end = _fd_map.end();
+	msg = "SERVER " + _server_name + " 0 " + "info\n";
+	send_msg(fd, msg.c_str());
+	begin = _global_server.begin();
+	end = _global_server.end();
 	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
-		std::string msg = ":" + std::to_string(_listen_socket->get_port()) + " SERVER " + begin->first + " hop :port\n";
+		server = (*begin).second;
+		msg = ":" + _server_name + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " " + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
-	std::cout << "end map data" << std::endl;
 }
 
 /*
@@ -429,6 +431,42 @@ int			IrcServer::find_fd_map(std::string const &server_name)
 		return (0);
 	else
 		return ((*iter).second);
+}
+
+bool		IrcServer::add_server(const std::string &server_name, const std::string &hopcount, const std::string &info, Socket *socket)
+{
+	Server	*new_server;
+
+	new_server = new Server(server_name, hopcount, info);
+	new_server->set_socket(socket);
+	if (_global_server.insert(std::pair<std::string, Server *>(server_name, new_server)).second == false)
+	{
+		delete new_server;
+		return (false);
+	}
+	else
+		return (true);
+}
+
+void		IrcServer::delete_server(std::string const &server_name)
+{
+	_global_server.erase(server_name);
+}
+
+Server		*IrcServer::get_server(const std::string &server_name)
+{
+	std::map<std::string, Server *>::iterator	iter;
+
+	iter = _global_server.find(server_name);
+	if (iter != _global_server.end())
+		return ((*iter).second);
+	else
+		return (0);
+}
+
+std::map<std::string, Server *>		&IrcServer::get_global_server()
+{
+	return (_global_server);
 }
 
 void		IrcServer::add_channel(std::string &channel_name, Channel *channel)

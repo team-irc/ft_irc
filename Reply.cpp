@@ -490,7 +490,7 @@ Reply::Reply(RPL::VERSION rpl, const std::string &version, const std::string &de
 Reply::Reply(RPL::LINKS rpl, const std::string &mask, const std::string &server, const std::string &hopcount, const std::string &server_info)
 {
 	_errnum = std::to_string(rpl.ERRNO);
-	_msg = mask + " " + server + " :" +hopcount + " " + server_info;
+	_msg = mask + " " + server + " :" + hopcount + " " + server_info;
 }
 
 

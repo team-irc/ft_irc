@@ -20,6 +20,7 @@
 #include "OperCommand.hpp"
 #include "UserhostCommand.hpp"
 #include "InfoCommand.hpp"
+#include "LinksCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -45,6 +46,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("OPER", new OperCommand()));
 	_map.insert(std::pair<std::string, Command *>("USERHOST", new UserhostCommand()));
 	_map.insert(std::pair<std::string, Command *>("INFO", new InfoCommand()));
+	_map.insert(std::pair<std::string, Command *>("LINKS", new LinksCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
