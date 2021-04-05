@@ -17,6 +17,7 @@ IrcServer::IrcServer(int argc, char **argv) : _version(SERVER_CONST::VERSION), _
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		_oper_id = "TheOper";
 		_oper_pwd = "ThePwd";
+		time(&_start_time);
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -563,3 +564,6 @@ bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
 		return (true);
 	return (false);
 }
+
+time_t		IrcServer::get_start_time()
+{ return (_start_time); }

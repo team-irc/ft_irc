@@ -10,6 +10,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <map>
+#include <ctime>
 
 #define BUF_SIZE 512
 #include "Socket.hpp"
@@ -42,6 +43,8 @@ private:
 	int								_fd_max;
 	Socket							*_current_sock;
 	CommandFactory					_cmd_creator;
+
+	time_t							_start_time;
 
 	// 연결된 서버/클라이언트에 접근하기 위한 fd 제공
 	std::map<std::string, int>	_fd_map;
@@ -92,6 +95,7 @@ public:
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
 	std::string			get_servername();
+	time_t				get_start_time();
   
 	std::string			get_version();
 	std::string			get_debug_level();

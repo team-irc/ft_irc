@@ -493,6 +493,12 @@ Reply::Reply(RPL::TIME time, const std::string &servername, const std::string &v
 	_msg = servername + " :" + val;
 }
 
+Reply::Reply(RPL::STATSUPTIME time, const std::string &val)
+{
+	_errnum = std::to_string(time.ERRNO);
+	_msg = ":" + val;
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;
