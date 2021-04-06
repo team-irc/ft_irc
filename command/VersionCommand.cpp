@@ -26,11 +26,13 @@
 
 void VersionCommand::run(IrcServer &irc)
 {
-	Socket			*socket;
-	Member			*member;
-	std::string		target_server;
+	Socket				*socket;
+	Member				*member;
+	std::string			target_server;
+	struct ServerInfo	si;
 
 	socket = irc.get_current_socket();
+	si = irc.get_serverinfo();
 	if (socket->get_type() == CLIENT)
 	{
 		member = irc.find_member(socket->get_fd());
@@ -38,7 +40,7 @@ void VersionCommand::run(IrcServer &irc)
 			throw(Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		if (_msg.get_param_size() == 0) // 직접 연결된 클라이언트라면, 바로 메세지를 보내준다.
 		{
-			throw(Reply(RPL::VERSION(), irc.get_version(), irc.get_debug_level(), irc.get_servername(), ""));
+			throw(Reply(RPL::VERSION(), si.VERSION, "0", si.SERVER_NAME, ""));
 		}
 		else // 다른 서버의 버전을 찾는다면, 그 서버의 fd로 메세지를 보낸다.
 		{
@@ -51,11 +53,11 @@ void VersionCommand::run(IrcServer &irc)
 	else if (socket->get_type() == SERVER)
 	{
 		target_server = _msg.get_param(0);
-		if (target_server == irc.get_servername()) // 찾고있는 서버가 나라면, 응답 메세지를 되돌려보낸다.
+		if (target_server == si.SERVER_NAME) // 찾고있는 서버가 나라면, 응답 메세지를 되돌려보낸다.
 		{
-			Reply::set_servername(irc.get_servername());
+			Reply::set_servername(si.SERVER_NAME);
 			Reply::set_username(_msg.get_prefix());
-			socket->write(Reply(RPL::VERSION(), irc.get_version(), irc.get_debug_level(), irc.get_servername(), "").get_msg().c_str());
+			socket->write(Reply(RPL::VERSION(), si.VERSION, "0", si.SERVER_NAME, "").get_msg().c_str());
 		}
 		else // 찾고있는 서버가 내가 아니면, 찾고있는 서버 fd에 커맨드 메세지를 보낸다.
 		{

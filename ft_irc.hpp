@@ -12,7 +12,6 @@
 #include <map>
 #include <ctime>
 
-#define BUF_SIZE 512
 #include "Socket.hpp"
 #include "SocketSet.hpp"
 #include "utils.hpp"
@@ -22,26 +21,15 @@
 #include "Member.hpp"
 #include "Channel.hpp"
 #include "Reply.hpp"
+#include "ServerInfo.hpp"
+#include "read_conf.hpp"
 #include "Server.hpp"
 
 #define DEBUG 0
 
-namespace SERVER_CONST
-{
-	const std::string	VERSION = "ft_irc_0.1";
-	const std::string	OPERID = "TheOper";
-	const std::string	OPERPWD = "ThePwd";
-	const std::string	ADMININFO1 = "Debian User";
-	const std::string	ADMININFO2 = "Debian City";
-	const std::string	ADMINEMAIL = "irc@irc.example.com";
-}
-
 class IrcServer
 {
 private:
-	std::string						_server_name;
-	std::string						_version;
-	std::string						_debug_level;
 	std::string						_my_pass;
 	Socket							*_listen_socket;
 	// std::vector<Socket *>		_socket_vector;
@@ -61,7 +49,8 @@ private:
 	std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
-	
+
+	struct ServerInfo					_si;
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
 	// 0	aaa			...			...				| 5
@@ -105,7 +94,7 @@ public:
 	std::map<std::string, Member *>		&get_global_user();
 	std::map<std::string, Server *>		&get_global_server();
 	bool				check_pass(Socket *currnet_socket);
-	std::string			get_servername();
+	struct ServerInfo	&get_serverinfo();
 	time_t				get_start_time();
   
 	std::string			get_version();

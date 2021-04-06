@@ -31,23 +31,25 @@ static int		find_server_fd(IrcServer &irc, std::string servername)
 
 static void		send_info(IrcServer &irc, int fd, const std::string &user)
 {
-	Reply reply(RPL::ADMINME(), irc.get_servername());
-	reply.set_servername(irc.get_servername());
+	struct ServerInfo	si = irc.get_serverinfo();
+
+	Reply reply(RPL::ADMINME(), si.SERVER_NAME);
+	reply.set_servername(si.SERVER_NAME);
 	reply.set_username(user);
 	irc.send_msg(fd, reply.get_msg().c_str());
 
-	reply = Reply(RPL::ADMINLOC1(), SERVER_CONST::ADMININFO1);
-	reply.set_servername(irc.get_servername());
+	reply = Reply(RPL::ADMINLOC1(), si.ADMININFO1);
+	reply.set_servername(si.SERVER_NAME);
 	reply.set_username(user);
 	irc.send_msg(fd, reply.get_msg().c_str());
 
-	reply = Reply(RPL::ADMINLOC2(), SERVER_CONST::ADMININFO2);
-	reply.set_servername(irc.get_servername());
+	reply = Reply(RPL::ADMINLOC2(), si.ADMININFO2);
+	reply.set_servername(si.SERVER_NAME);
 	reply.set_username(user);
 	irc.send_msg(fd, reply.get_msg().c_str());
 
-	reply = Reply(RPL::ADMINEMAIL(), SERVER_CONST::ADMINEMAIL);
-	reply.set_servername(irc.get_servername());
+	reply = Reply(RPL::ADMINEMAIL(), si.ADMINEMAIL);
+	reply.set_servername(si.SERVER_NAME);
 	reply.set_username(user);
 	irc.send_msg(fd, reply.get_msg().c_str());
 }
@@ -83,7 +85,7 @@ void			AdminCommand::run(IrcServer &irc)
 	else
 	{
 		// 0. 서버 이름 확인
-		if (_msg.get_param(0) == irc.get_servername())
+		if (_msg.get_param(0) == irc.get_serverinfo().SERVER_NAME)
 			send_info(irc, irc.get_member(_msg.get_prefix())->get_fd(),
 				_msg.get_prefix());
 		else

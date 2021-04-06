@@ -2,9 +2,14 @@
 # define UTILS_HPP
 
 #include <iostream>
+#include <time.h>
+#include <limits.h>
 #include <string>
 #include <vector>
 #include <ctime>
+#include <unistd.h>
+
+#define BUFFER_SIZE 512
 
 namespace ft
 {
@@ -24,6 +29,12 @@ namespace ft
 	void	get_current_time(std::string &result);
 
 	void	get_up_time(time_t start, std::string &result);
+
+	int		read_until_crlf(int fd, char *buffer, int *len);
+
+	void	ltrim(std::string & str, char c);
+
+	void	rtrim(std::string & str, char c);
 
 };
 
