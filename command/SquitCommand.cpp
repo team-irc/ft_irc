@@ -30,7 +30,7 @@ void	SquitCommand::delete_fd_map(int fd, IrcServer &irc)
 		{
 			// SQUIT 전송?
 			// + 연결된 다른 클라이언트들도 제거해야 함
-			msg = ":" + irc.get_servername() + " SQUIT " + begin->first + " :connect close\n";
+			msg = ":" + irc.get_serverinfo().SERVER_NAME + " SQUIT " + begin->first + " :connect close\n";
 			tmp = ++begin;
 			--begin;
 			irc.delete_fd_map(begin->first);
@@ -66,7 +66,7 @@ void	SquitCommand::run(IrcServer &irc)
 		{
 			servername = _msg.get_param(0);
 			irc.delete_fd_map(servername);
-			_msg.set_prefix(irc.get_servername());
+			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			irc.send_msg_server(fd, _msg.get_msg());
 		}
 	}

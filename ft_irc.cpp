@@ -1,9 +1,12 @@
 #include "ft_irc.hpp"
 
-IrcServer::IrcServer(int argc, char **argv) : _version(SERVER_CONST::VERSION), _debug_level(std::to_string(DEBUG))
+IrcServer::IrcServer(int argc, char **argv)
 {
 	if (DEBUG)
 		std::cout << "Irc Server Constructor called." << std::endl;
+	ReadConf	rc;
+	rc.open_file("ft_irc.conf");
+	rc.read_config(this->_si);
 	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
@@ -12,8 +15,7 @@ IrcServer::IrcServer(int argc, char **argv) : _version(SERVER_CONST::VERSION), _
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
 		_listen_socket->listen();
-		_server_name = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
-		_fd_map.insert(std::pair<std::string, int>(_server_name, _listen_socket->get_fd()));
+		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
 	}
@@ -42,7 +44,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _server_name + " :connect!\n";
+	msg = "SERVER " + _si.SERVER_NAME + " :connect!\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -312,6 +314,11 @@ std::map<std::string, Member *>		&IrcServer::get_global_user()
 	return(_global_user);
 }
 
+struct ServerInfo	&IrcServer::get_serverinfo()
+{
+	return (_si);
+}
+
 bool		IrcServer::add_member(std::string &nickname, Member *new_member)
 {
 	std::pair<std::map<std::string, Member *>::iterator, bool> result = 
@@ -464,17 +471,8 @@ void		IrcServer::show_global_channel()
 	return ;
 }
 
-std::string			IrcServer::get_servername()
-{ return (_server_name); }
-
 std::map<std::string, int>	&IrcServer::get_fd_map()
 { return (_fd_map); }
-
-std::string			IrcServer::get_version()
-{ return (_version); }
-
-std::string			IrcServer::get_debug_level()
-{ return (_debug_level); }
 
 // void				IrcServer::sigint_handler(int type)
 // {
@@ -490,7 +488,7 @@ std::string			IrcServer::get_debug_level()
 
 bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
 {
-	if (SERVER_CONST::OPERID == id && SERVER_CONST::OPERPWD == pwd)
+	if (_si.OPERNAME == id && _si.OPERPWD == pwd)
 		return (true);
 	return (false);
 }

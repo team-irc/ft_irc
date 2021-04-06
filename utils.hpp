@@ -28,6 +28,10 @@ namespace ft
 
 	int		read_until_crlf(int fd, char *buffer, int *len);
 
+	void	ltrim(std::string & str, char c);
+
+	void	rtrim(std::string & str, char c);
+
 };
 
 namespace	ASCII_CONST

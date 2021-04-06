@@ -27,14 +27,23 @@ void	ReadConf::read_config(ServerInfo & si)
             std::cout << "CONFIGFILE ERROR" << std::endl;
         ft::rtrim(split_ret[0], ' ');
         ft::ltrim(split_ret[1], ' ');
-        if (split_ret[0] == "Name")
-            si.NAME = split_ret[1];
-        if (split_ret[0] == "AdminInfo1")
-            si.ADMININFO1 = split_ret[1];
-        if (split_ret[0] == "AdminInfo2")
-            si.ADMININFO2 = split_ret[1];
-        if (split_ret[0] == "AdminEMail")
-            si.ADMINEMAIL = split_ret[1];
+        ft::rtrim(split_ret[1], '\n');
+        std::string key = split_ret[0];
+        std::string value = split_ret[1];
+        if (key == "SERVER_NAME")
+            si.SERVER_NAME = value;
+        else if (key == "VERSION")
+            si.VERSION = value;
+        else if (key == "ADMININFO1")
+            si.ADMININFO1 = value;
+        else if (key == "ADMININFO2")
+            si.ADMININFO2 = value;
+        else if (key == "ADMINEMAIL")
+            si.ADMINEMAIL = value;
+        else if (key == "OPERNAME")
+            si.OPERNAME = value;
+        else if (key == "OPERPWD")
+            si.OPERPWD = value;
         else
             std::cout << "CONFIGFILE ERROR" << std::endl;
         delete[] split_ret;

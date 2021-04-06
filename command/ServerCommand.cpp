@@ -8,7 +8,6 @@ void	ServerCommand::run(IrcServer &irc)
 	SocketSet	&ss = irc.get_socket_set();
 	Socket		*socket = irc.get_current_socket();
 
-
 	if (socket->get_type() == CLIENT)
 	{
 		throw (Reply(ERR::UNKNOWNCOMMAND(), "SERVER"));
@@ -20,7 +19,7 @@ void	ServerCommand::run(IrcServer &irc)
 		if (socket->get_pass().empty())
 		{
 			// :irc.example.net 461 * SERVER :Syntax error
-			std::string msg = irc.get_servername();
+			std::string msg = irc.get_serverinfo().SERVER_NAME;
 			msg += " 461 * SERVER :Syntax error\n";
 			socket->write(msg.c_str());
 		}

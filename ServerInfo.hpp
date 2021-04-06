@@ -1,11 +1,11 @@
 #ifndef SERVER_INFO_HPP
 # define SERVER_INFO_HPP
 
-class ServerInfo
+struct ServerInfo
 {
-public:
+	std::string SERVER_NAME;
 	std::string	VERSION;
-	std::string	OPERID;
+	std::string	OPERNAME;
 	std::string	OPERPWD;
 	std::string	ADMININFO1;
 	std::string	ADMININFO2;

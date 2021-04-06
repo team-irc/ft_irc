@@ -187,3 +187,15 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	*len = BUFFER_SIZE;
 	return (0);
 }
+
+void	ft::ltrim(std::string & str, char c)
+{
+	while (*(str.begin()) == c)
+		str.erase(str.begin());
+}
+
+void	ft::rtrim(std::string & str, char c)
+{
+	while (*(str.end() - 1) == c)
+		str.erase(str.end() - 1);
+}

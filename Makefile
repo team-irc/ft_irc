@@ -13,7 +13,7 @@ HEADER_DIR = .
 SRC_DIR = .
 
 SRC = \
-	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			\
+	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			read_conf.cpp	\
 	Error.cpp	Member.cpp		Message.cpp		Command.cpp		CommandFactory.cpp		Reply.cpp	\
 	Channel.cpp	\
 	command/ServerCommand.cpp	\

@@ -31,7 +31,7 @@ void Command::execute(IrcServer &irc)
 	
 	if (irc.get_current_socket()->get_type() == CLIENT)
 	{
-		reply.set_servername(irc.get_servername());
+		reply.set_servername(irc.get_serverinfo().SERVER_NAME);
 		reply.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
 	}
 	try

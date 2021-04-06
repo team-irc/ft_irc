@@ -30,9 +30,10 @@ static int		find_server_fd(IrcServer &irc, std::string servername)
 
 void	TimeCommand::run(IrcServer &irc)
 {
-	Socket	*socket = irc.get_current_socket();
-	int		server_fd;
-	std::string		result;
+	Socket				*socket = irc.get_current_socket();
+	int					server_fd;
+	std::string			result;
+	struct ServerInfo	si = irc.get_serverinfo();
 	
 	if (socket->get_type() == CLIENT)
 	{
@@ -45,8 +46,8 @@ void	TimeCommand::run(IrcServer &irc)
 		{
 			// 자신의 서버 시간 쿼리 전송
 			ft::get_current_time(result);
-			Reply	reply = Reply(RPL::TIME(), irc.get_servername(), result);
-			reply.set_servername(irc.get_servername());
+			Reply	reply = Reply(RPL::TIME(), si.SERVER_NAME, result);
+			reply.set_servername(si.SERVER_NAME);
 			reply.set_username(irc.find_member(socket->get_fd())->get_nick());
 			irc.send_msg(socket->get_fd(), reply.get_msg().c_str());
 		}
@@ -63,12 +64,12 @@ void	TimeCommand::run(IrcServer &irc)
 	else if (socket->get_type() == SERVER)
 	{
 		// 0. 서버 이름을 확인
-		if (_msg.get_param(0) == irc.get_servername())
+		if (_msg.get_param(0) == si.SERVER_NAME)
 		{
 			// 0-1. 자신의 서버라면 해당 유저에게 쿼리 전송
 			ft::get_current_time(result);
-			Reply reply = Reply(RPL::TIME(), irc.get_servername(), result);
-			reply.set_servername(irc.get_servername());
+			Reply reply = Reply(RPL::TIME(), si.SERVER_NAME, result);
+			reply.set_servername(si.SERVER_NAME);
 			reply.set_username(_msg.get_prefix());
 			int user_fd = irc.get_member(_msg.get_prefix())->get_fd();
 			irc.send_msg(user_fd, reply.get_msg().c_str());

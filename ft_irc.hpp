@@ -29,9 +29,6 @@
 class IrcServer
 {
 private:
-	std::string						_server_name;
-	std::string						_version;
-	std::string						_debug_level;
 	std::string						_my_pass;
 	Socket							*_listen_socket;
 	// std::vector<Socket *>		_socket_vector;
@@ -52,8 +49,7 @@ private:
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
 
-	ServerInfo							_si;
-	ReadConf							_rc;
+	struct ServerInfo					_si;
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
 	// 0	aaa			...			...				| 5
@@ -89,7 +85,7 @@ public:
 	std::map<std::string, Member *>		&get_global_user();
 	Member				*find_member(int fd);
 	bool				check_pass(Socket *currnet_socket);
-	std::string			get_servername();
+	struct ServerInfo	&get_serverinfo();
 	time_t				get_start_time();
   
 	std::string			get_version();

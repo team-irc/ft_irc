@@ -33,7 +33,7 @@ void	OperCommand::run(IrcServer &irc)
 		char	mode = member->get_mode();
 		mode = mode ^ 1;
 		member->set_mode(mode);
-		std::string	msg = ":" + irc.get_servername() + " MODE " + member->get_nick() + " +o\n";
+		std::string	msg = ":" + irc.get_serverinfo().SERVER_NAME + " MODE " + member->get_nick() + " +o\n";
 		irc.send_msg(socket->get_fd(), msg.c_str());
 		irc.send_msg_server(socket->get_fd(), msg.c_str());
 		throw (Reply(RPL::YOUREOPER()));
