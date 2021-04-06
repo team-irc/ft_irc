@@ -21,18 +21,10 @@
 #include "Member.hpp"
 #include "Channel.hpp"
 #include "Reply.hpp"
+#include "ServerInfo.hpp"
+#include "read_conf.hpp"
 
 #define DEBUG 0
-
-namespace SERVER_CONST
-{
-	const std::string	VERSION = "ft_irc_0.1";
-	const std::string	OPERID = "TheOper";
-	const std::string	OPERPWD = "ThePwd";
-	const std::string	ADMININFO1 = "Debian User";
-	const std::string	ADMININFO2 = "Debian City";
-	const std::string	ADMINEMAIL = "irc@irc.example.com";
-}
 
 class IrcServer
 {
@@ -59,7 +51,9 @@ private:
 	// std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
-	
+
+	ServerInfo							_si;
+	ReadConf							_rc;
 	// std::map<std::string, struct>
 	// idx  nickname	username	servername		| fd
 	// 0	aaa			...			...				| 5
