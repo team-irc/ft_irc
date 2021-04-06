@@ -35,132 +35,99 @@
     
 */
 
-// 연결된 서버에 대해서 알고있는 정보
-// 1. 서버의 이름
-// 2. 연결된 fd (_fd_map)
-// 3. 
+static void		send_links_reply(IrcServer &irc, Socket *socket, std::string const &mask = "")
+{
+	Server										*server;
+	std::string									server_name;
+	std::map<std::string, Server *>::iterator	iter;
+
+	iter = irc.get_global_server().begin();
+	while (iter != irc.get_global_server().end()) // 연결된 서버들을 순회하면서, Reply를 전송
+	{
+		server_name = (*iter).first;
+		server = (*iter).second;
+		if (mask.empty()) // 마스크가 없다면 모두 보내고, 있다면 마스크 체크 후에 일치하는것만 전송
+			socket->write(Reply(RPL::LINKS(), "", server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
+		else if (ft::check_mask(server_name, mask))
+			socket->write(Reply(RPL::LINKS(), mask, server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
+		iter++;
+	}
+	socket->write(Reply(RPL::ENDOFLINKS(), mask).get_msg().c_str());
+}
+
+bool	LinksCommand::transfer_message(IrcServer &irc, std::string const &server_name, std::string const &mask = "")
+{
+	Socket	*socket;
+	Server	*server;
+
+	socket = irc.get_current_socket();
+	if (server_name == irc.get_servername()) // 나에게 요청한경우 (예외)
+	{
+		send_links_reply(irc, socket, mask);
+		return (false);
+	}
+	_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick()); // 1. prefix에 nickname 추가
+	if (!(server = irc.get_server(server_name))) // 2. 해당 서버를 찾는다
+		throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(0)));
+	server->get_socket()->write(_msg.get_msg()); // 3. 해당 서버쪽으로 메세지 전송
+	return (true);
+}
+
+static bool		is_mask(std::string const &str)
+{
+	if (str.find('*') == std::string::npos && str.find('?') == std::string::npos)
+		return (false);
+	else
+		return (true);
+}
 
 void 	LinksCommand::run(IrcServer &irc)
 {
 	Socket			*socket;
 	Server			*server;
 	std::string		server_name;
-	std::string		mask;
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
-		// 알고있는 모든 서버를 나열.
-		std::map<std::string, Server *>::iterator	iter = irc.get_global_server().begin();
-		// case 1. 파라미터가 없는 경우
-		// case 2. 서버주소만 온 경우
-		// case 3. 서버 마스크만 온 경우
-		// case 4. 서버 주소와 서버 마스크가 온 경우
-		if (_msg.get_param_size() == 0)
+		if (_msg.get_param_size() == 0) // Links만 온 경우
+			send_links_reply(irc, socket, "");
+		else if (_msg.get_param_size() == 1) // 마스크 또는 다른 서버주소만 온 경우
 		{
-			while (iter != irc.get_global_server().end())
+			if (!is_mask(_msg.get_param(0))) 
 			{
-				server = (*iter).second;
-				socket->write(Reply(RPL::LINKS(), "", server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
-				iter++;
-			}
-		}
-		else if (_msg.get_param_size() == 1)
-		{
-			if (_msg.get_param(0).find('*') == std::string::npos)
-			{ // 마스크가 없고, 다른 서버주소만 파라미터로 주어진 경우
-				server_name = _msg.get_param(0);
-				_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick()); // 1. prefix에 nickname 추가
-				if (server_name == irc.get_servername())
-				{
-					while (iter != irc.get_global_server().end())
-					{
-						server = (*iter).second;
-						socket->write(Reply(RPL::LINKS(), "", server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
-						iter++;
-					}
-				}
-				if (!(server = irc.get_server(server_name))) // 2. 해당 서버를 찾는다
-					throw (ERR::NOSUCHSERVER(), _msg.get_param(0));
-				server->get_socket()->write(_msg.get_msg()); // 3. 해당 서버쪽으로 메세지 전송
-			}
-			else
-			{ // 현재 서버에서, 마스크와 매칭되는 모든 서버에 대한 정보를 전송
-				mask = _msg.get_param(0);
-				while (iter != irc.get_global_server().end())
-				{
-					server_name = (*iter).first;
-					server = (*iter).second;
-					if (ft::check_mask(server_name, mask)) // 마스크 일치
-						socket->write(Reply(RPL::LINKS(), mask, server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
-					iter++;
-				}
-			}
-		}
-		else if (_msg.get_param_size() == 2) // 다른서버에 마스크와 함께 전송
-		{
-			_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick()); // 1. prefix에 nickname 추가
-			server_name = _msg.get_param(0);
-			if (server_name == irc.get_servername()) // 만약에 내 주소라면
-			{
-				mask = _msg.get_param(1);
-				while (iter != irc.get_global_server().end())
-				{
-					server_name = (*iter).first;
-					server = (*iter).second;
-					if (ft::check_mask(server_name, mask)) // 마스크 일치
-						socket->write(Reply(RPL::LINKS(), mask, server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
-					iter++;
-				}
+				transfer_message(irc, _msg.get_param(0), ""); // 마스크가 없고, 다른 서버주소만 파라미터로 주어진 경우
 				return ;
 			}
-			if (!(server = irc.get_server(_msg.get_param(0)))) // 2. 해당 서버를 찾는다
-				throw (ERR::NOSUCHSERVER(), _msg.get_param(0));
-			server->get_socket()->write(_msg.get_msg()); // 3. 해당 서버쪽으로 메세지 전송
+			else // 마스크라면, 마스크와 매칭되는 모든 서버에 대한 정보를 전송
+				send_links_reply(irc, socket, _msg.get_param(0));
+		}
+		else if (_msg.get_param_size() == 2)
+		{
+			transfer_message(irc, _msg.get_param(0), _msg.get_param(1)); // 다른서버에 마스크와 함께 전송
+			return ;
 		}
 	}
 	else if (socket->get_type() == SERVER)
 	{
+		Reply::set_servername(irc.get_servername()); // Reply 설정! 필수
+		Reply::set_username(_msg.get_prefix());
 		server_name = _msg.get_param(0);
 		if (server_name == irc.get_servername()) // 나에게 보낸거라면
 		{
-			Member	*member;
-			std::string		nick_name;
-			
-			nick_name = _msg.get_prefix();
-			member = irc.get_member(nick_name);
-			std::map<std::string, Server *>::iterator	iter = irc.get_global_server().begin();
 			if (_msg.get_param_size() == 1) // 마스크 없이 온 경우
-			{
-				while (iter != irc.get_global_server().end())
-				{
-					server = (*iter).second;
-					member->get_socket()->write(Reply(RPL::LINKS(), "", server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
-					iter++;
-				}
-			}
-			else if (_msg.get_param_size() == 2)
-			{
-				mask = _msg.get_param(1);
-				while (iter != irc.get_global_server().end())
-				{
-					server = (*iter).second;
-					if (ft::check_mask(server_name, mask)) // 마스크 일치
-						member->get_socket()->write(Reply(RPL::LINKS(), mask, server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
-					iter++;
-				}
-			}
+				send_links_reply(irc, socket, "");
+			else if (_msg.get_param_size() == 2) // 마스크까지 온 경우
+				send_links_reply(irc, socket, _msg.get_param(1));
 		}
-		else // 내가 아니라면
+		else // 내가 아니라면 해당 서버로 전송
 		{
 			server = irc.get_server(server_name);
 			server->get_socket()->write(_msg.get_origin());
 		}
 	}
 	else
-	{
 		return ;
-	}
 }
 
 LinksCommand::LinksCommand(): Command()

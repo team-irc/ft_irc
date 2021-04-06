@@ -6,7 +6,7 @@
 class LinksCommand : public Command
 {
 private:
-	
+	bool	transfer_message(IrcServer &irc, std::string const &server_name, std::string const &mask);
 public:
 	LinksCommand();
 	virtual ~LinksCommand();

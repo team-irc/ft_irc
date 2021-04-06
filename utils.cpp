@@ -84,7 +84,7 @@ bool	ft::isdigit(int c)
 	return ((c >= '0' && c <= '9') ? true : false);
 }
 
-static size_t						push_marker(std::vector<std::string>	*marker, std::string const &mask, size_t start, size_t ret, std::string mark)
+static size_t			push_marker(std::vector<std::string>	*marker, std::string const &mask, size_t start, size_t ret, std::string mark)
 {
 	std::string		sub;
 
@@ -125,7 +125,7 @@ static std::vector<std::string>		*parse_marker(std::string const &mask)
 	return (marker);
 }
 
-static bool	check_str(std::string const &str, std::vector<std::string> &marker)
+static bool		check_str(std::string const &str, std::vector<std::string> &marker)
 {
 	size_t	start;
 	size_t	ret;
@@ -154,6 +154,8 @@ static bool	check_str(std::string const &str, std::vector<std::string> &marker)
 				return (false);
 			start = ret + (marker[i]).length();
 			i++;
+			if (i == marker.size() && start != str.size())
+				return (false);
 		}
 		else if (marker[i] == "*")
 		{
@@ -187,6 +189,8 @@ bool	ft::check_mask(std::string const &str, std::string const &mask)
 	ret = check_str(str, *marker);
 	delete marker;
 	return (ret);
+}
+
 void	ft::get_current_time(std::string &result)
 {
 	time_t		t;
