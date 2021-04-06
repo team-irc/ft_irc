@@ -126,14 +126,14 @@ void	IrcServer::send_map_data(int fd)
 	Server			*server;
 	std::string		msg;
 
-	msg = "SERVER " + _server_name + " 0 " + "info\n";
+	msg = "SERVER " + _si.SERVER_NAME + " 0 " + "info\n";
 	send_msg(fd, msg.c_str());
 	begin = _global_server.begin();
 	end = _global_server.end();
 	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
 		server = (*begin).second;
-		msg = ":" + _server_name + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " " + server->get_info() + "\n";
+		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " " + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
@@ -517,7 +517,7 @@ std::map<std::string, int>	&IrcServer::get_fd_map()
 // 	std::string		msg;
 // 	Command			*cmd;
 
-// 	msg = "SQUIT" + _server_name + " :SIGINT\n";
+// 	msg = "SQUIT" + _si.SERVER_NAME + " :SIGINT\n";
 // 	cmd = _cmd_creator.get_command("SQUIT");
 // 	cmd->set_message(Message(msg.c_str()));
 // 	cmd->run(*this);

@@ -1,6 +1,7 @@
 #ifndef READ_CONF_HPP
 # define READ_CONF_HPP
 
+# include "Error.hpp"
 # include "utils.hpp"
 # include "ServerInfo.hpp"
 # include <fcntl.h>

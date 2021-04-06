@@ -61,7 +61,7 @@ void	ServerCommand::run(IrcServer &irc)
 		else if (irc.check_pass(socket))
 		{
 			_msg.set_param_at(1, "0"); // 1. 홉카운트 설정
-			_msg.set_prefix(irc.get_servername());
+			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			irc.send_msg_server(socket->get_fd(), _msg.get_origin()); // 2. 다른 서버에 메세지 전파
 			ss.change_socket_type(_msg.get_source_fd(), SERVER); // 3. 소켓 타입 변경
 			irc.send_map_data(socket->get_fd()); // 4. 맵 데이터 전송

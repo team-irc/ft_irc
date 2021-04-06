@@ -17,14 +17,16 @@ void	ReadConf::read_config(ServerInfo & si)
 {
     char    buf[BUFFER_SIZE];
     int     str_len;
+    int     line_number;
 
+    line_number = 1;
     while (ft::read_until_crlf(_fd, buf, &str_len))
     {
         std::string tmp(buf);
         std::string *split_ret;
 
         if (ft::split(tmp, '=', split_ret) != 2)
-            std::cout << "CONFIGFILE ERROR" << std::endl;
+            throw (Error("CONFIG ERROR in line number " + std::to_string(line_number)));
         ft::rtrim(split_ret[0], ' ');
         ft::ltrim(split_ret[1], ' ');
         ft::rtrim(split_ret[1], '\n');
@@ -45,7 +47,8 @@ void	ReadConf::read_config(ServerInfo & si)
         else if (key == "OPERPWD")
             si.OPERPWD = value;
         else
-            std::cout << "CONFIGFILE ERROR" << std::endl;
+            throw (Error("CONFIG ERROR in line number " + std::to_string(line_number)));
         delete[] split_ret;
+        line_number += 1;
     }
 }

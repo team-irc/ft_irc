@@ -61,7 +61,7 @@ bool	LinksCommand::transfer_message(IrcServer &irc, std::string const &server_na
 	Server	*server;
 
 	socket = irc.get_current_socket();
-	if (server_name == irc.get_servername()) // 나에게 요청한경우 (예외)
+	if (server_name == irc.get_serverinfo().SERVER_NAME) // 나에게 요청한경우 (예외)
 	{
 		send_links_reply(irc, socket, mask);
 		return (false);
@@ -110,10 +110,10 @@ void 	LinksCommand::run(IrcServer &irc)
 	}
 	else if (socket->get_type() == SERVER)
 	{
-		Reply::set_servername(irc.get_servername()); // Reply 설정! 필수
+		Reply::set_servername(irc.get_serverinfo().SERVER_NAME); // Reply 설정! 필수
 		Reply::set_username(_msg.get_prefix());
 		server_name = _msg.get_param(0);
-		if (server_name == irc.get_servername()) // 나에게 보낸거라면
+		if (server_name == irc.get_serverinfo().SERVER_NAME) // 나에게 보낸거라면
 		{
 			if (_msg.get_param_size() == 1) // 마스크 없이 온 경우
 				send_links_reply(irc, socket, "");
