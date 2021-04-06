@@ -41,6 +41,7 @@ SRC = \
 	command/LinksCommand.cpp	\
 	command/NoticeCommand.cpp	\
 	command/AdminCommand.cpp	\
+	command/RehashCommand.cpp	\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))

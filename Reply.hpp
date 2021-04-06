@@ -211,6 +211,7 @@ public:
 	explicit Reply(RPL::INFO, const std::string &);
 	explicit Reply(RPL::ENDOFINFO);
 	explicit Reply(RPL::TIME, const std::string &, const std::string &);
+	explicit Reply(RPL::REHASHING, const std::string &);
 	// STATS
 	explicit Reply(RPL::STATSUPTIME, const std::string &);
 	// ADMIN

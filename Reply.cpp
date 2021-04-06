@@ -506,6 +506,13 @@ Reply::Reply(RPL::TIME time, const std::string &servername, const std::string &v
 	_msg = servername + " :" + val;
 }
 
+Reply::Reply(RPL::REHASHING rpl, const std::string &config_file)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<config file> :Rehashing"
+	_msg = config_file + " :Rehashing";
+}
+
 // STATS
 
 Reply::Reply(RPL::STATSUPTIME time, const std::string &val)

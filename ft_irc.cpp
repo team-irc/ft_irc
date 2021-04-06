@@ -16,6 +16,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->bind();
 		_listen_socket->listen();
 		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
+		_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
 	}
@@ -44,7 +45,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _si.SERVER_NAME + " :connect!\n";
+	msg = "SERVER " + _si.SERVER_NAME + " 0 :connect!\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -524,7 +525,7 @@ std::map<std::string, int>	&IrcServer::get_fd_map()
 // 	// 사용한 메모리들 정리 작업 추가
 // }
 
-bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
+bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 {
 	if (_si.OPERNAME == id && _si.OPERPWD == pwd)
 		return (true);
