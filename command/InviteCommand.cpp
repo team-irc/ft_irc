@@ -70,7 +70,7 @@ void	InviteCommand::run(IrcServer &irc)
 			invited_member->get_socket()->write(_msg.get_msg());
 
 		// 다른 서버에 메세지 전파
-		_msg.set_prefix(member->get_nick() + "!~" + member->get_username() + "@" + irc.get_servername());
+		_msg.set_prefix(member->get_nick() + "!~" + member->get_username() + "@" + irc.get_serverinfo().SERVER_NAME);
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 	else if (socket->get_type() == SERVER)

@@ -17,21 +17,22 @@ ModeCommand::~ModeCommand()
 
 void		ModeCommand::check_target(IrcServer &irc)
 {
-	Channel			*channel = irc.get_channel(_msg.get_param(0));
-	Member			*member = irc.get_member(_msg.get_param(0));
-	std::string		param;
-	std::string		msg;
-	std::string		result;
-	mode_set		set;
+	Channel				*channel = irc.get_channel(_msg.get_param(0));
+	Member				*member = irc.get_member(_msg.get_param(0));
+	struct ServerInfo	si = irc.get_serverinfo();
+	std::string			param;
+	std::string			msg;
+	std::string			result;
+	mode_set			set;
 
 	set.mode = PLUS;
 	set.is_set = true;
 	if (_msg.get_param_size() < 2) {
-		result = ":" + irc.get_servername() + " " + Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()).get_msg();
+		result = ":" + si.SERVER_NAME + " " + Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()).get_msg();
 		return (irc.get_current_socket()->write(result.c_str()));
 	}
 	param = _msg.get_param(1);
-	msg = ":" + irc.get_servername() + " " + _msg.get_command() + " " + _msg.get_param(0) + " ";
+	msg = ":" + si.SERVER_NAME + " " + _msg.get_command() + " " + _msg.get_param(0) + " ";
 	if (channel)
 	{
 		// 채널 동작
@@ -126,7 +127,7 @@ void		ModeCommand::check_target(IrcServer &irc)
 			msg += result + "\n";
 	}
 	else
-		msg = ":" + irc.get_servername() + " " + Reply(ERR::NOSUCHNICK(), _msg.get_param(0)).get_msg();
+		msg = ":" + si.SERVER_NAME + " " + Reply(ERR::NOSUCHNICK(), _msg.get_param(0)).get_msg();
 	if (!result.empty())
 	{
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
