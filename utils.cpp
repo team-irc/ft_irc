@@ -275,6 +275,8 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 					strncpy(buffer, buf, i + 1);
 					buffer[i + 1] = 0;
 				}
+				if (buf[i + 1] == ASCII_CONST::LF)
+					++i;
 				// strncpy(buffer + (rem_size == 0 ? insert_idx : 0), buf, i + 1);
 				// buffer[i + (rem_size == 0 ? insert_idx : 0) + 1] = 0;
 				for (int j = 1; buf[i + j]; ++j)
