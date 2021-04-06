@@ -15,7 +15,7 @@ SRC_DIR = .
 SRC = \
 	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			\
 	Error.cpp	Member.cpp		Message.cpp		Command.cpp		CommandFactory.cpp		Reply.cpp	\
-	Channel.cpp	\
+	Channel.cpp	Server.cpp\
 	command/ServerCommand.cpp	\
 	command/PassCommand.cpp		\
 	command/NickCommand.cpp		\
@@ -38,6 +38,7 @@ SRC = \
 	command/UserhostCommand.cpp	\
 	command/TimeCommand.cpp		\
 	command/InfoCommand.cpp		\
+	command/LinksCommand.cpp	\
 	command/NoticeCommand.cpp	\
 	command/AdminCommand.cpp	\
 

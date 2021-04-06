@@ -2,6 +2,8 @@
 # define UTILS_HPP
 
 #include <iostream>
+#include <string>
+#include <vector>
 #include <ctime>
 
 namespace ft
@@ -16,6 +18,8 @@ namespace ft
 	bool	isalpha(int c);
 
 	bool	isdigit(int c);
+
+	bool	check_mask(std::string const &str, std::string const &mask);
 
 	void	get_current_time(std::string &result);
 

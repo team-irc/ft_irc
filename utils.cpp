@@ -84,6 +84,113 @@ bool	ft::isdigit(int c)
 	return ((c >= '0' && c <= '9') ? true : false);
 }
 
+static size_t			push_marker(std::vector<std::string>	*marker, std::string const &mask, size_t start, size_t ret, std::string mark)
+{
+	std::string		sub;
+
+	if (start < ret)
+	{
+		sub = mask.substr(start, ret - start);
+		marker->push_back(sub);
+	}
+	marker->push_back(mark);
+	start = ret + 1;
+	return (start);
+}
+
+static std::vector<std::string>		*parse_marker(std::string const &mask)
+{
+	std::vector<std::string>	*marker;
+	size_t	start;
+	size_t	s_ret;
+	size_t	q_ret;
+
+	start = 0;
+	marker = new std::vector<std::string>;
+	while (start < mask.length())
+	{
+		s_ret = mask.find('*', start);
+		q_ret = mask.find('?', start);
+		if (s_ret < q_ret)
+			start = push_marker(marker, mask, start, s_ret, "*");
+		else if (q_ret < s_ret)
+			start = push_marker(marker, mask, start, q_ret, "?");
+		else
+		{
+			if (start != mask.length())
+				marker->push_back(mask.substr(start, mask.length() - start));
+			break;
+		}
+	}
+	return (marker);
+}
+
+static bool		check_str(std::string const &str, std::vector<std::string> &marker)
+{
+	size_t	start;
+	size_t	ret;
+	size_t	i = 0;
+	std::vector<std::string>::iterator	iter;
+	
+	start = 0;
+	while (i < marker.size())
+	{
+		if (marker[i] == "?")
+		{
+			i++;
+			if (i == marker.size())
+			{
+				if (str.length() - start > 1)
+					return (false);
+				return (true);
+			}
+			if (marker[i] == "?" || marker[i] == "*")
+			{
+				i++;
+				continue;
+			}
+			ret = str.find(marker[i], start); // ret: 새 위치 start: 이전 위치
+			if (ret == std::string::npos || ret - start > 1)
+				return (false);
+			start = ret + (marker[i]).length();
+			i++;
+			if (i == marker.size() && start != str.size())
+				return (false);
+		}
+		else if (marker[i] == "*")
+		{
+			i++;
+		}
+		else
+		{
+			ret = str.find(marker[i], start);
+			if (ret == std::string::npos)
+				return (false);
+			start = ret + (marker[i]).length();
+			if (i + 1 == marker.size())
+			{
+				if (start == str.length())
+					return (true);
+				else
+					return (false);
+			}
+			i++;
+		}
+	}
+	return (true);
+}
+
+bool	ft::check_mask(std::string const &str, std::string const &mask)
+{
+	bool							ret;
+	std::vector<std::string>	*marker;
+
+	marker = parse_marker(mask);
+	ret = check_str(str, *marker);
+	delete marker;
+	return (ret);
+}
+
 void	ft::get_current_time(std::string &result)
 {
 	time_t		t;
