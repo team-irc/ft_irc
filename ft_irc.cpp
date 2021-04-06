@@ -524,7 +524,7 @@ std::map<std::string, int>	&IrcServer::get_fd_map()
 // 	// 사용한 메모리들 정리 작업 추가
 // }
 
-bool		IrcServer::check_oper(std::string const &id, std::string const &pwd)
+bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 {
 	if (_si.OPERNAME == id && _si.OPERPWD == pwd)
 		return (true);

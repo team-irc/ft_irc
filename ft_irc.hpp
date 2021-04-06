@@ -99,7 +99,7 @@ public:
   
 	std::string			get_version();
 	std::string			get_debug_level();
-	bool				check_oper(std::string const &id, std::string const &pwd);
+	bool				check_oper(const std::string & id, const std::string & pwd);
 	
 private:
 
