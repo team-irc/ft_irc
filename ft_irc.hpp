@@ -113,6 +113,7 @@ private:
 	void				show_map_data();
 	
 	void				show_fd_map();
+	void				show_global_server();
 	void				show_global_user();
 	void				show_global_channel();
 	void				fd_event_loop();

@@ -44,7 +44,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _si.SERVER_NAME + " :connect!\n";
+	msg = "SERVER " + _si.SERVER_NAME + " 0 :info\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -194,6 +194,7 @@ void	IrcServer::client_msg(int fd)
 			cmd->execute(*this);
 			cmd->set_message(NULL);
 			show_fd_map();
+			show_global_server();
 			show_global_user();
 			show_global_channel();
 		}
@@ -417,6 +418,45 @@ void		IrcServer::add_fd_map(const std::string &key, int fd)
 	_fd_map.insert(std::pair<std::string, int>(key, fd));
 }
 
+void		IrcServer::show_global_server()
+{
+	Server		*server;
+
+	std::cout << "================== _global_server ======================\n";
+	std::cout.width(20);
+	std::cout << "server_name";
+	std::cout.width(5);
+	std::cout << "fd\n";
+	std::cout.width(10);
+	std::cout << "password\n";
+	std::cout.width(5);
+	std::cout << "hopcount\n";
+	std::cout.width(10);
+	std::cout << "info\n";
+
+	std::map<std::string, Server *>::iterator	iter = _global_server.begin();
+	while (iter != _global_server.end())
+	{
+		server = (*iter).second;
+
+		std::cout.width(20);
+		std::cout << server->get_name();
+
+		std::cout.width(5);
+		std::cout << server->get_socket()->get_fd();
+
+		std::cout.width(10);
+		std::cout << server->get_password();
+
+		std::cout.width(5);
+		std::cout << server->get_hopcount();
+		
+		std::cout.width(10);
+		std::cout << server->get_info();
+		std::cout << "\n";
+		iter++;
+	}
+}
 
 void		IrcServer::show_fd_map()
 {
