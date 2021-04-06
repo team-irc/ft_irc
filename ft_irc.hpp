@@ -23,6 +23,7 @@
 #include "Reply.hpp"
 #include "ServerInfo.hpp"
 #include "read_conf.hpp"
+#include "Server.hpp"
 
 #define DEBUG 0
 
@@ -40,12 +41,12 @@ private:
 	time_t							_start_time;
 
 	// 연결된 서버/클라이언트에 접근하기 위한 fd 제공
-	std::map<std::string, int>	_fd_map;
+	std::map<std::string, int>		_fd_map;
 	// irc 네트워크상에 있는 유저의 정보 저장
 	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
 	
-	// std::map<std::string, Server *>		_global_server;
+	std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
 
@@ -61,29 +62,37 @@ public:
 
 public:
 
-	void				run(int argc);
-	Socket				*get_current_socket();
-	SocketSet			&get_socket_set();
-	int					get_fdmax();
-	void				send_msg(int send_fd, const char *msg);
-	void				send_msg_server(int fd, const char *msg);
-	void				add_channel(std::string &channel_name, Channel *channel);
-	bool				add_member(std::string &nickname, Member *new_member);
+	void						run(int argc);
+	Socket						*get_current_socket();
+	SocketSet					&get_socket_set();
+	int							get_fdmax();
+	void						send_msg(int send_fd, const char *msg);
+	void						send_msg_server(int fd, const char *msg);
 	
-	void				send_map_data(int my_fd);
-	void				delete_member(const std::string &nickname);
+	void						add_channel(std::string &channel_name, Channel *channel);
+	Channel						*get_channel(std::string channel_name);
+
+	
+	bool						add_member(std::string &nickname, Member *new_member);
+	void						delete_member(const std::string &nickname);
+	Member						*find_member(int fd);
+
+	bool						add_server(const std::string &server_name, const std::string &hopcount, const std::string &info, Socket *socket);
+	void						delete_server(const std::string &server_name);
+	Server						*get_server(const std::string &server_name);
+	
 	void						add_fd_map(const std::string &key, int fd);
 	void						delete_fd_map(std::string const &key);
 	std::map<std::string, int>	&get_fd_map();
 	int							find_fd_map(std::string const &server_name);
-  
-	void				  send_user_data(int fd);
-	Channel				*get_channel(std::string channel_name);
-	Member				*get_member(std::string nick);
-	Member				*get_member(int fd);
+
+	void						send_map_data(int my_fd);
+	void						send_user_data(int fd);
+	Member						*get_member(std::string nick);
+	Member						*get_member(int fd);
 	std::map<std::string, Channel *>	&get_global_channel();
 	std::map<std::string, Member *>		&get_global_user();
-	Member				*find_member(int fd);
+	std::map<std::string, Server *>		&get_global_server();
 	bool				check_pass(Socket *currnet_socket);
 	struct ServerInfo	&get_serverinfo();
 	time_t				get_start_time();

@@ -3,15 +3,17 @@
 
 # include "Command.hpp"
 
-class VersionCommand: public Command
+class VersionCommand : public Command
 {
+private:
+
 public:
 	VersionCommand();
-	~VersionCommand();
-public:
-	void run(IrcServer &irc);
-private:
-	void add_prefix(IrcServer &irc);
+	virtual ~VersionCommand();
+	VersionCommand(VersionCommand const &copy);
+	VersionCommand	&operator=(VersionCommand const &ref);
+
+	void	run(IrcServer &irc);
 };
 
 #endif

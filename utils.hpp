@@ -4,6 +4,8 @@
 #include <iostream>
 #include <time.h>
 #include <limits.h>
+#include <string>
+#include <vector>
 #include <ctime>
 #include <unistd.h>
 
@@ -21,6 +23,8 @@ namespace ft
 	bool	isalpha(int c);
 
 	bool	isdigit(int c);
+
+	bool	check_mask(std::string const &str, std::string const &mask);
 
 	void	get_current_time(std::string &result);
 
