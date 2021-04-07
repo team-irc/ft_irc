@@ -361,7 +361,7 @@ Reply::Reply(RPL::NAMREPLY rpl, const std::string &channel, std::vector<std::str
 
 	first = names.begin();
 	last = names.end();
-	_msg = channel + " : ";
+	_msg = channel + " :";
 	while (first != last)
 	{
 		_msg += *first;
