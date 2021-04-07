@@ -97,9 +97,12 @@ public:
 	struct ServerInfo	&get_serverinfo();
 	time_t				get_start_time();
   
+	
 	std::string			get_version();
 	std::string			get_debug_level();
 	bool				check_oper(const std::string & id, const std::string & pwd);
+
+	void				run_command(const std::string &msg);
 	
 private:
 

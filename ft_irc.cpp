@@ -2,8 +2,6 @@
 
 IrcServer::IrcServer(int argc, char **argv)
 {
-	if (DEBUG)
-		std::cout << "Irc Server Constructor called." << std::endl;
 	if (1)
 	{
 		ReadConf	rc;
@@ -20,7 +18,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->listen();
 		_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
-		add_server(_si.SERVER_NAME, "0", _si.VERSION, _listen_socket);
+		add_server(_si.SERVER_NAME, "0", ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
 	}
@@ -35,8 +33,6 @@ IrcServer::~IrcServer()
 // 새로운 서버에서 기존 서버로 연결하는 함수
 void	 IrcServer::connect_to_server(char **argv)
 {
-	if (DEBUG)
-		std::cout << "connect to server function called\n";
 	Socket			*new_socket;
 	int				tmp;
 
@@ -49,7 +45,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _si.SERVER_NAME + " 0 :info\n";
+	msg = "SERVER " + _si.SERVER_NAME + " 1 :" + _si.VERSION + "\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -60,8 +56,6 @@ void	 IrcServer::connect_to_server(char **argv)
 
 void	IrcServer::client_connect()
 {
-	if (DEBUG)
-		std::cout << "client_connect function called." << std::endl;
 	Socket		*new_socket;
 
 	new_socket = _listen_socket->accept();
@@ -106,8 +100,6 @@ void	IrcServer::send_msg_server(int fd, const char *msg)
 
 void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 {
-	if (DEBUG)
-		std::cout << "echo_msg(int, char *, int) called." << std::endl;
 	for (int  i = 3; i < _fd_max + 1; i++)
 	{
 		// my_fd가 server인지 client인지 확인 후 정보 수정해서 전송
@@ -433,7 +425,7 @@ void		IrcServer::show_global_server()
 	std::cout << "password";
 	std::cout.width(5);
 	std::cout << "hop";
-	std::cout.width(10);
+	std::cout.width(20);
 	std::cout << "info\n";
 
 	std::map<std::string, Server *>::iterator	iter = _global_server.begin();
@@ -453,7 +445,7 @@ void		IrcServer::show_global_server()
 		std::cout.width(5);
 		std::cout << server->get_hopcount();
 		
-		std::cout.width(10);
+		std::cout.width(20);
 		std::cout << server->get_info();
 		std::cout << "\n";
 		iter++;
@@ -541,7 +533,11 @@ void		IrcServer::show_global_channel()
 		while (member_iter != member_vector.end())
 		{
 			std::cout.width(10);
-			std::cout << (*member_iter)._member->get_nick();
+			std::string		temp;
+			temp = (*member_iter)._member->get_nick();
+			if ((*member_iter)._is_operator)
+				temp += "(op)";
+			std::cout << temp;
 			member_iter++;
 		}
 		iter++;
@@ -575,3 +571,22 @@ bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 
 time_t		IrcServer::get_start_time()
 { return (_start_time); }
+
+void		IrcServer::run_command(const std::string &str)
+{
+	Message		msg(str.c_str());
+	Command		*cmd;
+
+	msg.set_source_fd(_current_sock->get_fd());
+	cmd = _cmd_creator.get_command(msg.get_command());
+	if (cmd)
+	{
+		cmd->set_message(msg);
+		cmd->execute(*this);
+		cmd->set_message(NULL);
+		show_fd_map();
+		show_global_server();
+		show_global_user();
+		show_global_channel();
+	}
+}
