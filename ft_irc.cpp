@@ -18,8 +18,9 @@ IrcServer::IrcServer(int argc, char **argv)
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
 		_listen_socket->listen();
-		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
 		_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
+		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
+		add_server(_si.SERVER_NAME, "0", _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
 	}
@@ -48,7 +49,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _si.SERVER_NAME + " 0 :connect!\n";
+	msg = "SERVER " + _si.SERVER_NAME + " 0 :info\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
@@ -69,7 +70,6 @@ void	IrcServer::client_connect()
 	// _user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 	if (_fd_max < new_socket->get_fd())
 		_fd_max = new_socket->get_fd();
-	// new_socket->show_info();
 }
 
 bool	IrcServer::check_pass(Socket *socket)
@@ -130,14 +130,13 @@ void	IrcServer::send_map_data(int fd)
 	Server			*server;
 	std::string		msg;
 
-	msg = "SERVER " + _si.SERVER_NAME + " 0 " + "info\n";
-	send_msg(fd, msg.c_str());
+	// 서버 메세지 전송
 	begin = _global_server.begin();
 	end = _global_server.end();
 	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
 		server = (*begin).second;
-		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " " + server->get_info() + "\n";
+		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " :" + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
@@ -167,7 +166,7 @@ void	IrcServer::client_msg(int fd)
 	{
 		memset(buf, 0, BUFFER_SIZE);
 		result = ft::read_until_crlf(fd, buf, &str_len);
-		std::cout << "[RECV] " << buf << " [" << fd<< "] " << "[" << _current_sock->show_type() << "]\n";
+		std::cout << "[RECV] " << buf << " [" << fd << "] " << "[" << _current_sock->show_type() << "]\n";
 		if (buf[0] == 0) // 클라이언트에서 Ctrl + C 입력한 경우
 		{	// 해당 클라이언트와 연결 종료
 			std::string msg;
@@ -198,6 +197,7 @@ void	IrcServer::client_msg(int fd)
 			cmd->execute(*this);
 			cmd->set_message(NULL);
 			show_fd_map();
+			show_global_server();
 			show_global_user();
 			show_global_channel();
 		}
@@ -252,7 +252,6 @@ void	IrcServer::run(int argc)
 {
 	while (1)
 	{
-		
 		fd_event_loop();
 	}
 }
@@ -421,6 +420,45 @@ void		IrcServer::add_fd_map(const std::string &key, int fd)
 	_fd_map.insert(std::pair<std::string, int>(key, fd));
 }
 
+void		IrcServer::show_global_server()
+{
+	Server		*server;
+
+	std::cout << "================== _global_server ======================\n";
+	std::cout.width(20);
+	std::cout << "server_name";
+	std::cout.width(5);
+	std::cout << "fd";
+	std::cout.width(10);
+	std::cout << "password";
+	std::cout.width(5);
+	std::cout << "hop";
+	std::cout.width(10);
+	std::cout << "info\n";
+
+	std::map<std::string, Server *>::iterator	iter = _global_server.begin();
+	while (iter != _global_server.end())
+	{
+		server = (*iter).second;
+
+		std::cout.width(20);
+		std::cout << server->get_name();
+
+		std::cout.width(5);
+		std::cout << server->get_socket()->get_fd();
+
+		std::cout.width(10);
+		std::cout << server->get_password();
+
+		std::cout.width(5);
+		std::cout << server->get_hopcount();
+		
+		std::cout.width(10);
+		std::cout << server->get_info();
+		std::cout << "\n";
+		iter++;
+	}
+}
 
 void		IrcServer::show_fd_map()
 {

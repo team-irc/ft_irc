@@ -84,7 +84,6 @@ void	JoinCommand::run(IrcServer &irc)
 			{
 				channel = new Channel(channel_names[i], member);
 				irc.add_channel(channel_names[i], channel);
-				channel->add_operator(member);
 				member->add_channel(channel);
 			}
 			else // 기존 채널 참여시
@@ -113,7 +112,9 @@ void	JoinCommand::run(IrcServer &irc)
 			{
 				channel = new Channel(channel_names[i], member);
 				irc.add_channel(channel_names[i], channel);
-				channel->add_operator(member);
+				// std::string		msg;
+				// msg = "MODE " + channel_names[i] + " +o " + member->get_nick();
+				// irc.send_msg(0, msg.c_str());
 				member->add_channel(channel);
 			}
 			else
