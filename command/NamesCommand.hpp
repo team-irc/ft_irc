@@ -12,6 +12,8 @@ public:
 public:
 	void run(IrcServer &irc);
 private:
+	void						reply_all_channel(IrcServer &irc);
+	void						reply_specific_channel(IrcServer &irc);
 	std::vector<std::string>	get_user_list_who_not_join_any_channel(IrcServer &irc);
 };
 
