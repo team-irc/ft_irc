@@ -2,9 +2,20 @@
 
 IrcServer::IrcServer(int argc, char **argv)
 {
+<<<<<<< HEAD
 	ReadConf	rc;
 	rc.open_file("ft_irc.conf");
 	rc.read_config(this->_si);
+=======
+	if (DEBUG)
+		std::cout << "Irc Server Constructor called." << std::endl;
+	if (1)
+	{
+		ReadConf	rc;
+		rc.open_file("ft_irc.conf");
+		rc.read_config(this->_si);
+	}
+>>>>>>> ircorigin/master
 	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
