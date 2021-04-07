@@ -17,7 +17,6 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->bind();
 		_listen_socket->listen();
 		_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
-		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
 		add_server(_si.SERVER_NAME, "0", ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
@@ -82,7 +81,6 @@ void	IrcServer::send_msg(int send_fd, const char *msg)
 	socket->write(msg);
 }
 
-// map 변경 예정(fd_map -> server만 가지는 map으로)
 void	IrcServer::send_msg_server(int fd, const char *msg)
 {
 	std::vector<Socket *> vec = _socket_set.get_connect_sockets();
@@ -188,7 +186,6 @@ void	IrcServer::client_msg(int fd)
 			cmd->set_message(msg);
 			cmd->execute(*this);
 			cmd->set_message(NULL);
-			show_fd_map();
 			show_global_server();
 			show_global_user();
 			show_global_channel();
@@ -350,22 +347,6 @@ void		IrcServer::send_user_data(int fd)
 	}
 }
 
-void		IrcServer::delete_fd_map(std::string const &key)
-{
-	_fd_map.erase(key);
-}
-
-int			IrcServer::find_fd_map(std::string const &server_name)
-{
-	std::map<std::string, int>::iterator	iter;
-
-	iter = _fd_map.find(server_name);
-	if (iter == _fd_map.end())
-		return (0);
-	else
-		return ((*iter).second);
-}
-
 bool		IrcServer::add_server(const std::string &server_name, const std::string &hopcount, const std::string &info, Socket *socket)
 {
 	Server	*new_server;
@@ -392,7 +373,18 @@ Server		*IrcServer::get_server(const std::string &server_name)
 
 	iter = _global_server.find(server_name);
 	if (iter != _global_server.end())
-		return ((*iter).second);
+		return (iter->second);
+	else
+		return (0);
+}
+
+int			IrcServer::find_server_fd(const std::string &server_name)
+{
+	Server	*server;
+
+	server = get_server(server_name);
+	if (server)
+		return (server->get_socket()->get_fd());
 	else
 		return (0);
 }
@@ -410,11 +402,6 @@ void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
 void		IrcServer::delete_channel(const std::string &channel_name)
 {
 	_global_channel.erase(channel_name);
-}
-
-void		IrcServer::add_fd_map(const std::string &key, int fd)
-{
-	_fd_map.insert(std::pair<std::string, int>(key, fd));
 }
 
 void		IrcServer::show_global_server()
@@ -456,29 +443,6 @@ void		IrcServer::show_global_server()
 		iter++;
 	}
 }
-
-void		IrcServer::show_fd_map()
-{
-	std::cout << "================== _fd_map ======================\n";
-	std::cout.width(20);
-	std::cout << "server_name";
-	std::cout.width(5);
-	std::cout << "fd\n";
-
-	std::map<std::string, int>::iterator	iter = _fd_map.begin();
-	while (iter != _fd_map.end())
-	{
-		std::cout.width(20);
-		std::cout << (*iter).first;
-
-		std::cout.width(5);
-		std::cout << (*iter).second;
-		
-		std::cout << "\n";
-		iter++;
-	}
-}
-
 
 void		IrcServer::show_global_user()
 {
@@ -552,9 +516,6 @@ void		IrcServer::show_global_channel()
 	return ;
 }
 
-std::map<std::string, int>	&IrcServer::get_fd_map()
-{ return (_fd_map); }
-
 // void				IrcServer::sigint_handler(int type)
 // {
 // 	std::string		msg;
@@ -576,22 +537,3 @@ bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 
 time_t		IrcServer::get_start_time()
 { return (_start_time); }
-
-void		IrcServer::run_command(const std::string &str)
-{
-	Message		msg(str.c_str());
-	Command		*cmd;
-
-	msg.set_source_fd(_current_sock->get_fd());
-	cmd = _cmd_creator.get_command(msg.get_command());
-	if (cmd)
-	{
-		cmd->set_message(msg);
-		cmd->execute(*this);
-		cmd->set_message(NULL);
-		show_fd_map();
-		show_global_server();
-		show_global_user();
-		show_global_channel();
-	}
-}

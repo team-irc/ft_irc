@@ -19,16 +19,6 @@ PingCommand	&PingCommand::operator=(PingCommand const &ref)
 	return (*this);
 }
 
-static int		find_server_fd(IrcServer &irc, std::string servername)
-{
-	std::map<std::string, int>				map = irc.get_fd_map();
-	std::map<std::string, int>::iterator	find = map.find(servername);
-
-	if (find == map.end())
-		return (0);
-	return (find->second);
-}
-
 void		PingCommand::run(IrcServer &irc)
 {
 	Socket	*socket = irc.get_current_socket();

@@ -50,7 +50,7 @@ void InfoCommand::run(IrcServer &irc)
 			Socket  *next_server;
 
 			_msg.set_prefix(member->get_nick());
-			target_fd = irc.find_fd_map(_msg.get_param(0));
+			target_fd = irc.find_server_fd(_msg.get_param(0));
 			if (target_fd == 0)
 				throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(0)));
 			next_server = irc.get_socket_set().find_socket(target_fd);

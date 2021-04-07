@@ -40,8 +40,6 @@ private:
 
 	time_t							_start_time;
 
-	// 연결된 서버/클라이언트에 접근하기 위한 fd 제공
-	std::map<std::string, int>		_fd_map;
 	// irc 네트워크상에 있는 유저의 정보 저장
 	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
 	// 등록된 클라이언트용 map -> USER / NICK 입력 시, 추가되면 위쪽 MAP에서 제거, nick key값으로
@@ -81,11 +79,7 @@ public:
 	bool						add_server(const std::string &server_name, const std::string &hopcount, const std::string &info, Socket *socket);
 	void						delete_server(const std::string &server_name);
 	Server						*get_server(const std::string &server_name);
-	
-	void						add_fd_map(const std::string &key, int fd);
-	void						delete_fd_map(std::string const &key);
-	std::map<std::string, int>	&get_fd_map();
-	int							find_fd_map(std::string const &server_name);
+	int							find_server_fd(const std::string &server_name);
 
 	void						send_map_data(int my_fd);
 	void						send_user_data(int fd);
@@ -102,8 +96,6 @@ public:
 	std::string			get_version();
 	std::string			get_debug_level();
 	bool				check_oper(const std::string & id, const std::string & pwd);
-
-	void				run_command(const std::string &msg);
 	
 private:
 
@@ -116,7 +108,6 @@ private:
 	void				send_msg(int my_fd, int except_fd, const char *msg);
 	void				show_map_data();
 	
-	void				show_fd_map();
 	void				show_global_server();
 	void				show_global_user();
 	void				show_global_channel();
