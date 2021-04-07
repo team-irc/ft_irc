@@ -2,7 +2,6 @@
 
 IrcServer::IrcServer(int argc, char **argv)
 {
-	if (1)
 	{
 		ReadConf	rc;
 		rc.open_file("ft_irc.conf");
@@ -16,7 +15,8 @@ IrcServer::IrcServer(int argc, char **argv)
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
 		_listen_socket->listen();
-		_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
+		if (_si.SERVER_NAME == "${AUTO}")
+			_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
 		add_server(_si.SERVER_NAME, "0", ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
