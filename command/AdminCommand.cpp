@@ -19,16 +19,6 @@ AdminCommand	&AdminCommand::operator= (AdminCommand const &ref)
 	return (*this);
 }
 
-static int		find_server_fd(IrcServer &irc, std::string servername)
-{
-	std::map<std::string, int>				map = irc.get_fd_map();
-	std::map<std::string, int>::iterator	find = map.find(servername);
-
-	if (find == map.end())
-		return (0);
-	return (find->second);
-}
-
 static void		send_info(IrcServer &irc, int fd, const std::string &user)
 {
 	struct ServerInfo	si = irc.get_serverinfo();
@@ -71,7 +61,7 @@ void			AdminCommand::run(IrcServer &irc)
 		{
 			// 1개면 해당 서버가 있는지 확인
 			_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick());
-			server_fd = find_server_fd(irc, _msg.get_param(0));
+			server_fd = irc.find_server_fd(_msg.get_param(0));
 			// 0-1. 없으면 에러 리턴
 			if (server_fd == 0)
 				throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(0)));
@@ -91,7 +81,7 @@ void			AdminCommand::run(IrcServer &irc)
 		else
 		{
 			// 2. 다른 서버면 해당 서버로 메시지 전송
-			server_fd = find_server_fd(irc, _msg.get_param(0));
+			server_fd = irc.find_server_fd(_msg.get_param(0));
 			// 해당 시점에서는 서버 검증이 완료된 상태
 			irc.send_msg(server_fd, _msg.get_msg());
 		}

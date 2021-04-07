@@ -47,7 +47,7 @@ void	ServerCommand::run(IrcServer &irc)
 	{
 		throw (Reply(ERR::UNKNOWNCOMMAND(), "SERVER"));
 	}
-	if (irc.get_fd_map().find(_msg.get_param(0)) != irc.get_fd_map().end())
+	if (irc.get_server(_msg.get_param(0)) != false)
 		throw (Reply(ERR::ALREADYREGISTRED()));
 	if (socket->get_type() == UNKNOWN) // 새로운 서버 추가요청을 받은경우 (패스워드 확인 필요)
 	{
@@ -69,12 +69,11 @@ void	ServerCommand::run(IrcServer &irc)
 			ss.change_socket_type(_msg.get_source_fd(), SERVER); // 3. 소켓 타입 변경
 			irc.send_map_data(socket->get_fd()); // 4. 맵 데이터 전송
 			irc.send_user_data(socket->get_fd()); // 5. 유저 데이터 전송
-			irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd()); // 6. fd_map에 추가.
-			irc.add_server(_msg.get_param(0), _msg.get_param(1), _msg.get_param(2), socket); // 7. _global_server에 추가
+			irc.add_server(_msg.get_param(0), _msg.get_param(1), _msg.get_param(2), socket); // 6. _global_server에 추가
 			int hopcount = ft::atoi(_msg.get_param(1).c_str());
 			hopcount++;
 			_msg.set_param_at(1, std::to_string(hopcount));
-			irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 2. 다른 서버에 메세지 전파
+			irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 7. 다른 서버에 메세지 전파
 		}
 		else
 		{
@@ -83,12 +82,11 @@ void	ServerCommand::run(IrcServer &irc)
 	}
 	else if (socket->get_type() == SERVER) // 다른 서버에서 서버가 추가되었음을 알리는 경우 (패스워드 확인 필요 없음)
 	{
-		irc.add_server(_msg.get_param(0), _msg.get_param(1), _msg.get_param(2), socket);
+		irc.add_server(_msg.get_param(0), _msg.get_param(1), _msg.get_param(2), socket); // _global_server에 추가
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
 		_msg.set_param_at(1, std::to_string(hopcount));
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
-		irc.add_fd_map(_msg.get_param(0).c_str(), socket->get_fd());
 	}
 }
 

@@ -1,6 +1,36 @@
 #include "QuitCommand.hpp"
 #include "ft_irc.hpp"
 
+/*
+      Command: QUIT
+   Parameters: [<Quit message>]
+
+   A client session is ended with a quit message.  The server must close
+   the connection to a client which sends a QUIT message. If a "Quit
+   Message" is given, this will be sent instead of the default message,
+   the nickname.
+
+   When netsplits (disconnecting of two servers) occur, the quit message
+   is composed of the names of two servers involved, separated by a
+   space.  The first name is that of the server which is still connected
+   and the second name is that of the server that has become
+   disconnected.
+
+   If, for some other reason, a client connection is closed without  the
+   client  issuing  a  QUIT  command  (e.g.  client  dies and EOF occurs
+   on socket), the server is required to fill in the quit  message  with
+   some sort  of  message  reflecting the nature of the event which
+   caused it to happen.
+
+   Numeric Replies:
+
+           None.
+
+   Examples:
+
+   QUIT :Gone to have lunch        ; Preferred message format.
+*/
+
 static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
 {
 	std::set<Channel *>::iterator	channel_iter;
@@ -56,7 +86,7 @@ void	QuitCommand::run(IrcServer &irc)
 			quit_from_joined_channel(irc, member);
 			delete member; //멤버 인스턴스를 제거
 		}
-		irc.get_socket_set().remove_socket(socket); // _fd_map에서 제거
+		irc.get_socket_set().remove_socket(socket); // socket_set에서 제거
 		delete socket; // 3. 소켓 연결을 끊는다. 다른 서버에는 전송하지 않는다. 다른서버에는 이 멤버가 등록되지 않은 상태이므로
 	}
 }

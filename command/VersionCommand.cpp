@@ -46,8 +46,7 @@ void VersionCommand::run(IrcServer &irc)
 		{
 			target_server = _msg.get_param(0);
 			_msg.set_prefix(member->get_nick());
-
-			irc.get_socket_set().find_socket(irc.find_fd_map(target_server))->write(_msg.get_msg());
+			irc.get_socket_set().find_socket(irc.find_server_fd(target_server))->write(_msg.get_msg());
 		}
 	}
 	else if (socket->get_type() == SERVER)
@@ -61,7 +60,7 @@ void VersionCommand::run(IrcServer &irc)
 		}
 		else // 찾고있는 서버가 내가 아니면, 찾고있는 서버 fd에 커맨드 메세지를 보낸다.
 		{
-			irc.get_socket_set().find_socket(irc.find_fd_map(target_server))->write(_msg.get_msg());
+			irc.get_socket_set().find_socket(irc.find_server_fd(target_server))->write(_msg.get_msg());
 		}
 	}
 	else
