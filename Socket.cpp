@@ -27,6 +27,14 @@ Socket::Socket(unsigned short port)
 	_addr.sin_port = port;
 }
 
+Socket::Socket(struct sockaddr_in serv_addr)
+{
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+
+	memset(&_addr, 0, sizeof(_addr));
+	_addr = serv_addr;
+}
+
 Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
 {
 }
@@ -90,6 +98,9 @@ std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *conne
 	return (std::make_pair(host, string_password_network));
 };
 
+//00110110 01111101 01000000 00100010
+//54 125 64 34
+
 // 127.0.0.1:port:pass
 Socket	*Socket::connect(char *connect_srv)
 {
@@ -101,7 +112,8 @@ Socket	*Socket::connect(char *connect_srv)
 	pair = parsing_host_info(connect_srv);
 	serv_addr = pair.first;
 
-	new_sock = new Socket(serv_addr.sin_port);
+	// new_sock = new Socket(serv_addr.sin_port);
+	new_sock = new Socket(serv_addr);
 	new_sock->set_pass(pair.second);
 	if (new_sock->_fd == -1)
 		throw (Error("connect socket create error"));

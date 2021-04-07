@@ -37,7 +37,7 @@ void	NickCommand::run(IrcServer &irc)
 	if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
 	{
 		member = irc.get_member(socket->get_fd());
-		_msg.set_param_at(1, "0");
+		_msg.set_param_at(1, "1");
 		// USER가 먼저 들어온 경우
 		if (member)
 		{
@@ -94,7 +94,7 @@ void	NickCommand::run(IrcServer &irc)
 		member->set_nick(nickname); // 3. member 닉네임 변경
 		irc.add_member(nickname, member); // 4. global_user에 새로 추가 
 
-		_msg.set_param_at(1, "0"); // 2. 다른서버로 전송
+		_msg.set_param_at(1, "1"); // 2. 다른서버로 전송
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 	else if (socket->get_type() == SERVER) // 서버에서 온 경우 (추가 or 변경 : prefix 여부로 구분)
