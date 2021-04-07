@@ -6,6 +6,7 @@ ReadConf::ReadConf()
 
 ReadConf::~ReadConf()
 {
+    close(_fd);
 }
 
 void    ReadConf::open_file(const std::string & file_name)
