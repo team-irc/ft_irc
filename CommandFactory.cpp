@@ -25,6 +25,7 @@
 #include "NoticeCommand.hpp"
 #include "AdminCommand.hpp"
 #include "RehashCommand.hpp"
+#include "PingCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -55,6 +56,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("NOTICE", new NoticeCommand()));
 	_map.insert(std::pair<std::string, Command *>("ADMIN", new AdminCommand()));
 	_map.insert(std::pair<std::string, Command *>("REHASH", new RehashCommand()));
+	_map.insert(std::pair<std::string, Command *>("PING", new PingCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

@@ -3,13 +3,13 @@
 
 # include "Command.hpp"
 
-class PingCommand
+class PingCommand : public Command
 {
 	public:
 		PingCommand();
 		virtual ~PingCommand();
 		PingCommand(PingCommand const &ref);
-		PingCommand	operator=(PingCommand const &ref);
+		PingCommand	&operator=(PingCommand const &ref);
 	public:
 		void		run(IrcServer &irc);
 };
