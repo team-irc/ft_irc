@@ -30,6 +30,7 @@ public:
 	Socket();
 	Socket(const char *port);
 	Socket(unsigned short port);
+	Socket(struct sockaddr_in serv_addr);
 	Socket(Socket const &copy);
 	Socket& operator=(Socket const &copy);
 	~Socket();
