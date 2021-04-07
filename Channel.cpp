@@ -45,10 +45,11 @@ int	Channel::delete_member(Member *member)
 	{
 		if ((*iter)._member == member)
 		{
-			_member.erase(iter);
+			iter = _member.erase(iter);
 			return (1);
 		}
-		iter++;
+		else
+			iter++;
 	}
 	return (0);
 };

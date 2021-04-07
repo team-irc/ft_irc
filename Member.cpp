@@ -36,19 +36,11 @@ Member & Member::operator = (const Member & other)
 
 Member::~Member()
 {
-	std::set<Channel *>::iterator	joinned_channel;
-
-	joinned_channel = _joinned_channels.begin();
-	while (joinned_channel != _joinned_channels.end())
-	{
-		(*joinned_channel)->delete_member(this);
-		joinned_channel++;
-	}
 };
 
 bool				Member::add_channel(Channel *channel)
 {
-	return ((_joinned_channels.insert(channel)).second);
+	return ((_joined_channels.insert(channel)).second);
 }
 
 const bool			Member::is_setting() const
@@ -75,17 +67,17 @@ const std::string	&Member::get_realname()									{ return (_realname); }
 void				Member::set_realname(const std::string &realname)		{ _realname = realname; }
 int					Member::get_fd()										{ return (_fd); }
 void				Member::set_fd(int fd)									{ _fd = fd; }
-std::set<Channel *>	Member::get_joinned_channels()							{ return (_joinned_channels); }
+std::set<Channel *>	&Member::get_joined_channels()							{ return (_joined_channels); }
 const std::string	&Member::get_away()										{ return (_away); }
 void				Member::set_away(const std::string &away)				{ _away = away; }
 
 bool				Member::delete_channel(Channel *channel)
 {
-	if (_joinned_channels.find(channel) == _joinned_channels.end())
+	if (_joined_channels.find(channel) == _joined_channels.end())
 		return (false);
 	else
 	{
-		_joinned_channels.erase(channel);
+		_joined_channels.erase(channel);
 		return (true);
 	}
 }

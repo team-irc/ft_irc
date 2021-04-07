@@ -128,7 +128,7 @@ void	IrcServer::send_map_data(int fd)
 	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
 		server = (*begin).second;
-		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount() + 1) + " :" + server->get_info() + "\n";
+		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount() + 1) + " " + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
@@ -405,6 +405,11 @@ std::map<std::string, Server *>		&IrcServer::get_global_server()
 void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
+}
+
+void		IrcServer::delete_channel(const std::string &channel_name)
+{
+	_global_channel.erase(channel_name);
 }
 
 void		IrcServer::add_fd_map(const std::string &key, int fd)

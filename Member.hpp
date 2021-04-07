@@ -21,7 +21,7 @@ private:
 	std::string				_hostname;
 	std::string				_servername;
 	std::string				_realname;
-	std::set<Channel *>		_joinned_channels;
+	std::set<Channel *>		_joined_channels;
 	std::string				_away;
 
 	// mode i: mark a users as invisible;
@@ -59,7 +59,7 @@ public:
 	void				set_mode(char mode);
 	const std::string	&get_away();
 	void				set_away(const std::string &away);
-	std::set<Channel *>	get_joinned_channels();
+	std::set<Channel *>	&get_joined_channels();
 	bool				check_mode(char mode, bool is_set);
 	const bool			is_setting() const;
 	bool				add_channel(Channel *channel);
