@@ -2,20 +2,12 @@
 
 IrcServer::IrcServer(int argc, char **argv)
 {
-<<<<<<< HEAD
-	ReadConf	rc;
-	rc.open_file("ft_irc.conf");
-	rc.read_config(this->_si);
-=======
-	if (DEBUG)
-		std::cout << "Irc Server Constructor called." << std::endl;
 	if (1)
 	{
 		ReadConf	rc;
 		rc.open_file("ft_irc.conf");
 		rc.read_config(this->_si);
 	}
->>>>>>> ircorigin/master
 	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
@@ -541,7 +533,11 @@ void		IrcServer::show_global_channel()
 		while (member_iter != member_vector.end())
 		{
 			std::cout.width(10);
-			std::cout << (*member_iter)._member->get_nick();
+			std::string		temp;
+			temp = (*member_iter)._member->get_nick();
+			if ((*member_iter)._is_operator)
+				temp += "(op)";
+			std::cout << temp;
 			member_iter++;
 		}
 		iter++;
