@@ -112,10 +112,15 @@ void	JoinCommand::run(IrcServer &irc)
 			{
 				channel = new Channel(channel_names[i], member);
 				irc.add_channel(channel_names[i], channel);
-				// std::string		msg;
-				// msg = "MODE " + channel_names[i] + " +o " + member->get_nick();
-				// irc.send_msg(0, msg.c_str());
 				member->add_channel(channel);
+				socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
+				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
+				irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+				// mode 를 실행해야 하는데..
+				std::string		msg;
+				msg = "MODE " + channel_names[i] + " +o " + member->get_nick();
+				irc.run_command(msg);
+				return ;
 			}
 			else
 			{
@@ -139,7 +144,6 @@ void	JoinCommand::run(IrcServer &irc)
 			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
-		
 	}
 }
 

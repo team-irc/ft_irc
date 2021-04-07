@@ -2,8 +2,6 @@
 
 IrcServer::IrcServer(int argc, char **argv)
 {
-	if (DEBUG)
-		std::cout << "Irc Server Constructor called." << std::endl;
 	ReadConf	rc;
 	rc.open_file("ft_irc.conf");
 	rc.read_config(this->_si);
@@ -32,8 +30,6 @@ IrcServer::~IrcServer()
 // 새로운 서버에서 기존 서버로 연결하는 함수
 void	 IrcServer::connect_to_server(char **argv)
 {
-	if (DEBUG)
-		std::cout << "connect to server function called\n";
 	Socket			*new_socket;
 	int				tmp;
 
@@ -57,8 +53,6 @@ void	 IrcServer::connect_to_server(char **argv)
 
 void	IrcServer::client_connect()
 {
-	if (DEBUG)
-		std::cout << "client_connect function called." << std::endl;
 	Socket		*new_socket;
 
 	new_socket = _listen_socket->accept();
@@ -103,8 +97,6 @@ void	IrcServer::send_msg_server(int fd, const char *msg)
 
 void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 {
-	if (DEBUG)
-		std::cout << "echo_msg(int, char *, int) called." << std::endl;
 	for (int  i = 3; i < _fd_max + 1; i++)
 	{
 		// my_fd가 server인지 client인지 확인 후 정보 수정해서 전송
@@ -133,7 +125,7 @@ void	IrcServer::send_map_data(int fd)
 	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
 		server = (*begin).second;
-		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " :" + server->get_info() + "\n";
+		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount()) + " " + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
@@ -430,7 +422,7 @@ void		IrcServer::show_global_server()
 	std::cout << "password";
 	std::cout.width(5);
 	std::cout << "hop";
-	std::cout.width(10);
+	std::cout.width(20);
 	std::cout << "info\n";
 
 	std::map<std::string, Server *>::iterator	iter = _global_server.begin();
@@ -450,7 +442,7 @@ void		IrcServer::show_global_server()
 		std::cout.width(5);
 		std::cout << server->get_hopcount();
 		
-		std::cout.width(10);
+		std::cout.width(20);
 		std::cout << server->get_info();
 		std::cout << "\n";
 		iter++;
@@ -572,3 +564,22 @@ bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 
 time_t		IrcServer::get_start_time()
 { return (_start_time); }
+
+void		IrcServer::run_command(const std::string &str)
+{
+	Message		msg(str.c_str());
+	Command		*cmd;
+
+	msg.set_source_fd(_current_sock->get_fd());
+	cmd = _cmd_creator.get_command(msg.get_command());
+	if (cmd)
+	{
+		cmd->set_message(msg);
+		cmd->execute(*this);
+		cmd->set_message(NULL);
+		show_fd_map();
+		show_global_server();
+		show_global_user();
+		show_global_channel();
+	}
+}
