@@ -89,7 +89,7 @@ std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(Ir
 	while (first != last)
 	{
 		Member *			member = first->second;
-		std::set<Channel *>	joinned_channels = member->get_joinned_channels();
+		std::set<Channel *>	joinned_channels = member->get_joined_channels();
 		if (joinned_channels.empty())
 		{
 			ret.push_back(member->get_nick());

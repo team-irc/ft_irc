@@ -70,6 +70,7 @@ public:
 	void						send_msg_server(int fd, const char *msg);
 	
 	void						add_channel(std::string &channel_name, Channel *channel);
+	void						delete_channel(const std::string &channel_name);
 	Channel						*get_channel(std::string channel_name);
 
 	

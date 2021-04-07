@@ -1,6 +1,25 @@
 #include "QuitCommand.hpp"
 #include "ft_irc.hpp"
 
+static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
+{
+	std::set<Channel *>::iterator	channel_iter;
+	Channel		*channel;
+
+	channel_iter = member->get_joined_channels().begin();
+	while (channel_iter != member->get_joined_channels().end())
+	{
+		channel = (*channel_iter);
+		channel->delete_member(member); // 채널의 멤버 목록에서 제거
+		if (channel->get_members().empty()) 
+		{
+			irc.delete_channel(channel->get_name()); // _global_channel에서 제거
+			delete channel; // 채널 인스턴스 제거
+		}
+		++channel_iter;
+	}
+}
+
 void	QuitCommand::run(IrcServer &irc)
 {
 	Socket		*socket;
@@ -12,6 +31,7 @@ void	QuitCommand::run(IrcServer &irc)
 		member = irc.find_member(socket->get_fd()); // 1. 멤버를 찾는다.
 		_msg.set_prefix(member->get_nick()); // 2. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
 		irc.delete_member(member->get_nick()); // 3. 멤버를 _global_user에서 지운다.
+		quit_from_joined_channel(irc, member);
 		delete member;							// 멤버 인스턴스 삭제; 채널나가기
 		irc.get_socket_set().remove_socket(socket);	// 소켓을 _global_socket에서 지운다.
 		delete socket;// 4. 소켓 인스턴스 제거; close
@@ -21,6 +41,8 @@ void	QuitCommand::run(IrcServer &irc)
 	{
 		member = irc.get_member(_msg.get_prefix()); // 1. prefix로 멤버를 찾는다.
 		irc.delete_member(member->get_nick()); // 2. 멤버를 _global_user에서 지운다.
+		member->get_joined_channels().begin();
+		quit_from_joined_channel(irc, member);
 		delete member;
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 3. 다른서버에도 메세지를 보낸다.
 		// 소켓을 제거하지는 않는다. 서버에서 전송된 메세지이므로
@@ -31,6 +53,7 @@ void	QuitCommand::run(IrcServer &irc)
 		if (member)
 		{
 			irc.delete_member(member->get_nick()); // 2. 멤버를 _global_user에서 지운다.
+			quit_from_joined_channel(irc, member);
 			delete member; //멤버 인스턴스를 제거
 		}
 		irc.get_socket_set().remove_socket(socket); // _fd_map에서 제거
