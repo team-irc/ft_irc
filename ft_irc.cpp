@@ -18,7 +18,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->listen();
 		_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
 		_fd_map.insert(std::pair<std::string, int>(_si.SERVER_NAME, _listen_socket->get_fd()));
-		add_server(_si.SERVER_NAME, "0", _si.VERSION, _listen_socket);
+		add_server(_si.SERVER_NAME, "0", ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
 	}
@@ -45,7 +45,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 이 시점에서 PASS 보내고
 	std::string		msg = "PASS " + new_socket->get_pass() + "\n";
 	new_socket->write(msg.c_str());
-	msg = "SERVER " + _si.SERVER_NAME + " 0 :info\n";
+	msg = "SERVER " + _si.SERVER_NAME + " 1 :" + _si.VERSION + "\n";
 	new_socket->write(msg.c_str());
 
 	// 서버 내부 map에 있는 데이터를 send_msg로 전송해야 함
