@@ -67,7 +67,7 @@ void	UserCommand::run(IrcServer &irc)
 	if (sock->get_type() == UNKNOWN)
 	{
 		member = irc.find_member(irc.get_current_socket()->get_fd());
-		_msg.set_param_at(1, "121.135.181.42");
+		_msg.set_param_at(1, sock->get_hostname());
 		_msg.set_param_at(2, irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_name());
 		if (member) // NICK이 먼저 들어온 경우
 			insert_info(member, irc);	

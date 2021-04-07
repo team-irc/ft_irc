@@ -36,40 +36,61 @@
 
 void	NamesCommand::run(IrcServer &irc)
 {
-	Socket							*socket;
-	Channel							*channel;
-	Member							*current_user;
-	std::string						ret;
-
-	socket = irc.get_current_socket();
-	current_user = irc.find_member(socket->get_fd());
-	if (socket->get_type() == UNKNOWN)
-		return ;
 	if (_msg.get_param_size() == 0)
 	{
-		std::map<std::string, Channel *>::iterator first = irc.get_global_channel().begin();
-		std::map<std::string, Channel *>::iterator last = irc.get_global_channel().end();
-
-		while (first != last)
-		{
-			channel = first->second;
-
-			if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
-				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
-			++first;
-		}
-		if (!((get_user_list_who_not_join_any_channel(irc)).empty()))
-			socket->write(Reply(RPL::NAMREPLY(), "*", get_user_list_who_not_join_any_channel(irc)).get_msg().c_str());
-		socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
+		reply_all_channel(irc);
 	}
 	else
 	{
-		if (!(channel = irc.get_channel(_msg.get_param(0))))
-			return ; // no error reply for NamesCommand
-		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
-			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
-		socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
+		reply_specific_channel(irc);
 	}
+}
+
+void	NamesCommand::reply_all_channel(IrcServer & irc)
+{
+	Socket										*socket = irc.get_current_socket();
+	std::map<std::string, Channel *>::iterator	first = irc.get_global_channel().begin();
+	std::map<std::string, Channel *>::iterator	last = irc.get_global_channel().end();
+	Member										*user = irc.find_member(socket->get_fd());
+	Channel										*channel;
+
+	if (socket->get_type() == UNKNOWN)
+		return ;
+	while (first != last)
+	{
+		channel = first->second;
+		if (channel->check_mode('p', false) || channel->check_mode('s', false))
+		{
+			if (channel->find_member(user))
+				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
+		}
+		else
+			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
+		++first;
+	}
+	if (!((get_user_list_who_not_join_any_channel(irc)).empty()))
+		socket->write(Reply(RPL::NAMREPLY(), "*", get_user_list_who_not_join_any_channel(irc)).get_msg().c_str());
+	socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
+}
+
+void	NamesCommand::reply_specific_channel(IrcServer &irc)
+{
+	Socket	*socket;
+	Channel	*channel;
+	Member	*user;
+
+	socket = irc.get_current_socket();
+	user = irc.find_member(socket->get_fd());
+	if (!(channel = irc.get_channel(_msg.get_param(0))))
+		return ; // no error reply for NamesCommand
+	if (channel->check_mode('p', false) || channel->check_mode('s', false))
+	{
+		if (channel->find_member(user))
+			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
+	}
+	else
+		socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
+	socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
 }
 
 NamesCommand::NamesCommand(): Command()
@@ -92,7 +113,8 @@ std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(Ir
 		std::set<Channel *>	joinned_channels = member->get_joined_channels();
 		if (joinned_channels.empty())
 		{
-			ret.push_back(member->get_nick());
+			if (member->check_mode('i', true))
+				ret.push_back(member->get_nick());
 		}
 		++first;
 	}

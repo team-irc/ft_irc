@@ -43,6 +43,7 @@ public:
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;
+	const char			*get_hostname() const;
 	void				set_type(SOCKET_TYPE type);
 	SOCKET_TYPE			get_type() const;
 	const char			*show_type() const;

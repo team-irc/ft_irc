@@ -81,7 +81,7 @@ std::vector<std::string> Channel::get_member_list()
 	last = _member.end();
 	while (first != last)
 	{
-		ret.push_back((*first)._member->get_nick());
+		ret.push_back(first->_is_operator == true ? "@" : "" + (*first)._member->get_nick());
 		++first;
 	}
 	return (ret);
