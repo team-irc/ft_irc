@@ -98,7 +98,7 @@ std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *conne
 	return (std::make_pair(host, string_password_network));
 };
 
-//00110110 01111101 01000000 00100010
+//110110011111010100000000100010
 //54 125 64 34
 
 // 127.0.0.1:port:pass
@@ -163,6 +163,9 @@ unsigned short	Socket::get_port() const
 {
 	return (ntohs(_addr.sin_port));
 }
+
+const char			*Socket::get_hostname() const
+{ return (inet_ntoa(_addr.sin_addr)); }
 
 std::string const	&Socket::get_pass() const
 { return (_pass); }
