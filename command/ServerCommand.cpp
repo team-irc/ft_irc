@@ -63,7 +63,7 @@ void	ServerCommand::run(IrcServer &irc)
 		}
 		else if (irc.check_pass(socket))
 		{
-			_msg.set_prefix(_msg.get_param(0));
+			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			// hopcount 1, 다른 서버에 전송하려면 +1 해야 함
 			
 			ss.change_socket_type(_msg.get_source_fd(), SERVER); // 3. 소켓 타입 변경
@@ -73,6 +73,8 @@ void	ServerCommand::run(IrcServer &irc)
 			int hopcount = ft::atoi(_msg.get_param(1).c_str());
 			hopcount++;
 			_msg.set_param_at(1, std::to_string(hopcount));
+			_msg.set_param_at(3, _msg.get_param(2));
+			_msg.set_param_at(2, std::to_string(socket->get_fd()));
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 7. 다른 서버에 메세지 전파
 		}
 		else
@@ -86,6 +88,7 @@ void	ServerCommand::run(IrcServer &irc)
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
 		_msg.set_param_at(1, std::to_string(hopcount));
+		
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 }
