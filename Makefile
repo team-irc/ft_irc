@@ -43,6 +43,7 @@ SRC = \
 	command/AdminCommand.cpp	\
 	command/RehashCommand.cpp	\
 	command/PingCommand.cpp		\
+	command/WhoQuery.cpp		\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
@@ -60,10 +61,16 @@ sanitize : $(SRCS)
 
 all : $(NAME)
 
+chatbot :
+	$(CC) chatbot.cpp $(CFLAGS) -o chatbot -g
+
 # clean :
 # 		rm -f $(OBJS)
 
 fclean :
 	rm -f $(NAME)
+	rm -rf server.dSYM
+	rm -f chatbot
+	rm -rf chatbot.dSYM
 
 re : fclean all

@@ -1,5 +1,6 @@
 #include "Reply.hpp"
 #include "Member.hpp"
+#include "Server.hpp"
 
 Reply::Reply()
 {
@@ -511,6 +512,21 @@ Reply::Reply(RPL::REHASHING rpl, const std::string &config_file)
 	_errnum = std::to_string(rpl.ERRNO);
 	// "<config file> :Rehashing"
 	_msg = config_file + " :Rehashing";
+}
+
+Reply::Reply(RPL::WHOREPLY rpl, Member * member, Server * server)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	//"<channel> <user> <host> <server> <nick> <H|G>[*][@|+] :<hopcount> <real name>"
+	_msg = member->get_username() + ' ' + member->get_hostname() + ' ' + member->get_servername() + ' ' + \
+		member->get_nick() + " :" + std::to_string(server->get_hopcount()) + ' ' + member->get_realname();
+}
+
+Reply::Reply(RPL::ENDOFWHO rpl, const std::string & name)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<name> :End of /WHO list"
+	_msg = name + " :End of /WHO list";
 }
 
 // STATS
