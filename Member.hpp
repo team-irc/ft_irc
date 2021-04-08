@@ -29,6 +29,7 @@ private:
 	// mode w: user receives wallops;
 	// mode o: operator flag;
 	char			_mode;
+	std::string		_mode_str;
 	// mode o의 경우는 해당 채널에 있는 유저만 지정할 수 있음
 	// mode o는 설정되더라도 :irc.example.net 379 test test :is using modes + 해당 위치에 나타나지 않음
 	// 하나의 유저가 여러 서버를 가질 수 있음
@@ -56,6 +57,7 @@ public:
 	Socket				*get_socket();
 	void				set_socket(Socket *socket);
 	char				get_mode();
+	std::string const	&get_mode_str();
 	void				set_mode(char mode);
 	const std::string	&get_away();
 	void				set_away(const std::string &away);

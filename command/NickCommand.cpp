@@ -61,10 +61,19 @@
 	:WiZ NICK Kilroy                ; WiZ changed his nickname to Kilroy.
 */
 
-/*
-Command: NICK
-Parameters: <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
-*/
+static std::string get_servername(Socket *socket, IrcServer &irc)
+{
+	std::map<std::string, Server *>::iterator	begin = irc.get_global_server().begin();
+	std::map<std::string, Server *>::iterator	end = irc.get_global_server().end();
+
+	while (begin != end)
+	{
+		if (begin->second->get_socket() == socket)
+			return (begin->first);
+		begin++;
+	}
+	return (NULL);
+}
 
 void	NickCommand::run(IrcServer &irc)
 {
@@ -93,7 +102,7 @@ void	NickCommand::run(IrcServer &irc)
 		_msg.set_param_at(1, "1"); // 2. 다른서버로 전송
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
-	if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
+	else if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
 	{
 		nickname = _msg.get_param(0);
 		member = irc.get_member(nickname);
@@ -116,6 +125,13 @@ void	NickCommand::run(IrcServer &irc)
 				// global_map에 nick으로 새롭게 추가함
 				irc.add_member(nickname, member);
 				socket->set_type(CLIENT); // 1. 소켓타입 변경
+				// RFC 2813
+				_msg.set_param_at(2, member->get_username());
+				_msg.set_param_at(3, member->get_hostname());
+				_msg.set_param_at(4, std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
+				_msg.set_param_at(5, member->get_mode_str());
+				_msg.set_param_at(6, member->get_realname());
+
 				irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 2. nick 메세지 전송
 				// 3. USER 메세지 전송
 				std::string		str;
@@ -158,6 +174,12 @@ void	NickCommand::run(IrcServer &irc)
 			member->set_fd(socket->get_fd());
 			member->set_socket(irc.get_current_socket());
 			irc.add_member(nickname, member);
+			if (_msg.get_param_size() == 7)
+			{
+				std::string server_name = get_servername(socket, irc);
+				if (!server_name.empty())
+					_msg.set_param_at(4, std::to_string(irc.get_server(server_name)->get_token()));
+			}
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
 		else

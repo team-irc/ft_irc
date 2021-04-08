@@ -17,7 +17,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->listen();
 		if (_si.SERVER_NAME == "${AUTO}")
 			_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
-		add_server(_si.SERVER_NAME, "0", ":" + _si.VERSION, _listen_socket);
+		add_server(_si.SERVER_NAME, "0", get_server_token(), ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
 	}
@@ -347,11 +347,11 @@ void		IrcServer::send_user_data(int fd)
 	}
 }
 
-bool		IrcServer::add_server(const std::string &server_name, const std::string &hopcount, const std::string &info, Socket *socket)
+bool		IrcServer::add_server(const std::string &server_name, const std::string &hopcount, int token, const std::string &info, Socket *socket)
 {
 	Server	*new_server;
 
-	new_server = new Server(server_name, hopcount, info);
+	new_server = new Server(server_name, hopcount, token, info);
 	new_server->set_socket(socket);
 	if (_global_server.insert(std::pair<std::string, Server *>(server_name, new_server)).second == false)
 	{
@@ -514,6 +514,25 @@ void		IrcServer::show_global_channel()
 	}
 	std::cout << "====================================================\n";
 	return ;
+}
+
+int			IrcServer::get_server_token()
+{
+	std::map<std::string, Server *>::iterator	begin = _global_server.begin();
+	std::map<std::string, Server *>::iterator	end = _global_server.end();
+	int											token = 2;
+
+	while (begin!= end)
+	{
+		if (token == begin->second->get_token())
+		{
+			begin = _global_server.begin();
+			token++;
+		}
+		else
+			begin++;
+	}
+	return (token);
 }
 
 // void				IrcServer::sigint_handler(int type)
