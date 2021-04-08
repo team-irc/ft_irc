@@ -40,7 +40,7 @@ void		PingCommand::run(IrcServer &irc)
 			if (param.at(0) == ':')
 				param.substr(1);
 			std::string	msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG " +
-				irc.get_serverinfo().SERVER_NAME + " :" + param;
+				irc.get_serverinfo().SERVER_NAME + " :" + param + "\n";
 			socket->write(msg.c_str());
 		}
 		else
@@ -79,17 +79,10 @@ void		PingCommand::run(IrcServer &irc)
 		// :prefix PING server1 :server2 형태
 		else if (irc.get_serverinfo().SERVER_NAME == servername)
 		{
-			// server2가 자신의 서버라면 연결된 클라이언트들에 PING 메시지 전송
-			std::vector<Socket *> sockets = irc.get_socket_set().get_connect_sockets();
-			std::vector<Socket *>::iterator	begin = sockets.begin();
-			std::vector<Socket *>::iterator	end = sockets.end();
-
-			while (begin != end)
-			{
-				if ((*begin)->get_type() == CLIENT)
-					(*begin)->write(_msg.get_msg());
-				begin++;
-			}
+			// server2가 자신의 서버라면 해당 ping 메시지를 보낸 서버로 pong 메시지 전송
+			std::string		pong_msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG " +
+				_msg.get_prefix() + " :" + _msg.get_param(0) + "\n";
+			irc.get_socket_set().find_socket(_msg.get_source_fd())->write(pong_msg.c_str());
 		}
 		else
 			irc.get_server(servername)->get_socket()->write(_msg.get_msg());
