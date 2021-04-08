@@ -55,6 +55,7 @@
                         "H.S. <class> <server>"
         203     RPL_TRACEUNKNOWN
                         "???? <class> [<client IP address in dot form>]"
+
         204     RPL_TRACEOPERATOR
                         "Oper <class> <nick>"
         205     RPL_TRACEUSER
@@ -82,23 +83,114 @@ TRACE 명령은 특정 서버에 대한 경로를 찾는 데 사용됩니다.
 TRACE 메시지가 다른 서버로 향하는 경우 모든 중간 서버는 TRACE가 통과하고 다음으로 이동할 위치를 나타내는 RPL_TRACELINK 응답을 반환해야합니다.
 */
 
+static int		get_server_count(std::map<std::string, Server *> &gs) // 직접 연결된 서버갯수 반환
+{
+	int		cnt;
+	Server		*server;
+	std::map<std::string, Server *>::iterator		iter;
+
+	cnt = 0;
+	iter = gs.begin();
+	while (iter != gs.end())
+	{
+		server = iter->second;
+		if (server->get_hopcount() == 1)
+			cnt++;
+		iter++;
+	}
+	return (cnt);
+}
+
+static int		get_client_count(std::map<std::string, Member *> &gm) // 직접 연결된 클라이언트갯수 반환
+{
+	int			cnt;
+	Member		*member;
+	std::map<std::string, Member *>::iterator		iter;
+
+	cnt = 0;
+	iter = gm.begin();
+	while (iter != gm.end())
+	{
+		member = iter->second;
+		if (member->get_socket()->get_type() == CLIENT)
+			cnt++;
+		iter++;
+	}
+	return (cnt);
+}
+
+static Server	*find_next_server(IrcServer &irc, std::string const &target_server)
+{
+	std::map<std::string, Server *>::iterator	iter;
+	std::map<std::string, Server *>::iterator	end;
+	Server										*server;
+	int		target_fd = irc.find_server_fd(target_server);
+
+	iter = irc.get_global_server().begin();
+	end = irc.get_global_server().end();
+	while (iter != end)
+	{
+		server = iter->second;
+		if (target_fd == server->get_socket()->get_fd() && server->get_hopcount() == 1)
+			return (server);
+		iter++;
+	}
+}
+
 void	TraceCommand::run(IrcServer &irc)
 {
 	Socket		*socket;
 	Member		*member;
+	Server		*server;
+	std::string		target_server_name;
+
+	std::map<std::string, Server *>::iterator	iter;
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() > 1)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
-		if (_msg.get_param_size() == 0)
+		if (_msg.get_param_size() == 0) // 직접 연결되어 있는 서버를 알려줌
 		{
-			socket->write(Reply(RPL::TRACE))
+			iter = irc.get_global_server().begin();
+			while (iter != irc.get_global_server().end())
+			{
+				server = iter->second;
+				if (server->get_hopcount() == 1) // 홉카운트가 1이면 직접 연결되어 있는것
+				{
+					socket->write(Reply(RPL::TRACESERVER(), "class", get_server_count(irc.get_global_server()), get_client_count(irc.get_global_user()),
+									server->get_name(), "nick", "user", "host").get_msg().c_str());
+				}
+				iter++;
+			}
+			// socket->write(Reply(RPL::ENDOFTRACE))
+		}
+		else // "<server>"가 지정한 대상이 실제 서버 인 경우 대상 서버는 연결된 모든 서버 및 사용자를보고해야합니다.
+		{
+			member = irc.find_member(socket->get_fd());
+			_msg.set_prefix(member->get_nick());
+			target_server_name = _msg.get_param(0);
+			server = irc.get_server(target_server_name);
+			if (!server)
+				throw (Reply(ERR::NOSUCHSERVER(), target_server_name));
+			server->get_socket()->write(_msg.get_msg());
 		}
 	}
 	else if (socket->get_type() == SERVER)
 	{
+		target_server_name = _msg.get_param(0);
+		if (target_server_name == irc.get_serverinfo().SERVER_NAME)
+		{
+
+		}
+		else
+		{
+			server = irc.get_server(target_server_name);
+			server->get_socket()->write(_msg.get_msg());
+			socket->write(Reply(RPL::TRACELINK(), irc.get_serverinfo().VERSION, target_server_name, find_next_server()->get_name()));
+			
+		}
 	}
 	else
 	{
