@@ -1,5 +1,6 @@
 #include "Reply.hpp"
 #include "Member.hpp"
+#include "Server.hpp"
 
 Reply::Reply()
 {
@@ -513,6 +514,21 @@ Reply::Reply(RPL::REHASHING rpl, const std::string &config_file)
 	_msg = config_file + " :Rehashing";
 }
 
+Reply::Reply(RPL::WHOREPLY rpl, Member * member, Server * server)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	//"<channel> <user> <host> <server> <nick> <H|G>[*][@|+] :<hopcount> <real name>"
+	_msg = member->get_username() + ' ' + member->get_hostname() + ' ' + member->get_servername() + ' ' + \
+		member->get_nick() + " :" + std::to_string(server->get_hopcount()) + ' ' + member->get_realname();
+}
+
+Reply::Reply(RPL::ENDOFWHO rpl, const std::string & name)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<name> :End of /WHO list"
+	_msg = name + " :End of /WHO list";
+}
+
 // STATS
 
 Reply::Reply(RPL::STATSUPTIME time, const std::string &val)
@@ -547,7 +563,70 @@ Reply::Reply(RPL::ADMINEMAIL admail, const std::string &info)
 	_msg = ":" + info;
 }
 
+// TRACE
 
+Reply::Reply(RPL::TRACELINK rpl, const std::string &version, const std::string &dest, const std::string &next_server)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "Link " + version + " " + dest + " " + next_server;
+}
+
+Reply::Reply(RPL::TRACECONNECTING rpl, const std::string &class_str, const std::string &server)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "Try. " + class_str + " " + server;
+}
+
+Reply::Reply(RPL::TRACEHANDSHAKE rpl, const std::string &class_str, const std::string &server)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "H.S. " + class_str + " " + server;
+}
+
+Reply::Reply(RPL::TRACEUNKNOWN rpl, const std::string &class_str, const std::string &client_ip)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "??? " + class_str + " " + client_ip;
+}
+
+Reply::Reply(RPL::TRACEOPERATOR rpl, const std::string &class_str, const std::string &nickname)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "Oper " + class_str + " " + nickname;
+}
+
+Reply::Reply(RPL::TRACEUSER rpl, const std::string &class_str, const std::string &nickname)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "User " + class_str + " " + nickname;
+}
+
+Reply::Reply(RPL::TRACESERVER rpl, const std::string &class_str, int s, int c, 
+			const std::string &server, const std::string &nick, const std::string &user, const std::string &host)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "Serv " + class_str + " " + std::to_string(s) + "S " + std::to_string(c) + "C " + server;
+	_msg += nick.empty() ? "*" : nick;
+	_msg += "!";
+	_msg += user.empty() ? "*" : user;
+	_msg += "@";
+	if (host.empty())
+		_msg += server;
+	else
+		_msg += host;
+}
+
+Reply::Reply(RPL::TRACENEWTYPE rpl, const std::string &newtype, const std::string &client_name)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = newtype + " 0 " + client_name;
+}
+
+Reply::Reply(RPL::TRACELOG rpl, const std::string &logfile, const std::string &debug_level)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	_msg = "File " + logfile + " " + debug_level;
+}
 
 void		Reply::set_username(std::string const &username)
 {

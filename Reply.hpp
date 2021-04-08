@@ -7,6 +7,7 @@
 # include <string>
 
 class Member;
+class Server;
 
 // prefix replies(numeric) nick [error] <msg>
 // error는 해당 에러를 발생하는 문자열(ex. No such nick or channel의 경우엔 nick이나 channel의 이름)
@@ -212,6 +213,8 @@ public:
 	explicit Reply(RPL::ENDOFINFO);
 	explicit Reply(RPL::TIME, const std::string &, const std::string &);
 	explicit Reply(RPL::REHASHING, const std::string &);
+	explicit Reply(RPL::WHOREPLY, Member *, Server *);
+	explicit Reply(RPL::ENDOFWHO, const std::string &);
 	// STATS
 	explicit Reply(RPL::STATSUPTIME, const std::string &);
 	// ADMIN
@@ -219,11 +222,22 @@ public:
 	explicit Reply(RPL::ADMINLOC1, const std::string &);
 	explicit Reply(RPL::ADMINLOC2, const std::string &);
 	explicit Reply(RPL::ADMINEMAIL, const std::string &);
+	//TRACE
+	explicit Reply(RPL::TRACELINK, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACECONNECTING, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACEHANDSHAKE, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACEUNKNOWN, const std::string &, const std::string &);
+
+	explicit Reply(RPL::TRACEOPERATOR, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACEUSER, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACESERVER, const std::string &, int, int, const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACENEWTYPE, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACELOG, const std::string &, const std::string &);
 public:
 	~Reply();
 	Reply();
 public:
-	std::string get_msg() const;
+	std::string		get_msg() const;
 	static void		set_username(std::string const &username);
 	static void		set_servername(std::string const &servername);
 };
