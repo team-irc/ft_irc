@@ -135,6 +135,25 @@ static Server	*find_next_server(IrcServer &irc, std::string const &target_server
 			return (server);
 		iter++;
 	}
+	return (0);
+}
+
+static void		send_connected_server_to_socket(IrcServer &irc, Socket *socket)
+{
+	std::map<std::string, Server *>::iterator	iter;
+	Server	*server;
+
+	iter = irc.get_global_server().begin();
+	while (iter != irc.get_global_server().end())
+	{
+		server = iter->second;
+		if (server->get_hopcount() == 1) // 홉카운트가 1이면 직접 연결되어 있는것
+		{
+			socket->write(Reply(RPL::TRACESERVER(), "class", get_server_count(irc.get_global_server()), get_client_count(irc.get_global_user()),
+							server->get_name(), "nick", "user", "host").get_msg().c_str());
+		}
+		iter++;
+	}
 }
 
 void	TraceCommand::run(IrcServer &irc)
@@ -144,7 +163,7 @@ void	TraceCommand::run(IrcServer &irc)
 	Server		*server;
 	std::string		target_server_name;
 
-	std::map<std::string, Server *>::iterator	iter;
+	
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
@@ -152,20 +171,7 @@ void	TraceCommand::run(IrcServer &irc)
 		if (_msg.get_param_size() > 1)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		if (_msg.get_param_size() == 0) // 직접 연결되어 있는 서버를 알려줌
-		{
-			iter = irc.get_global_server().begin();
-			while (iter != irc.get_global_server().end())
-			{
-				server = iter->second;
-				if (server->get_hopcount() == 1) // 홉카운트가 1이면 직접 연결되어 있는것
-				{
-					socket->write(Reply(RPL::TRACESERVER(), "class", get_server_count(irc.get_global_server()), get_client_count(irc.get_global_user()),
-									server->get_name(), "nick", "user", "host").get_msg().c_str());
-				}
-				iter++;
-			}
-			// socket->write(Reply(RPL::ENDOFTRACE))
-		}
+			send_connected_server_to_socket(irc, socket);
 		else // "<server>"가 지정한 대상이 실제 서버 인 경우 대상 서버는 연결된 모든 서버 및 사용자를보고해야합니다.
 		{
 			member = irc.find_member(socket->get_fd());
@@ -181,15 +187,12 @@ void	TraceCommand::run(IrcServer &irc)
 	{
 		target_server_name = _msg.get_param(0);
 		if (target_server_name == irc.get_serverinfo().SERVER_NAME)
-		{
-
-		}
+			send_connected_server_to_socket(irc, socket);
 		else
 		{
 			server = irc.get_server(target_server_name);
 			server->get_socket()->write(_msg.get_msg());
-			socket->write(Reply(RPL::TRACELINK(), irc.get_serverinfo().VERSION, target_server_name, find_next_server()->get_name()));
-			
+			socket->write(Reply(RPL::TRACELINK(), irc.get_serverinfo().VERSION, target_server_name, find_next_server(irc, target_server_name)->get_name()).get_msg().c_str());
 		}
 	}
 	else

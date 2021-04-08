@@ -26,6 +26,7 @@
 #include "AdminCommand.hpp"
 #include "RehashCommand.hpp"
 #include "PingCommand.hpp"
+#include "TraceCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -57,6 +58,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("ADMIN", new AdminCommand()));
 	_map.insert(std::pair<std::string, Command *>("REHASH", new RehashCommand()));
 	_map.insert(std::pair<std::string, Command *>("PING", new PingCommand()));
+	_map.insert(std::pair<std::string, Command *>("TRACE", new TraceCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
