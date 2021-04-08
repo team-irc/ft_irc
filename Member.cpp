@@ -112,6 +112,20 @@ bool				Member::check_mode(char mode, bool is_set)
 }
 
 char				Member::get_mode() { return (_mode); }
+std::string const	&Member::get_mode_str()
+{
+	_mode_str = "+";
+	if (check_mode('i', false))
+		_mode_str += "i";
+	if (check_mode('s', false))
+		_mode_str += "s";
+	if (check_mode('w', false))
+		_mode_str += "w";
+	if (check_mode('o', false))
+		_mode_str += "o";
+	return (_mode_str);
+}
+
 void				Member::set_mode(char mode) { _mode = mode; }
 Socket				*Member::get_socket() { return (_socket); }
 void				Member::set_socket(Socket *socket) { _socket = socket; }
