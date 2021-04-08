@@ -529,6 +529,13 @@ Reply::Reply(RPL::ENDOFWHO rpl, const std::string & name)
 	_msg = name + " :End of /WHO list";
 }
 
+Reply::Reply(RPL::WHOISUSER rpl, Member * member)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> <user> <host> * :<real name>"
+	_msg = member->get_nick() + ' ' + member->get_username() + ' ' + member->get_hostname() + " * :" + member->get_realname();
+}
+
 // STATS
 
 Reply::Reply(RPL::STATSUPTIME time, const std::string &val)

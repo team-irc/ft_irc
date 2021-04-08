@@ -10,7 +10,6 @@ struct ServerInfo
 	std::string	ADMININFO1;
 	std::string	ADMININFO2;
 	std::string	ADMINEMAIL;
-	std::string INFO;
 };
 
 #endif

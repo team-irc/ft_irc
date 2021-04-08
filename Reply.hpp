@@ -215,6 +215,7 @@ public:
 	explicit Reply(RPL::REHASHING, const std::string &);
 	explicit Reply(RPL::WHOREPLY, Member *, Server *);
 	explicit Reply(RPL::ENDOFWHO, const std::string &);
+	explicit Reply(RPL::WHOISUSER, Member *);
 	// STATS
 	explicit Reply(RPL::STATSUPTIME, const std::string &);
 	// ADMIN
