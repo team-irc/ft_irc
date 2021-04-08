@@ -43,6 +43,7 @@ SRC = \
 	command/AdminCommand.cpp	\
 	command/RehashCommand.cpp	\
 	command/PingCommand.cpp		\
+	command/WhoQuery.cpp		\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
