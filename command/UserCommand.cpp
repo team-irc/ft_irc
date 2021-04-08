@@ -70,7 +70,7 @@ void	UserCommand::run(IrcServer &irc)
 		_msg.set_param_at(1, sock->get_hostname());
 		_msg.set_param_at(2, irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_name());
 		if (member) // NICK이 먼저 들어온 경우
-			insert_info(member, irc);	
+			insert_info(member, irc);
 		else
 		{
 			// fd가 키 값으로 map에 삽입됨, 전송은 하지 않음(nick이 없으므로), 전송은 NICK에서
@@ -104,7 +104,10 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		member->set_servername(_msg.get_param(2));
 		member->set_realname(_msg.get_param(3));
 		// NICK 메시지 전송
-		std::string msg = "NICK " + member->get_nick() + " 1\n";
+		std::string msg = "NICK " + member->get_nick() + " 1 " + member->get_username() + " " + member->get_hostname() + " " +
+			std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()) + " " + member->get_mode_str() + " " +
+			member->get_realname() + "\n";
+
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
 
 		// user 메시지 전송
