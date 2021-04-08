@@ -126,7 +126,7 @@ int main(int argc, char **argv)
 				unknown_command(sock, target, command);
 		}
 		if (message_type == "PING")
-			write(sock, "notice bot :i am alive\n", 11);
+			write(sock, "notice bot :i am alive\n", 23);
     }
 	close(sock);
 	return (0);
