@@ -47,6 +47,8 @@ void	ReadConf::read_config(ServerInfo & si)
             si.OPERNAME = value;
         else if (key == "OPERPWD")
             si.OPERPWD = value;
+        else if (key == "INFO")
+            si.INFO = value;
         else
             throw (Error("CONFIG ERROR in line number " + std::to_string(line_number)));
         delete[] split_ret;
