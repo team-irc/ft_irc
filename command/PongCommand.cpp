@@ -37,8 +37,9 @@ void			PongCommand::run(IrcServer &irc)
 		else
 		{
 			// 목적지가 설정된 경우, 해당 서버로 명령어 전달
-			Server	*server;
-			if ((server == irc.get_server(_msg.get_param(1))) == 0)
+			Server	*server = irc.get_server(_msg.get_param(1));
+			Member	*member = irc.get_member(_msg.get_param(1));
+			if ((server == 0) && (member == 0))
 				throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(1)));
 			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			server->get_socket()->write(_msg.get_msg());
@@ -59,6 +60,16 @@ void			PongCommand::run(IrcServer &irc)
 			//
 		}
 		else
-			irc.get_server(servername)->get_socket()->write(_msg.get_msg());
+		{
+			Server *server = irc.get_server(servername);
+			Member *member = irc.get_member(servername);
+			if (server)
+				server->get_socket()->write(_msg.get_msg());
+			else
+			{
+				
+			}
+			
+		}
 	}
 }

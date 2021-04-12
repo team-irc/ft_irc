@@ -51,7 +51,7 @@ void		PingCommand::run(IrcServer &irc)
 			Server	*server;
 			if ((server = irc.get_server(_msg.get_param(1))) == 0)
 				throw(Reply(ERR::NOSUCHSERVER(), _msg.get_param(1)));
-			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
+			_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick());
 			server->get_socket()->write(_msg.get_msg());
 		}
 	}
@@ -61,27 +61,16 @@ void		PingCommand::run(IrcServer &irc)
 
 		if (servername.at(0) == ':')
 			servername = servername.substr(1);
-		if (_msg.get_param_size() == 1)
+		if ((_msg.get_param_size() == 1) ||
+			(irc.get_serverinfo().SERVER_NAME == servername))
 		{
-			//자신에게 연결된 클라이언트에게 저 메시지를 전송하면 됨
-			std::vector<Socket *> sockets = irc.get_socket_set().get_connect_sockets();
-			std::vector<Socket *>::iterator	begin = sockets.begin();
-			std::vector<Socket *>::iterator	end = sockets.end();
-
-			while (begin != end)
-			{
-				if ((*begin)->get_type() == CLIENT)
-					(*begin)->write(_msg.get_msg());
-				begin++;
-			}
-		}
-		// 아니면 해당 서버가 받을 수 있도록 전송
-		// :prefix PING server1 :server2 형태
-		else if (irc.get_serverinfo().SERVER_NAME == servername)
-		{
-			// server2가 자신의 서버라면 해당 ping 메시지를 보낸 서버로 pong 메시지 전송
+			// 다른 서버로 전송 할 필요 없음
 			std::string		pong_msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG " +
-				_msg.get_prefix() + " :" + _msg.get_param(0) + "\n";
+				_msg.get_prefix();
+			if (_msg.get_param(0).at(0) == ':')
+				pong_msg += " " + _msg.get_param(0) + "\n";
+			else
+				pong_msg += " :" + _msg.get_param(0) + "\n";
 			irc.get_socket_set().find_socket(_msg.get_source_fd())->write(pong_msg.c_str());
 		}
 		else
