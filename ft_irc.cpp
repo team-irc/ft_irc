@@ -339,8 +339,8 @@ void		IrcServer::send_user_data(int fd)
 		send_msg(fd, msg.c_str());
 		msg = ":" + begin->second->get_nick() + " USER " +
 			begin->second->get_username() + " " +
-			begin->second->get_servername() + " " +
 			begin->second->get_hostname() + " " +
+			begin->second->get_servername() + " " +
 			begin->second->get_realname() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
