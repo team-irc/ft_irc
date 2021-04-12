@@ -76,7 +76,7 @@ public:
 	void						delete_member(const std::string &nickname);
 	Member						*find_member(int fd);
 
-	bool						add_server(const std::string &server_name, const std::string &hopcount, const std::string &info, Socket *socket);
+	bool						add_server(const std::string &server_name, const std::string &hopcount, int token, const std::string &info, Socket *socket);
 	void						delete_server(const std::string &server_name);
 	Server						*get_server(const std::string &server_name);
 	int							find_server_fd(const std::string &server_name);
@@ -95,6 +95,9 @@ public:
 	
 	std::string			get_version();
 	std::string			get_debug_level();
+
+	int					get_server_token();
+
 	bool				check_oper(const std::string & id, const std::string & pwd);
 	
 private:

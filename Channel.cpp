@@ -8,13 +8,13 @@ Channel::Channel(const std::string channel_name, const std::string key, Member *
 };
 
 Channel::Channel(const std::string channel_name, Member *first_member)
-	: _name(channel_name), _topic(), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
+	: _name(channel_name), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
 	_member.push_back(ChanMember(first_member, false, true));
 };
 
-Channel::Channel(const Channel & other): _name(other._name), _member(other._member), _topic(other._topic), _limit(other._limit)
+Channel::Channel(const Channel & other): _name(other._name), _member(other._member), _topic(other._topic), _mode(other._mode), _limit(other._limit)
 {
 };
 
@@ -22,6 +22,7 @@ Channel & Channel::operator = (const Channel & other)
 {
 	if (this == &other) return (*this);
 	_member = other._member;
+	_mode = other._mode;
 	_topic = other._topic;
 	return (*this);
 };

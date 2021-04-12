@@ -61,6 +61,20 @@
 	:WiZ NICK Kilroy                ; WiZ changed his nickname to Kilroy.
 */
 
+static std::string get_servername(Socket *socket, IrcServer &irc)
+{
+	std::map<std::string, Server *>::iterator	begin = irc.get_global_server().begin();
+	std::map<std::string, Server *>::iterator	end = irc.get_global_server().end();
+
+	while (begin != end)
+	{
+		if (begin->second->get_socket() == socket)
+			return (begin->first);
+		begin++;
+	}
+	return (NULL);
+}
+
 void	NickCommand::run(IrcServer &irc)
 {
 	Socket		*socket;
@@ -71,14 +85,31 @@ void	NickCommand::run(IrcServer &irc)
 	if (_msg.get_param_size() <= 0)
 		throw (Reply(ERR::NONICKNAMEGIVEN()));
 	socket = irc.get_current_socket();
-	nickname = _msg.get_param(0);
-	member = irc.get_member(nickname);
-	if (!check_nick(nickname))
-		throw (Reply(ERR::ERRONEUSNICKNAME(), nickname));
-	if (member)
-		throw (Reply(ERR::NICKNAMEINUSE(), nickname));
-	if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
+	if (socket->get_type() == CLIENT)
 	{
+		nickname = _msg.get_param(0);
+		member = irc.get_member(nickname);
+		if (!check_nick(nickname))
+			throw (Reply(ERR::ERRONEUSNICKNAME(), nickname));
+		if (member)
+			throw (Reply(ERR::NICKNAMEINUSE(), nickname));
+		member = irc.get_member(socket->get_fd());
+		_msg.set_prefix(member->get_nick()); // 닉네임 변경 전, 이전 닉네임을 프리픽스에 추가.
+		irc.delete_member(member->get_nick());  // 2. global_user에서 삭제
+		member->set_nick(nickname); // 3. member 닉네임 변경
+		irc.add_member(nickname, member); // 4. global_user에 새로 추가 
+
+		_msg.set_param_at(1, "1"); // 2. 다른서버로 전송
+		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+	}
+	else if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
+	{
+		nickname = _msg.get_param(0);
+		member = irc.get_member(nickname);
+		if (!check_nick(nickname))
+			throw (Reply(ERR::ERRONEUSNICKNAME(), nickname));
+		if (member)
+			throw (Reply(ERR::NICKNAMEINUSE(), nickname));
 		member = irc.get_member(socket->get_fd());
 		_msg.set_param_at(1, "1");
 		// USER가 먼저 들어온 경우
@@ -94,17 +125,17 @@ void	NickCommand::run(IrcServer &irc)
 				// global_map에 nick으로 새롭게 추가함
 				irc.add_member(nickname, member);
 				socket->set_type(CLIENT); // 1. 소켓타입 변경
+				// RFC 2813
+				_msg.set_param_at(2, member->get_username());
+				_msg.set_param_at(3, member->get_hostname());
+				_msg.set_param_at(4, std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
+				_msg.set_param_at(5, member->get_mode_str());
+				_msg.set_param_at(6, member->get_realname());
+
 				irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 2. nick 메세지 전송
 				// 3. USER 메세지 전송
 				std::string		str;
-				str += "USER ";
-				str += member->get_username();
-				str += " ";
-				str += member->get_hostname();
-				str += " ";
-				str += member->get_servername();
-				str += " ";
-				str += member->get_realname();
+				str = "USER " +member->get_username() + " " + member->get_hostname() + " " + member->get_servername() + " " + member->get_realname();
 				Message		user_msg(str.c_str());
 				user_msg.set_prefix(nickname);
 				irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
@@ -128,20 +159,10 @@ void	NickCommand::run(IrcServer &irc)
 			irc.add_member(nickname, member);
 		}
 	}
-	else if (socket->get_type() == CLIENT) // 클라이언트에서 NICK 메세지가 온 경우(변경)
-	{
-		// nick 변경
-		member = irc.get_member(socket->get_fd());
-		_msg.set_prefix(member->get_nick()); // 닉네임 변경 전, 이전 닉네임을 프리픽스에 추가.
-		irc.delete_member(member->get_nick());  // 2. global_user에서 삭제
-		member->set_nick(nickname); // 3. member 닉네임 변경
-		irc.add_member(nickname, member); // 4. global_user에 새로 추가 
-
-		_msg.set_param_at(1, "1"); // 2. 다른서버로 전송
-		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
-	}
 	else if (socket->get_type() == SERVER) // 서버에서 온 경우 (추가 or 변경 : prefix 여부로 구분)
 	{
+		nickname = _msg.get_param(0);
+		member = irc.get_member(nickname);
 		hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
 		_msg.set_param_at(1, std::to_string(hopcount));
@@ -153,6 +174,12 @@ void	NickCommand::run(IrcServer &irc)
 			member->set_fd(socket->get_fd());
 			member->set_socket(irc.get_current_socket());
 			irc.add_member(nickname, member);
+			if (_msg.get_param_size() == 7)
+			{
+				std::string server_name = get_servername(socket, irc);
+				if (!server_name.empty())
+					_msg.set_param_at(4, std::to_string(irc.get_server(server_name)->get_token()));
+			}
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
 		else

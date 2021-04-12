@@ -11,11 +11,12 @@ private:
 	std::string		_info;
 	std::string		_name;
 	std::string		_password;
+	int				_token;
 	Socket			*_connected_socket;
 
 public:
 	Server();
-	Server(const std::string &server_name, const std::string &hopcount, const std::string &info);
+	Server(const std::string &server_name, const std::string &hopcount, int token, const std::string &info);
 	~Server();
 
 	int		get_hopcount();
@@ -29,6 +30,9 @@ public:
 
 	std::string		get_password();
 	void			set_password(std::string const &password);
+
+	int				get_token();
+	void			set_token(int token);
 
 	Socket		 	*get_socket();
 	void			set_socket(Socket *socket);
