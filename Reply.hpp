@@ -5,6 +5,7 @@
 # include <map>
 # include <vector>
 # include <string>
+# include <set>
 
 class Member;
 class Server;
@@ -223,7 +224,7 @@ public:
 	explicit Reply(RPL::WHOISOPERATOR, const std::string &);
 	explicit Reply(RPL::WHOISIDLE, const std::string &, int);
 	explicit Reply(RPL::ENDOFWHOIS, const std::string &);
-	explicit Reply(RPL::WHOISCHANNELS, Member *, Channel *);
+	explicit Reply(RPL::WHOISCHANNELS, Member *, std::set<Channel *> &);
 	// STATS
 	explicit Reply(RPL::STATSUPTIME, const std::string &);
 	// ADMIN
