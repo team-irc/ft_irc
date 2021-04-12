@@ -73,7 +73,7 @@ void WhoisQuery::run(IrcServer &irc, two _)
         {
             Member * current_member = first->second;
             Server * current_server = irc.get_server(current_member->get_servername());
-            if (ft::check_mask(current_member->get_nick(), nickmasks[i]) && current_member->get_servername() == current_server->get_name())
+            if (ft::check_mask(current_member->get_nick(), nickmasks[i]) && current_member->get_servername() == _msg.get_param(0))
             {
                 socket->write(Reply(RPL::WHOISUSER(), current_member));
                 socket->write(Reply(RPL::WHOISSERVER(), current_member->get_nick(), current_server));
