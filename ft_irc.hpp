@@ -47,6 +47,8 @@ private:
 	std::map<std::string, Server *>		_global_server;
 	std::map<std::string, Member *>		_global_user; // 전체 네트워크의 유저 닉네임, 전송하기 위한 fd 관리
 	std::map<std::string, Channel *>	_global_channel;
+	std::vector<Member>					_user_history;
+	// _user_history.insert(*member)
 
 	struct ServerInfo					_si;
 	// std::map<std::string, struct>
@@ -88,6 +90,7 @@ public:
 	std::map<std::string, Channel *>	&get_global_channel();
 	std::map<std::string, Member *>		&get_global_user();
 	std::map<std::string, Server *>		&get_global_server();
+	std::vector<Member>					&get_user_history();
 	bool				check_pass(Socket *currnet_socket);
 	struct ServerInfo	&get_serverinfo();
 	time_t				get_start_time();
