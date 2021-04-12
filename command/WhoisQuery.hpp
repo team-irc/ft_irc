@@ -1,5 +1,5 @@
 #ifndef WHOIS_QUERY_HPP
-# define WHOIS_QERU_HPP
+# define WHOIS_QUERY_HPP
 
 # include "Command.hpp"
 
@@ -10,6 +10,11 @@ public:
     ~WhoisQuery();
 public:
     void run(IrcServer &irc);
+private:
+    struct one {};
+    struct two {};
+    void run(IrcServer &irc, one);
+    void run(IrcServer &irc, two);
 };
 
 #endif

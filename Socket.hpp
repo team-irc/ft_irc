@@ -12,6 +12,8 @@
 # include "Error.hpp"
 # include "utils.hpp"
 
+class Reply;
+
 enum SOCKET_TYPE
 {
 	SERVER, CLIENT, LISTEN, UNKNOWN
@@ -40,6 +42,7 @@ public:
 	Socket				*accept() const;
 	Socket				*connect(char *connect_srv);
 	void				write(char const *msg) const;
+	void				write(Reply rpl) const;
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;
