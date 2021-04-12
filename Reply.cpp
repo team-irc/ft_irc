@@ -1,5 +1,6 @@
 #include "Reply.hpp"
 #include "Member.hpp"
+#include "Channel.hpp"
 #include "Server.hpp"
 
 Reply::Reply()
@@ -527,6 +528,55 @@ Reply::Reply(RPL::ENDOFWHO rpl, const std::string & name)
 	_errnum = std::to_string(rpl.ERRNO);
 	// "<name> :End of /WHO list"
 	_msg = name + " :End of /WHO list";
+}
+
+// WHOIS
+
+Reply::Reply(RPL::WHOISUSER rpl, Member * member)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> <user> <host> * :<real name>"
+	_msg = member->get_nick() + ' ' + member->get_username() + ' ' + member->get_hostname() + " * :" + member->get_realname();
+}
+
+Reply::Reply(RPL::WHOISSERVER rpl, const std::string & nick, Server * server)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> <server> :<server info>"
+	_msg = nick + ' ' + server->get_name() + " " + server->get_info();
+}
+
+Reply::Reply(RPL::WHOISOPERATOR rpl, const std::string & nick)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> :is an IRC operator"
+	_msg = nick + " :is an IRC operator";
+}
+
+Reply::Reply(RPL::WHOISIDLE rpl, const std::string & nick, int integer)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> <integer> :seconds idle"
+	_msg = nick + ' ' + std::to_string(integer) + " :seconds idle";
+}
+
+Reply::Reply(RPL::ENDOFWHOIS rpl, const std::string & nick)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> :End of /WHOIS list"
+	_msg = nick + " :End of /WHOIS list";
+}
+
+Reply::Reply(RPL::WHOISCHANNELS rpl, Member * member, Channel * channel)
+{
+	_errnum = std::to_string(rpl.ERRNO);
+	// "<nick> :{[@|+]<channel><space>}"
+	char permission;
+	if (channel->is_operator(member))
+		permission = '@';
+	else if (channel->is_voice(member))
+		permission = '+';
+	_msg = member->get_nick() + " :" + permission + channel->get_name() + ' ';
 }
 
 // STATS
