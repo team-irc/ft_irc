@@ -52,7 +52,17 @@ void		PingCommand::run(IrcServer &irc)
 			if ((server = irc.get_server(_msg.get_param(1))) == 0)
 				throw(Reply(ERR::NOSUCHSERVER(), _msg.get_param(1)));
 			_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick());
-			server->get_socket()->write(_msg.get_msg());
+			if (server->get_socket()->get_type() == SERVER)
+				server->get_socket()->write(_msg.get_msg());
+			else
+			{
+				std::string	param = _msg.get_param(0);
+				if (param.at(0) == ':')
+					param.substr(1);
+				std::string	msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG " +
+				irc.get_serverinfo().SERVER_NAME + " :" + param + "\n";
+				socket->write(msg.c_str());
+			}
 		}
 	}
 	else
