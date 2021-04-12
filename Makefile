@@ -43,6 +43,7 @@ SRC = \
 	command/AdminCommand.cpp	\
 	command/RehashCommand.cpp	\
 	command/PingCommand.cpp		\
+	command/PongCommand.cpp		\
 	command/TraceCommand.cpp	\
 	command/WhoQuery.cpp		\
 

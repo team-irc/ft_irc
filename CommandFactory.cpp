@@ -26,6 +26,7 @@
 #include "AdminCommand.hpp"
 #include "RehashCommand.hpp"
 #include "PingCommand.hpp"
+#include "PongCommand.hpp"
 #include "TraceCommand.hpp"
 #include "WhoQuery.hpp"
 
@@ -59,6 +60,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("ADMIN", new AdminCommand()));
 	_map.insert(std::pair<std::string, Command *>("REHASH", new RehashCommand()));
 	_map.insert(std::pair<std::string, Command *>("PING", new PingCommand()));
+	_map.insert(std::pair<std::string, Command *>("PONG", new PongCommand()));
 	_map.insert(std::pair<std::string, Command *>("TRACE", new TraceCommand()));
 	_map.insert(std::pair<std::string, Command *>("WHO", new WhoQuery()));
 }
