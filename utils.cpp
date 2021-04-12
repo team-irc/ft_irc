@@ -46,6 +46,26 @@ std::string ft::itos(int n)
 	return (ret);
 }
 
+std::string ft::itos(long n)
+{
+	std::string ret;
+	int			ret_begin;
+
+	ret_begin = n < 0 ? 1 : 0;
+	if (n < 0)
+	{
+		ret += '-';
+		n *= -1;
+	}
+	while (n)
+	{
+		// 0->48
+		ret.insert(ret_begin, 1, n % 10 + 48);
+		n /= 10;
+	}
+	return (ret);
+}
+
 int ft::split(const std::string str, char c, std::string *& ret)
 {
 	int size;
@@ -238,17 +258,17 @@ void	ft::get_up_time(time_t start, std::string &result)
 	time(&t);
 	t -= start;
 	result = "Server Up ";
-	result += std::to_string((long)(t / (60 * 60 * 24))) + " days ";
+	result += ft::itos((long)(t / (60 * 60 * 24))) + " days ";
 	t = t % (60 * 60 * 24);
-	result += std::to_string((long)(t / (60 * 60))) + ":";
+	result += ft::itos((long)(t / (60 * 60))) + ":";
 	t = t % (60 * 60);
 	if ((t / 60) == 0)
 		result += "0";
-	result += std::to_string((long)(t / 60)) + ":";
+	result += ft::itos((long)(t / 60)) + ":";
 	t = t % 60;
 	if ((t / 10) == 0)
 		result += "0";
-	result += std::to_string(t);
+	result += ft::itos(t);
 	delete[] tmp;
 }
 

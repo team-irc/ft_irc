@@ -17,6 +17,7 @@ namespace ft
 	int			atoi(const char * nptr);
 
 	std::string itos(int n);
+	std::string itos(long n);
 
 	int			split(const std::string str, char c, std::string *& ret);
 

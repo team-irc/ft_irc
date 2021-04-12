@@ -27,7 +27,7 @@ void	ReadConf::read_config(ServerInfo & si)
         std::string *split_ret;
 
         if (ft::split(tmp, '=', split_ret) != 2)
-            throw (Error("CONFIG ERROR in line number " + std::to_string(line_number)));
+            throw (Error("CONFIG ERROR in line number " + ft::itos(line_number)));
         ft::rtrim(split_ret[0], ' ');
         ft::ltrim(split_ret[1], ' ');
         ft::rtrim(split_ret[1], '\n');
@@ -48,7 +48,7 @@ void	ReadConf::read_config(ServerInfo & si)
         else if (key == "OPERPWD")
             si.OPERPWD = value;
         else
-            throw (Error("CONFIG ERROR in line number " + std::to_string(line_number)));
+            throw (Error("CONFIG ERROR in line number " + ft::itos(line_number)));
         delete[] split_ret;
         line_number += 1;
     }
