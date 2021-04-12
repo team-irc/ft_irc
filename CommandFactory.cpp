@@ -29,6 +29,7 @@
 #include "PongCommand.hpp"
 #include "TraceCommand.hpp"
 #include "WhoQuery.hpp"
+#include "WhoisQuery.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -63,6 +64,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("PONG", new PongCommand()));
 	_map.insert(std::pair<std::string, Command *>("TRACE", new TraceCommand()));
 	_map.insert(std::pair<std::string, Command *>("WHO", new WhoQuery()));
+	_map.insert(std::pair<std::string, Command *>("WHOIS", new WhoisQuery()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
