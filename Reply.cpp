@@ -587,6 +587,22 @@ Reply::Reply(RPL::WHOISCHANNELS rpl, Member * member, std::set<Channel *> & join
 	}
 }
 
+// WHOWAS
+
+Reply::Reply(RPL::WHOWASUSER rpl, Member * member)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	// "<nick> <user> <host> * :<real name>"
+	_msg = member->get_nick() + ' ' + member->get_username() + ' ' + member->get_hostname() + " * :" + member->get_realname();
+}
+
+Reply::Reply(RPL::ENDOFWHOWAS rpl, const std::string & nick)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	// "<nick> :End of WHOWAS"
+	_msg = nick + " :End of WHOWAS";
+}
+
 // STATS
 
 Reply::Reply(RPL::STATSUPTIME time, const std::string &val)

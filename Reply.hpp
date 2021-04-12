@@ -225,6 +225,9 @@ public:
 	explicit Reply(RPL::WHOISIDLE, const std::string &, int);
 	explicit Reply(RPL::ENDOFWHOIS, const std::string &);
 	explicit Reply(RPL::WHOISCHANNELS, Member *, std::set<Channel *> &);
+	// WHOWAS
+	explicit Reply(RPL::WHOWASUSER, Member *);
+	explicit Reply(RPL::ENDOFWHOWAS, const std::string &);
 	// STATS
 	explicit Reply(RPL::STATSUPTIME, const std::string &);
 	// ADMIN
