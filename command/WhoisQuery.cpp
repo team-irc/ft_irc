@@ -42,6 +42,8 @@ void WhoisQuery::run(IrcServer &irc, one _)
             if (ft::check_mask(current_member->get_nick(), nickmasks[i]))
             {
                 socket->write(Reply(RPL::WHOISUSER(), current_member));
+                if (!current_member->get_joined_channels().empty())
+                    socket->write(Reply(RPL::WHOISCHANNELS(), current_member, current_member->get_joined_channels()));
                 socket->write(Reply(RPL::WHOISSERVER(), current_member->get_nick(), current_server));
                 if (current_member->check_mode('0', false))
                     socket->write(Reply(RPL::WHOISOPERATOR(), current_member->get_nick()));

@@ -567,16 +567,24 @@ Reply::Reply(RPL::ENDOFWHOIS rpl, const std::string & nick)
 	_msg = nick + " :End of /WHOIS list";
 }
 
-Reply::Reply(RPL::WHOISCHANNELS rpl, Member * member, Channel * channel)
+Reply::Reply(RPL::WHOISCHANNELS rpl, Member * member, std::set<Channel *> & joined_channels)
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	// "<nick> :{[@|+]<channel><space>}"
-	char permission;
-	if (channel->is_operator(member))
-		permission = '@';
-	else if (channel->is_voice(member))
-		permission = '+';
-	_msg = member->get_nick() + " :" + permission + channel->get_name() + ' ';
+	std::set<Channel *>::iterator first = joined_channels.begin();
+	std::set<Channel *>::iterator last = joined_channels.end();
+	_msg = member->get_nick() + " :";
+	while (first != last)
+	{
+		char permission;
+		Channel * channel = *first;
+		if (channel->is_operator(member))
+			permission = '@';
+		else if (channel->is_voice(member))
+			permission = '+';
+		_msg += permission + channel->get_name() + ' ';
+		++first;
+	}
 }
 
 // STATS
