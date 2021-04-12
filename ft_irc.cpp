@@ -199,7 +199,11 @@ void	IrcServer::client_msg(int fd)
 				member->get_socket()->write(msg.get_msg());
 			}
 			else if (buf[0] != '\n')
-				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
+			{
+				Reply::set_servername(_si.SERVER_NAME);
+				Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
+			}
 		}
 	} while (result);
 }
@@ -306,6 +310,11 @@ std::map<std::string, Channel *>	&IrcServer::get_global_channel()
 std::map<std::string, Member *>		&IrcServer::get_global_user()
 {
 	return(_global_user);
+}
+
+std::vector<Member>					&IrcServer::get_user_history()
+{
+	return (_user_history);
 }
 
 struct ServerInfo	&IrcServer::get_serverinfo()
