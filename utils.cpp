@@ -26,6 +26,26 @@ int ft::atoi(const char * nptr)
 	return (minus == 0 ? result_num : -result_num);
 }
 
+std::string ft::itos(int n)
+{
+	std::string ret;
+	int			ret_begin;
+
+	ret_begin = n < 0 ? 1 : 0;
+	if (n < 0)
+	{
+		ret += '-';
+		n *= -1;
+	}
+	while (n)
+	{
+		// 0->48
+		ret.insert(ret_begin, 1, n % 10 + 48);
+		n /= 10;
+	}
+	return (ret);
+}
+
 int ft::split(const std::string str, char c, std::string *& ret)
 {
 	int size;
