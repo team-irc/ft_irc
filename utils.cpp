@@ -269,11 +269,15 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 				{
 					strncpy(buffer + insert_idx, buf, i + 1);
 					buffer[i + insert_idx + 1] = 0;
+					if (buffer[i] == '\r')
+						buffer[i] = '\n';
 				}
 				else
 				{
 					strncpy(buffer, buf, i + 1);
 					buffer[i + 1] = 0;
+					if (buffer[i] == '\r')
+						buffer[i] = '\n';
 				}
 				if (buf[i + 1] == ASCII_CONST::LF)
 					++i;
