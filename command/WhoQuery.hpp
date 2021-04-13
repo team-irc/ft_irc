@@ -10,13 +10,6 @@ public:
     ~WhoQuery();
 public:
     void run(IrcServer &irc);
-private:
-    struct zero {};
-    struct one {};
-    struct two {};
-    void run(IrcServer &irc, zero);
-    void run(IrcServer &irc, one);
-    void run(IrcServer &irc, two);
 };
 
 #endif
