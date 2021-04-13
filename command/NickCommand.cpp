@@ -93,8 +93,9 @@ void	NickCommand::run(IrcServer &irc)
 			throw (Reply(ERR::ERRONEUSNICKNAME(), nickname));
 		if (member)
 			throw (Reply(ERR::NICKNAMEINUSE(), nickname));
-		member = irc.get_member(socket->get_fd());
+		member = irc.find_member(socket->get_fd());
 		_msg.set_prefix(member->get_nick()); // 닉네임 변경 전, 이전 닉네임을 프리픽스에 추가.
+		irc.get_user_history().push_back(*member);
 		irc.delete_member(member->get_nick());  // 2. global_user에서 삭제
 		member->set_nick(nickname); // 3. member 닉네임 변경
 		irc.add_member(nickname, member); // 4. global_user에 새로 추가
@@ -181,12 +182,14 @@ void	NickCommand::run(IrcServer &irc)
 		else // 닉네임 변경하는 경우
 		{
 			member = irc.get_member(_msg.get_prefix()); // 1. prefix의 nick을 통해 user_map에서 멤버 찾음
+			irc.get_user_history().push_back(*member);
 			irc.delete_member(member->get_nick());
 			member->set_nick(nickname);
 			irc.add_member(nickname, member);	// 2. 해당 멤버 삭제 후 닉네임 변경하여 추가
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
 	}
+	std::cout << std::endl;
 }
 
 NickCommand::NickCommand() : Command()

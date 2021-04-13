@@ -1,4 +1,5 @@
 #include "Socket.hpp"
+#include "Reply.hpp"
 
 Socket::Socket()
 {
@@ -145,6 +146,12 @@ void		Socket::write(char const *msg) const
 {
 	std::cout << "[SEND] " << msg << " [" << _fd << "] " << "[" << show_type() << "]\n";
 	::write(_fd, msg, strlen(msg));
+}
+
+void		Socket::write(Reply rpl) const
+{
+	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] " << "[" << show_type() << "]\n";
+	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
 }
 
 void		Socket::show_info() const

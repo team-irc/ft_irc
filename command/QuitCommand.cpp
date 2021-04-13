@@ -62,6 +62,7 @@ void	QuitCommand::run(IrcServer &irc)
 		_msg.set_prefix(member->get_nick()); // 2. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
 		irc.delete_member(member->get_nick()); // 3. 멤버를 _global_user에서 지운다.
 		quit_from_joined_channel(irc, member);
+		irc.get_user_history().push_back(*member);
 		delete member;							// 멤버 인스턴스 삭제; 채널나가기
 		irc.get_socket_set().remove_socket(socket);	// 소켓을 _global_socket에서 지운다.
 		delete socket;// 4. 소켓 인스턴스 제거; close
@@ -73,6 +74,7 @@ void	QuitCommand::run(IrcServer &irc)
 		irc.delete_member(member->get_nick()); // 2. 멤버를 _global_user에서 지운다.
 		member->get_joined_channels().begin();
 		quit_from_joined_channel(irc, member);
+		irc.get_user_history().push_back(*member);
 		delete member;
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 3. 다른서버에도 메세지를 보낸다.
 		// 소켓을 제거하지는 않는다. 서버에서 전송된 메세지이므로

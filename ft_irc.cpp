@@ -16,7 +16,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->bind();
 		_listen_socket->listen();
 		if (_si.SERVER_NAME == "${AUTO}")
-			_si.SERVER_NAME = std::string("test") + std::to_string(_listen_socket->get_port()) + ".com";
+			_si.SERVER_NAME = std::string("test") + ft::itos(_listen_socket->get_port()) + ".com";
 		add_server(_si.SERVER_NAME, "0", get_server_token(), ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
@@ -126,7 +126,7 @@ void	IrcServer::send_map_data(int fd)
 	while (begin != end)// 전송하려는 포트 번호를 가진 fd에는 메시지를 보내지 않음
 	{
 		server = (*begin).second;
-		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + std::to_string(server->get_hopcount() + 1) + " " + server->get_info() + "\n";
+		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + ft::itos(server->get_hopcount() + 1) + " " + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
 	}
@@ -199,7 +199,11 @@ void	IrcServer::client_msg(int fd)
 				member->get_socket()->write(msg.get_msg());
 			}
 			else if (buf[0] != '\n')
-				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()).get_msg().c_str());
+			{
+				Reply::set_servername(_si.SERVER_NAME);
+				Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
+			}
 		}
 	} while (result);
 }
@@ -282,7 +286,7 @@ Channel		*IrcServer::get_channel(std::string channel_name)
 // 해당 fd를 키로 가지는 값
 Member		*IrcServer::get_member(int fd)
 {
-	std::string		key = std::to_string(fd);
+	std::string		key = ft::itos(fd);
 	std::map<std::string, Member *>::iterator it = _global_user.find(key);
 
 	if (_global_user.end() == it)
@@ -306,6 +310,11 @@ std::map<std::string, Channel *>	&IrcServer::get_global_channel()
 std::map<std::string, Member *>		&IrcServer::get_global_user()
 {
 	return(_global_user);
+}
+
+std::vector<Member>					&IrcServer::get_user_history()
+{
+	return (_user_history);
 }
 
 struct ServerInfo	&IrcServer::get_serverinfo()
@@ -339,8 +348,8 @@ void		IrcServer::send_user_data(int fd)
 		send_msg(fd, msg.c_str());
 		msg = ":" + begin->second->get_nick() + " USER " +
 			begin->second->get_username() + " " +
-			begin->second->get_servername() + " " +
 			begin->second->get_hostname() + " " +
+			begin->second->get_servername() + " " +
 			begin->second->get_realname() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;

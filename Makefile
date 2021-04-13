@@ -46,6 +46,8 @@ SRC = \
 	command/PongCommand.cpp		\
 	command/TraceCommand.cpp	\
 	command/WhoQuery.cpp		\
+	command/WhoisQuery.cpp		\
+	command/WhowasQuery.cpp		\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
