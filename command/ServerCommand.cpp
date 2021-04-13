@@ -3,7 +3,8 @@
 
 /*
 	Command: SERVER
-Parameters: <servername> <hopcount> <info>
+1)  Parameters: <servername> <hopcount> <info>
+2)  Parameters: <servername> <hopcount> <token> <info>
 
 The server message is used to tell a server that the other end of a
 new connection is a server. This message is also used to pass server
@@ -96,6 +97,7 @@ void	ServerCommand::run(IrcServer &irc)
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
 		_msg.set_param_at(1, std::to_string(hopcount));
+		
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 }

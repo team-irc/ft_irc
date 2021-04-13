@@ -163,8 +163,6 @@ void	TraceCommand::run(IrcServer &irc)
 	Server		*server;
 	std::string		target_server_name;
 
-	
-
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
