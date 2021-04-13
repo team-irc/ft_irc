@@ -45,9 +45,11 @@ void WhoisQuery::run(IrcServer &irc, one _)
                 if (!current_member->get_joined_channels().empty())
                     socket->write(Reply(RPL::WHOISCHANNELS(), current_member, current_member->get_joined_channels()));
                 socket->write(Reply(RPL::WHOISSERVER(), current_member->get_nick(), current_server));
-                if (current_member->check_mode('0', false))
+                if (current_member->check_mode('o', false))
                     socket->write(Reply(RPL::WHOISOPERATOR(), current_member->get_nick()));
-                socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(), 0));
+                time_t  current_time;
+                time(&current_time);
+                socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(), difftime(current_time, current_member->get_last_action())));
                 socket->write(Reply(RPL::ENDOFWHOIS(), current_member->get_nick()));
             }
             ++first;
@@ -79,9 +81,11 @@ void WhoisQuery::run(IrcServer &irc, two _)
             {
                 socket->write(Reply(RPL::WHOISUSER(), current_member));
                 socket->write(Reply(RPL::WHOISSERVER(), current_member->get_nick(), current_server));
-                if (current_member->check_mode('0', false))
+                if (current_member->check_mode('o', false))
                     socket->write(Reply(RPL::WHOISOPERATOR(), current_member->get_nick()));
-                socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(), 0));
+                time_t  current_time;
+                time(&current_time);
+                socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(), difftime(current_time, current_member->get_last_action())));
                 socket->write(Reply(RPL::ENDOFWHOIS(), current_member->get_nick()));
             }
             ++first;

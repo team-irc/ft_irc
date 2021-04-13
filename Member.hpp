@@ -1,9 +1,9 @@
 #ifndef MEMBER_HPP
-#define MEMBER_HPP
+# define MEMBER_HPP
 
-#include <string>
-#include <set>
-#include "Socket.hpp"
+# include <string>
+# include <set>
+# include "Socket.hpp"
 class Channel;
 
 namespace MEMBER_CONST
@@ -23,6 +23,7 @@ private:
 	std::string				_realname;
 	std::set<Channel *>		_joined_channels;
 	std::string				_away;
+	time_t					_last_action;
 
 	// mode i: mark a users as invisible;
 	// mode s: marks a user for receipt of server notices;
@@ -52,6 +53,8 @@ public:
 	void				set_servername(const std::string &servername);
 	const std::string	&get_realname();
 	void				set_realname(const std::string &realname);
+	const time_t		&get_last_action();
+	void				set_last_action();
 	int					get_fd();
 	void				set_fd(int fd);
 	Socket				*get_socket();
