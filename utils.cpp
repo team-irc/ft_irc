@@ -209,7 +209,9 @@ static bool		check_str(std::string const &str, std::vector<std::string> &marker)
 			start = ret + (marker[i]).length();
 			if (i + 1 == marker.size())
 			{
-				if (start == str.length())
+				if (i == 0 && (ret + 1 != (marker[i].length())))
+					return (false);
+				else if (start == str.length())
 					return (true);
 				else
 					return (false);
