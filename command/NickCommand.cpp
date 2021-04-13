@@ -171,18 +171,8 @@ void	NickCommand::run(IrcServer &irc)
 			member->set_socket(irc.get_current_socket());
 			// 2. 멤버 추가
 			irc.add_member(nickname, member);
-			std::string server_name = get_servername(socket, irc);
-			if (_msg.get_param_size() != 7)
-			{
-				_msg.set_param_at(2, "user");
-				_msg.set_param_at(3, "127.0.0.1");
-				_msg.set_param_at(4, std::to_string(irc.get_server(server_name)->get_token()));
-				_msg.set_param_at(5, member->get_mode_str());
-				_msg.set_param_at(6, ":real");
-			}
-			else
-				_msg.set_param_at(4, std::to_string(irc.get_server(server_name)->get_token()));
-			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+			// msg는 user에서 전송함
+			member->set_hopcount(hopcount);
 		}
 		else // 닉네임 변경하는 경우
 		{

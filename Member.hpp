@@ -24,6 +24,7 @@ private:
 	std::set<Channel *>		_joined_channels;
 	std::string				_away;
 	time_t					_last_action;
+	int						_hopcount;
 
 	// mode i: mark a users as invisible;
 	// mode s: marks a user for receipt of server notices;
@@ -57,6 +58,8 @@ public:
 	void				set_last_action();
 	int					get_fd();
 	void				set_fd(int fd);
+	int					get_hopcount();
+	void				set_hopcount(int cnt);
 	Socket				*get_socket();
 	void				set_socket(Socket *socket);
 	char				get_mode();

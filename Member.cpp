@@ -7,7 +7,7 @@ Member::Member()
 
 Member::Member(const Member & other):
 	_nick(other._nick), _username(other._username), _hostname(other._hostname),
-	_servername(other._servername), _realname(other._realname), _mode(0)
+	_servername(other._servername), _realname(other._realname), _mode(0), _hopcount(0)
 {
 };
 
@@ -21,6 +21,7 @@ Member::Member(const std::string &nick, const std::string &username,
 	_servername = servername;
 	_realname = realname;
 	_mode = mode;
+	_hopcount = 0;
 	time(&_last_action);
 };
 
@@ -32,6 +33,7 @@ Member & Member::operator = (const Member & other)
 	_servername = other._servername;
 	_realname = other._realname;
 	_mode = other._mode;
+	_hopcount = 0;
 	return (*this);
 };
 
@@ -73,6 +75,8 @@ void				Member::set_fd(int fd)									{ _fd = fd; }
 std::set<Channel *>	&Member::get_joined_channels()							{ return (_joined_channels); }
 const std::string	&Member::get_away()										{ return (_away); }
 void				Member::set_away(const std::string &away)				{ _away = away; }
+int					Member::get_hopcount()									{ return (_hopcount); }
+void				Member::set_hopcount(int cnt)							{ _hopcount = cnt; }
 
 bool				Member::delete_channel(Channel *channel)
 {
