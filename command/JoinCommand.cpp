@@ -119,7 +119,7 @@ void	JoinCommand::run(IrcServer &irc)
 				channel->add_operator(member);
 				// mode 를 실행해야 하는데..
 				std::string		msg;
-				msg = ":" + irc.get_serverinfo().SERVER_NAME + " MODE " + channel_names[i] + " +o " + member->get_nick() + "\n";
+				msg = ":" + member->get_nick() + " MODE " + channel_names[i] + " +o " + member->get_nick() + "\n";
 				irc.send_msg_server(socket->get_fd(), msg.c_str());
 				return ;
 			}

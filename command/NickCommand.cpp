@@ -85,7 +85,7 @@ void	NickCommand::run(IrcServer &irc)
 	if (_msg.get_param_size() <= 0)
 		throw (Reply(ERR::NONICKNAMEGIVEN()));
 	socket = irc.get_current_socket();
-	if (socket->get_type() == CLIENT)
+	if (socket->get_type() == CLIENT) // (닉네임 변경하는 경우)
 	{
 		nickname = _msg.get_param(0);
 		member = irc.get_member(nickname);
@@ -98,9 +98,8 @@ void	NickCommand::run(IrcServer &irc)
 		irc.get_user_history().push_back(*member);
 		irc.delete_member(member->get_nick());  // 2. global_user에서 삭제
 		member->set_nick(nickname); // 3. member 닉네임 변경
-		irc.add_member(nickname, member); // 4. global_user에 새로 추가 
-
-		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+		irc.add_member(nickname, member); // 4. global_user에 새로 추가
+		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); 
 	}
 	else if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
 	{
@@ -126,11 +125,12 @@ void	NickCommand::run(IrcServer &irc)
 				irc.add_member(nickname, member);
 				socket->set_type(CLIENT); // 1. 소켓타입 변경
 				// RFC 2813
-				_msg.set_param_at(2, member->get_username());
-				_msg.set_param_at(3, member->get_hostname());
-				_msg.set_param_at(4, std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
-				_msg.set_param_at(5, member->get_mode_str());
-				_msg.set_param_at(6, member->get_realname());
+				_msg.set_param_at(1, "1");
+				// _msg.set_param_at(2, member->get_username());
+				// _msg.set_param_at(3, member->get_hostname());
+				// _msg.set_param_at(4, std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
+				// _msg.set_param_at(5, member->get_mode_str());
+				// _msg.set_param_at(6, member->get_realname());
 
 				irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 2. nick 메세지 전송
 				// 3. USER 메세지 전송
@@ -149,13 +149,12 @@ void	NickCommand::run(IrcServer &irc)
 				delete irc.get_current_socket();
 			}
 		}
-		else // 새로운 NICK 등록
+		else // 새로운 NICK 등록 (User 들어오기 전, 멤버에 추가만)
 		{
 			member = new Member();
 			member->set_nick(nickname);
 			member->set_fd(socket->get_fd());
 			member->set_socket(irc.get_current_socket());
-			_msg.set_prefix(nickname);
 			irc.add_member(nickname, member);
 		}
 	}
@@ -163,16 +162,14 @@ void	NickCommand::run(IrcServer &irc)
 	{
 		nickname = _msg.get_param(0);
 		member = irc.get_member(nickname);
-		hopcount = ft::atoi(_msg.get_param(1).c_str());
-		hopcount++;
-		_msg.set_param_at(1, std::to_string(hopcount));
-		if (_msg.get_prefix().empty())
-		{
-			// NICK 추가
+		if (_msg.get_prefix().empty()) // 닉네임 추가하는 경우 [recv] Nick t1 :2
+		{ // <nickname> <hopcount> <username> <host> <servertoken> <umode> <realname>
+			// 1. 멤버 생성 및 정보 입력
 			member = new Member();
 			member->set_nick(nickname);
 			member->set_fd(socket->get_fd());
 			member->set_socket(irc.get_current_socket());
+			// 2. 멤버 추가
 			irc.add_member(nickname, member);
 			if (_msg.get_param_size() == 7)
 			{
@@ -182,9 +179,8 @@ void	NickCommand::run(IrcServer &irc)
 			}
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 		}
-		else
+		else // 닉네임 변경하는 경우
 		{
-			// 해당 nick 변경
 			member = irc.get_member(_msg.get_prefix()); // 1. prefix의 nick을 통해 user_map에서 멤버 찾음
 			irc.get_user_history().push_back(*member);
 			irc.delete_member(member->get_nick());
