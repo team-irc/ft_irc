@@ -133,8 +133,10 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		member->set_hostname(_msg.get_param(1));
 		member->set_servername(_msg.get_param(2));
 		member->set_realname(_msg.get_param(3));
-		// std::string msg = "NICK " + member->get_nick() + " :1\n";
-		// irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
+		std::string msg = "NICK " + member->get_nick() + " " + ft::itos(member->get_hopcount()) + " " + member->get_username() + " " +
+			member->get_hostname() + " " + ft::itos(irc.get_server(member->get_servername())->get_token()) + " " + member->get_mode_str()
+			+ " " + member->get_realname() + "\n";
+		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
 		_msg.set_prefix(member->get_nick());
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
 	}
