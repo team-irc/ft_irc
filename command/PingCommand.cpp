@@ -74,7 +74,7 @@ void		PingCommand::run(IrcServer &irc)
 		if ((_msg.get_param_size() == 1) ||
 			(irc.get_serverinfo().SERVER_NAME == servername))
 		{
-			// 다른 서버로 전송 할 필요 없음
+			//pong메시지 전송
 			std::string		pong_msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG " +
 				_msg.get_prefix();
 			if (_msg.get_param(0).at(0) == ':')
