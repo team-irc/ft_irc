@@ -39,13 +39,28 @@ void			PrivmsgCommand::send_member(IrcServer &irc, Member &member)
 		irc.get_current_socket()->write(Reply(RPL::AWAY(), member.get_nick(), member.get_away()).get_msg().c_str());
 }
 
+static bool		isInside(std::vector<int> const &vec, int val)
+{
+	std::vector<int>::const_iterator	begin = vec.begin();
+	std::vector<int>::const_iterator	end = vec.end();
+
+	while (begin != end)
+	{
+		if (*begin == val)
+			return (true);
+		begin++;
+	}
+	return (false);
+}
+
 void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
 {
-	std::vector<ChanMember>	members = channel.get_members();
-	std::vector<ChanMember>::iterator begin = members.begin();
-	std::vector<ChanMember>::iterator end = members.end();
+	std::vector<ChanMember>				members = channel.get_members();
+	std::vector<ChanMember>::iterator	begin = members.begin();
+	std::vector<ChanMember>::iterator	end = members.end();
 	int			fd;
 	std::string	prefix;
+	std::vector<int>					send_fd;
 
 	add_prefix(irc);
 	prefix = _msg.get_prefix().substr(0, _msg.get_prefix().find('!'));
@@ -55,8 +70,12 @@ void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
 		// 해당 메시지를 보낸 유저에는 메시지를 전송하지 않아야 함
 		// 채널 내에 있을 수도 있고 없을 수도 있음(prefix로 구분?)
 		if (((*begin)._member->get_nick() != prefix) &&
-			((*begin)._member->get_fd() != _msg.get_source_fd()))
-			(irc.get_socket_set().find_socket(fd))->write(_msg.get_msg());
+			((*begin)._member->get_fd() != _msg.get_source_fd()) &&
+			(!isInside(send_fd, fd)))
+			{
+				(irc.get_socket_set().find_socket(fd))->write(_msg.get_msg());
+				send_fd.push_back(fd);
+			}
 		begin++;
 	}
 }
