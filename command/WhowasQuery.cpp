@@ -12,7 +12,7 @@ void WhowasQuery::run(IrcServer &irc)
     }
     if (param_size == 2)
     {
-        if (ft::isdigit(_msg.get_param(1)[0]))
+        if (ft::isdigit(_msg.get_param(1)))
             run(irc, _msg.get_param(0), ft::atoi(_msg.get_param(1).c_str()));
         else
             run(irc, _msg.get_param(0), _msg.get_param(1));
