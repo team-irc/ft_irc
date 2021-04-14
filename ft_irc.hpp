@@ -64,8 +64,9 @@ public:
 
 	void						run(int argc);
 	Socket						*get_current_socket();
+	Socket						*get_listen_socket();
 	SocketSet					&get_socket_set();
-	int							get_fdmax();
+	int							&get_fdmax();
 	void						send_msg(int send_fd, const char *msg);
 	void						send_msg_server(int fd, const char *msg);
 	

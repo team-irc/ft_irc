@@ -309,6 +309,8 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		{
 			if (!(read_size = read(fd, buf, BUFFER_SIZE - insert_idx)))
 				break;
+			if (read_size == -1)
+				return (-1);
 		}
 		else
 		{
