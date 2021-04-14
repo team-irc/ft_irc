@@ -304,12 +304,15 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		rem_size = remember[fd].length();
 		strncpy(buf, remember[fd].c_str(), rem_size);
 		insert_idx += rem_size;
+		remember[fd].clear();
 	}
 	while (insert_idx < BUFFER_SIZE)
 	{
 		if (remember[fd].empty())
 		{
-			if (!(read_size = read(fd, buf, BUFFER_SIZE - insert_idx)))
+			if ((read_size = read(fd, buf + insert_idx, BUFFER_SIZE - insert_idx)) == -1)
+				break;
+			else if (read_size == 0)
 				break;
 			if (read_size == -1)
 				return (-1);
@@ -351,8 +354,12 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		}
 		rem_size = 0;
 		// write(1, buf, read_size);
-		strncpy(buffer + insert_idx, buf, read_size);
-		insert_idx += read_size;
+		remember[fd] += buf;
+		return (2);
+	}
+	for (int i = 0; buf[i] != 0; i++)
+	{
+		buffer[i] = buf[i];
 	}
 	buffer[insert_idx] = 0;
 	*len = BUFFER_SIZE;

@@ -98,6 +98,11 @@ void		SocketSet::remove_socket(Socket *del)
 fd_set		&SocketSet::get_read_fds()
 { return (_read); }
 
+fd_set		SocketSet::get_read_fds_copy()
+{
+	return (_read);
+}
+
 fd_set const	&SocketSet::get_read_fds() const
 { return (_read); }
 
