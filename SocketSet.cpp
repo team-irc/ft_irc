@@ -95,6 +95,11 @@ void		SocketSet::remove_socket(Socket *del)
 	}
 }
 
+fd_set		SocketSet::get_fds()
+{
+	return (_read);
+}
+
 fd_set		&SocketSet::get_read_fds()
 { return (_read); }
 

@@ -10,7 +10,6 @@ IrcServer::IrcServer(int argc, char **argv)
 	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
-		// std::cout << "=======\n";
 		_listen_socket->set_type(LISTEN);
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
@@ -210,32 +209,7 @@ void	IrcServer::client_msg(int fd)
 
 void		IrcServer::fd_event_loop()
 {
-	struct timeval	timeout;
-	fd_set	fds;
-	int		fd_num;
-
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
-	fds = _socket_set.get_read_fds();
-	if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
-		throw (Error(strerror(errno)));
-	else if (fd_num != 0)
-	{
-		for (int i = 0; i < _fd_max + 1; i++)
-		{
-			if (FD_ISSET(i, &fds))
-			{
-				_current_sock = _socket_set.find_socket(i);
-				if (_current_sock->get_type() == LISTEN)
-				{
-					client_connect();
-					continue;
-				}
-				else
-					client_msg(i);
-			}
-		}
-	}
+	return ;	
 }
 
 SocketSet	&IrcServer::get_socket_set()
@@ -243,9 +217,31 @@ SocketSet	&IrcServer::get_socket_set()
 
 void	IrcServer::run(int argc)
 {
+	struct timeval	timeout;
+	fd_set	fds;
+	int		fd_num;
+
 	while (1)
 	{
-		fd_event_loop();
+		timeout.tv_sec = 1;
+		timeout.tv_usec = 0;
+		fds = _socket_set.get_fds();
+		if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
+			throw (Error("select return -1"));
+		else if (fd_num != 0)
+		{
+			for (int i = 0; i < _fd_max + 1; i++)
+			{
+				if (FD_ISSET(i, &fds))
+				{
+					_current_sock = _socket_set.find_socket(i);
+					if (_current_sock->get_type() == LISTEN)
+						client_connect();
+					else
+						client_msg(i);
+				}
+			}
+		}
 	}
 }
 

@@ -9,6 +9,7 @@
 # include <sys/socket.h>
 # include <netdb.h>
 # include <utility>
+# include <fcntl.h>
 # include "Error.hpp"
 # include "utils.hpp"
 
