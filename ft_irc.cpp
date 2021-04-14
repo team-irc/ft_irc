@@ -156,6 +156,11 @@ void	IrcServer::client_msg(int fd)
 	{
 		memset(buf, 0, BUFFER_SIZE);
 		result = ft::read_until_crlf(fd, buf, &str_len);
+		if (result == -1)
+		{
+			std::cout << "read_until_crlf return -1" << std::endl;
+			return ;
+		}
 		std::cout << "[RECV] " << buf << " [" << fd << "] " << "[" << _current_sock->show_type() << "]\n";
 		if (result == 2)
 			return ;
@@ -299,7 +304,10 @@ Member		*IrcServer::get_member(int fd)
 Socket		*IrcServer::get_current_socket()
 { return (_current_sock); }
 
-int			IrcServer::get_fdmax()
+Socket		*IrcServer::get_listen_socket()
+{ return (_listen_socket); }
+
+int			&IrcServer::get_fdmax()
 {
 	return (_fd_max);
 }

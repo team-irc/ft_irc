@@ -124,6 +124,20 @@ bool	ft::isdigit(int c)
 	return ((c >= '0' && c <= '9') ? true : false);
 }
 
+bool	ft::isdigit(const std::string &s)
+{
+	std::string::const_iterator	first = s.begin();
+	std::string::const_iterator	last = s.end();
+
+	while (first != last)
+	{
+		if (!ft::isdigit((int)*first))
+			return (false);
+		++first;
+	}
+	return (true);
+}
+
 static size_t			push_marker(std::vector<std::string>	*marker, std::string const &mask, size_t start, size_t ret, std::string mark)
 {
 	std::string		sub;
@@ -300,6 +314,8 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 				break;
 			else if (read_size == 0)
 				break;
+			if (read_size == -1)
+				return (-1);
 		}
 		else
 		{

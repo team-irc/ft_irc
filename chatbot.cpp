@@ -75,9 +75,9 @@ void	unknown_command(int sock, std::string target, std::string command)
 	write(sock, ret.c_str(), ret.length());
 }
 
-void error()
+void error(std::string err)
 {
-    std::cout << "error" << std::endl;
+    std::cout << err << std::endl;
     exit(1);
 }
 
@@ -89,17 +89,17 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv_adr;
 
 	if (argc != 3 && argc != 4)
-		error();
+		error("USAGE: ./chatbot <host> <port> <pwd>");
 	sock = socket(PF_INET, SOCK_STREAM, 0);
 	if (sock == -1)
-		error();
+		error("socket error");
 	memset(&serv_adr, 0, sizeof(serv_adr));
 	serv_adr.sin_family = AF_INET;
 	serv_adr.sin_addr.s_addr = inet_addr(argv[1]);
 	serv_adr.sin_port = htons(atoi(argv[2]));
 
 	if (connect(sock, (struct sockaddr *)&serv_adr, sizeof(serv_adr)) == -1)
-		error();
+		error("connect error");
 	std::cout << "connect" << std::endl;
 	if (argc == 4)
 	{
