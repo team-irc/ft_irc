@@ -77,7 +77,7 @@ void	Socket::listen() const
 
 // first: host
 // second: password
-std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *connect) const
+std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(const char *connect) const
 {
 	std::string *		split_ret;
 	std::string			string_host;
@@ -103,7 +103,7 @@ std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *conne
 //54 125 64 34
 
 // 127.0.0.1:port:pass
-Socket	*Socket::connect(char *connect_srv)
+Socket	*Socket::connect(const char *connect_srv)
 {
 	Socket										*new_sock;
 	struct sockaddr_in							serv_addr;
