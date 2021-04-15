@@ -167,7 +167,7 @@ void Socket::write(IrcServer &irc, Reply rpl) const
 	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
 	rpl.set_servername(irc.get_serverinfo().SERVER_NAME);
-	rpl.set_servername(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
+	rpl.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
 	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
 }
 
