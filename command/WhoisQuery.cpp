@@ -45,7 +45,8 @@ void WhoisQuery::run(IrcServer &irc)
                         socket->write(Reply(RPL::WHOISOPERATOR(), current_member->get_nick()));
                     time_t  current_time;
                     time(&current_time);
-                    socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(), difftime(current_time, current_member->get_last_action())));
+                    socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(),
+                        difftime(current_time, current_member->get_socket()->get_last_action())));
                     socket->write(Reply(RPL::ENDOFWHOIS(), current_member->get_nick()));
                     search = true;
                 }

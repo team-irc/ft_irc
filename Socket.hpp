@@ -9,6 +9,7 @@
 # include <sys/socket.h>
 # include <netdb.h>
 # include <utility>
+# include <time.h>
 # include <fcntl.h>
 # include "Error.hpp"
 # include "utils.hpp"
@@ -27,6 +28,7 @@ private:
 	std::string			_pass;
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
+	time_t				_last_action;
 private:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
@@ -53,6 +55,9 @@ public:
 	const char			*show_type() const;
 	std::string const	&get_pass() const;
 	void				set_pass(std::string const &val);
+
+	time_t			get_last_action();
+	void			set_last_action();
 };
 
 #endif

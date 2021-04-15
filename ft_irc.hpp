@@ -41,6 +41,7 @@ private:
 	CommandFactory					_cmd_creator;
 
 	time_t							_start_time;
+	time_t							_current_time;
 
 	// irc 네트워크상에 있는 유저의 정보 저장
 	// unregistered 클라이언트용 map -> 처음 연결 시 -> 키 값을 port번호로 사용
@@ -122,6 +123,8 @@ private:
 	void				show_global_channel();
 	void				fd_event_loop();
 
+	void				update_last_time();
+	void				check_connection();
 	bool				is_reply_code(std::string const &command);
 };
 
