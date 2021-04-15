@@ -245,7 +245,7 @@ public:
 	explicit Reply(RPL::STATSYLINE , const std::string &, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::ENDOFSTATS , const std::string &);
 	explicit Reply(RPL::STATSLLINE , const std::string &, const std::string &, const std::string &);
-	explicit Reply(RPL::STATSUPTIME);
+	explicit Reply(RPL::STATSUPTIME, const time_t birthday);
 	explicit Reply(RPL::STATSOLINE , const std::string &, const std::string &);
 	explicit Reply(RPL::STATSHLINE , const std::string &, const std::string &);
 

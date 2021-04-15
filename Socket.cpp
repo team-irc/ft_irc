@@ -2,12 +2,12 @@
 #include "Reply.hpp"
 #include <fcntl.h>
 
-Socket::Socket()
+Socket::Socket() : _recv_bytes(0), _sent_bytes(0)
 {
 	memset(&_addr, 0, sizeof(_addr));
 }
 
-Socket::Socket(const char *port)
+Socket::Socket(const char *port) : _recv_bytes(0), _sent_bytes(0)
 {
 	_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_fd == -1)
@@ -21,7 +21,7 @@ Socket::Socket(const char *port)
 	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
-Socket::Socket(unsigned short port)
+Socket::Socket(unsigned short port) : _recv_bytes(0), _sent_bytes(0)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
@@ -33,14 +33,14 @@ Socket::Socket(unsigned short port)
 	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
-Socket::Socket(struct sockaddr_in serv_addr)
+Socket::Socket(struct sockaddr_in serv_addr) : _recv_bytes(0), _sent_bytes(0)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&_addr, 0, sizeof(_addr));
 	_addr = serv_addr;
 }
 
-Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
+Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr), _recv_bytes(copy._recv_bytes), _sent_bytes(copy._sent_bytes)
 {
 }
 
@@ -149,18 +149,39 @@ Socket *Socket::accept() const
 	return (new_socket);
 }
 
-void Socket::write(char const *msg) const
+void Socket::write(char const *msg)
 {
 	std::cout << "[SEND] " << msg << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
+	_sent_bytes += strlen(msg);
 	::write(_fd, msg, strlen(msg));
 }
 
-void Socket::write(Reply rpl) const
+void Socket::write(Reply rpl)
 {
 	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
+	_sent_bytes += strlen(rpl.get_msg().c_str());
 	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
+}
+
+int			Socket::read(int fd, char *buffer, int *len)
+{
+	int		ret;
+
+	ret = ft::read_until_crlf(fd, buffer, len);
+	if (*len > 0)
+		_recv_bytes += static_cast<size_t>(*len);
+	return (ret);
+}
+
+size_t		Socket::get_sent_bytes()
+{
+	return (_sent_bytes);
+}
+size_t		Socket::get_recv_bytes()
+{
+	return (_recv_bytes);
 }
 
 void Socket::show_info() const

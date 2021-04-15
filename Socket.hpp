@@ -27,6 +27,8 @@ private:
 	std::string			_pass;
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
+	size_t				_recv_bytes;
+	size_t				_sent_bytes;
 private:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
@@ -42,8 +44,9 @@ public:
 	void				listen() const;
 	Socket				*accept() const;
 	Socket				*connect(const char *connect_srv);
-	void				write(char const *msg) const;
-	void				write(Reply rpl) const;
+	void				write(char const *msg);
+	void				write(Reply rpl);
+	int					read(int fd, char *buffer, int *len);
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;
@@ -53,6 +56,8 @@ public:
 	const char			*show_type() const;
 	std::string const	&get_pass() const;
 	void				set_pass(std::string const &val);
+	size_t				get_sent_bytes();
+	size_t				get_recv_bytes();
 };
 
 #endif

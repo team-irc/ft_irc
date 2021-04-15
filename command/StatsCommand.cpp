@@ -22,81 +22,170 @@
 	y-서버의 구성 파일에서 Y (클래스) 행을 표시합니다.
 	u-서버가 작동 한 시간을 나타내는 문자열을 반환합니다.
 
-    Command: STATS
-       Parameters: [<query> [<server>]]
+	Command: STATS
+		Parameters: [<query> [<server>]]
 
-       The stats message is used to query statistics of certain server.  If
-       <server> parameter is omitted, only the end of stats reply is sent
-       back.  The implementation of this command is highly dependent on the
-       server which replies, although the server must be able to supply
-       information as described by the queries below (or similar).
+		The stats message is used to query statistics of certain server.	If
+		<server> parameter is omitted, only the end of stats reply is sent
+		back.	The implementation of this command is highly dependent on the
+		server which replies, although the server must be able to supply
+		information as described by the queries below (or similar).
 
-       A query may be given by any single letter which is only checked by
-       the destination server (if given as the <server> parameter) and is
-       otherwise passed on by intermediate servers, ignored and unaltered.
-       The following queries are those found in the current IRC
-       implementation and provide a large portion of the setup information
-       for that server.  Although these may not be supported in the same way
-       by other versions, all servers should be able to supply a valid reply
-       to a STATS query which is consistent with the reply formats currently
-       used and the purpose of the query.
+		A query may be given by any single letter which is only checked by
+		the destination server (if given as the <server> parameter) and is
+		otherwise passed on by intermediate servers, ignored and unaltered.
+		The following queries are those found in the current IRC
+		implementation and provide a large portion of the setup information
+		for that server.	Although these may not be supported in the same way
+		by other versions, all servers should be able to supply a valid reply
+		to a STATS query which is consistent with the reply formats currently
+		used and the purpose of the query.
 
-       The currently supported queries are:
+		The currently supported queries are:
 
-               c - returns a list of servers which the server may connect
-                   to or allow connections from;
-               h - returns a list of servers which are either forced to be
-                   treated as leaves or allowed to act as hubs;
-               i - returns a list of hosts which the server allows a client
-                   to connect from;
-               k - returns a list of banned username/hostname combinations
-                   for that server;
-               l - returns a list of the server's connections, showing how
-                   long each connection has been established and the traffic
-                   over that connection in bytes and messages for each
-                   direction;
-               m - returns a list of commands supported by the server and
-                   the usage count for each if the usage count is non zero;
-               o - returns a list of hosts from which normal clients may
-                   become operators;
-               y - show Y (Class) lines from server's configuration file;
-               u - returns a string showing how long the server has been up.
+				c - returns a list of servers which the server may connect
+					to or allow connections from;
+				h - returns a list of servers which are either forced to be
+					treated as leaves or allowed to act as hubs;
+				i - returns a list of hosts which the server allows a client
+					to connect from;
+				k - returns a list of banned username/hostname combinations
+					for that server;
+				l - returns a list of the server's connections, showing how
+					long each connection has been established and the traffic
+					over that connection in bytes and messages for each
+					direction;
+				m - returns a list of commands supported by the server and
+					the usage count for each if the usage count is non zero;
+				o - returns a list of hosts from which normal clients may
+					become operators;
+				y - show Y (Class) lines from server's configuration file;
+				u - returns a string showing how long the server has been up.
 
-       Numeric Replies:
+		Numeric Replies:
 
-               ERR_NOSUCHSERVER
-               RPL_STATSCLINE                  RPL_STATSNLINE
-               RPL_STATSILINE                  RPL_STATSKLINE
-               RPL_STATSQLINE                  RPL_STATSLLINE
-               RPL_STATSLINKINFO               RPL_STATSUPTIME
-               RPL_STATSCOMMANDS               RPL_STATSOLINE
-               RPL_STATSHLINE                  RPL_ENDOFSTATS
+				ERR_NOSUCHSERVER
+				RPL_STATSCLINE					RPL_STATSNLINE
+				RPL_STATSILINE					RPL_STATSKLINE
+				RPL_STATSQLINE					RPL_STATSLLINE
+				RPL_STATSLINKINFO				RPL_STATSUPTIME
+				RPL_STATSCOMMANDS				RPL_STATSOLINE
+				RPL_STATSHLINE					RPL_ENDOFSTATS
 
-       Examples:
+		Examples:
 
-    STATS m                         ; check the command usage for the server
-                                    you are connected to
+	STATS m						 ; check the command usage for the server
+									you are connected to
 
-    :Wiz STATS c eff.org            ; request by WiZ for C/N line
-                                    information from server eff.org
+	:Wiz STATS c eff.org			; request by WiZ for C/N line
+									information from server eff.org
 
 */
 
-void StatsCommand::run(IrcServer &irc)
+/*
+	211	 RPL_STATSLINKINFO
+					"<linkname> <sendq> <sent messages> \
+					<sent bytes> <received messages> \
+					<received bytes> <time open>"
+	212	 RPL_STATSCOMMANDS
+					"<command> <count>"
+	213	 RPL_STATSCLINE
+					"C <host> * <name> <port> <class>"
+	214	 RPL_STATSNLINE
+					"N <host> * <name> <port> <class>"
+	215	 RPL_STATSILINE
+					"I <host> * <host> <port> <class>"
+	216	 RPL_STATSKLINE
+					"K <host> * <username> <port> <class>"
+	218	 RPL_STATSYLINE
+					"Y <class> <ping frequency> <connect \
+						frequency> <max sendq>"
+	219	 RPL_ENDOFSTATS
+					"<stats letter> :End of /STATS report"
+	241	 RPL_STATSLLINE
+					"L <hostmask> * <servername> <maxdepth>"
+	242	 RPL_STATSUPTIME
+					":Server Up %d days %d:%02d:%02d"
+	243	 RPL_STATSOLINE
+					"O <hostmask> * <name>"
+	244	 RPL_STATSHLINE
+					"H <hostmask> * <servername>"
+*/
+
+// c - returns a list of servers which the server may connect
+//	 to or allow connections from;
+// h - returns a list of servers which are either forced to be
+//	 treated as leaves or allowed to act as hubs;
+// i - returns a list of hosts which the server allows a client
+//	 to connect from;
+
+// k - returns a list of banned username/hostname combinations
+//	 for that server;
+
+// l - returns a list of the server's connections, showing how
+//	 long each connection has been established and the traffic
+//	 over that connection in bytes and messages for each
+//	 direction;
+
+// m - returns a list of commands supported by the server and
+//	 the usage count for each if the usage count is non zero;
+
+// o - returns a list of hosts from which normal clients may
+//	 become operators;
+
+// y - show Y (Class) lines from server's configuration file;
+
+// u - returns a string showing how long the server has been up.
+
+static void		stats_c(IrcServer &irc, Socket *socket)
+{
+	std::map<std::string ,Server *>::iterator		iter;
+	Server											*server;
+	
+	iter = irc.get_global_server().begin();
+	while (iter != irc.get_global_server().end())
+	{
+		server = iter->second;
+		//	if (연결 대기중인 서버이면)
+		//		socket->write(Reply(RPL::STATSCLINE(), server->get_hostname(), server->get_name(), server->ger_port(), "").get_msg().c_str());
+		iter++;
+	}
+	socket->write(Reply(RPL::ENDOFSTATS(), "c"));
+}
+
+static void		stats_l(IrcServer &irc, Socket *socket)
+{
+	std::map<std::string ,Server *>::iterator		iter;
+	Server											*server;
+	
+	iter = irc.get_global_server().begin();
+	while (iter != irc.get_global_server().end())
+	{
+		server = iter->second;
+		socket->write(Reply(RPL::STATSLLINE(), server->get_hostname(), server->get_name(), server->ger_port(), "").get_msg().c_str());
+		iter++;
+	}
+	socket->write(Reply(RPL::ENDOFSTATS(), "c"));
+}
+
+
+void		StatsCommand::run(IrcServer &irc)
 {
 	Socket			*socket;
-    char             flag;
+	char			 flag;
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() == 0) // stats
-            throw (Reply(RPL::ENDOFSTATS(), "*"));
-        if (_msg.get_param_size() == 1) // stats m
-        {
-            flag = (_msg.get_param(0).c_str())[0];
-            if ()
-        }
+			throw (Reply(RPL::ENDOFSTATS(), "*"));
+		if (_msg.get_param_size() == 1) // stats m
+		{
+			flag = (_msg.get_param(0).c_str())[0];
+			if (flag == 'l')
+				stats_c(irc, socket);
+			else if (flag == 'h')
+		}
 	}
 	else if (socket->get_type() == SERVER)
 	{
