@@ -9,6 +9,7 @@
 # include <sys/socket.h>
 # include <netdb.h>
 # include <utility>
+# include <time.h>
 # include <fcntl.h>
 # include "Error.hpp"
 # include "utils.hpp"
@@ -28,7 +29,11 @@ private:
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
 	size_t				_recv_bytes;
+	size_t				_recv_cnt;
 	size_t				_sent_bytes;
+	size_t				_sent_cnt;
+	time_t				_start_time;
+	time_t				_last_action;
 private:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
@@ -58,6 +63,12 @@ public:
 	void				set_pass(std::string const &val);
 	size_t				get_sent_bytes();
 	size_t				get_recv_bytes();
+	size_t				get_sent_cnt();
+	size_t				get_recv_cnt();
+
+	time_t			get_start_time();
+	time_t			get_last_action();
+	void			set_last_action();
 };
 
 #endif

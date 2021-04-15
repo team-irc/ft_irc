@@ -703,7 +703,8 @@ Reply::Reply(RPL::TRACELOG rpl, const std::string &logfile, const std::string &d
 }
 
 // STATS
-Reply::Reply(RPL::STATSLINKINFO rpl, const std::string &linkname, const std::string &sendq, const std::string &sent_msg, const std::string &sent_bytes, const std::string &recv_msg, const std::string &recv_bytes, const std::string &time_open)
+Reply::Reply(RPL::STATSLINKINFO rpl, const std::string &linkname, const std::string &sendq, const std::string &sent_msg, 
+	const std::string &sent_bytes, const std::string &recv_msg, const std::string &recv_bytes, const std::string &time_open)
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	_msg = linkname + " " + sendq + " " + sent_msg + " " + sent_bytes + " " + recv_msg + " " + recv_bytes + " " + time_open;
@@ -791,6 +792,26 @@ Reply::Reply(RPL::STATSHLINE rpl, const std::string &hostmask, const std::string
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	_msg = "H " + hostmask + " * " + server_name;
+}
+
+// MOTD
+
+Reply::Reply(RPL::MOTDSTART rpl, std::string & server)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = ":- " + server + " Message of the day - ";
+}
+
+Reply::Reply(RPL::MOTD rpl, std::string & text)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = ":- " + text;
+}
+
+Reply::Reply(RPL::ENDOFMOTD rpl)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = ":End of /MOTD command";
 }
 
 void		Reply::set_username(std::string const &username)

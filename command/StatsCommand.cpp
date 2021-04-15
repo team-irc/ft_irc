@@ -156,16 +156,40 @@ static void		stats_c(IrcServer &irc, Socket *socket)
 static void		stats_l(IrcServer &irc, Socket *socket)
 {
 	std::map<std::string ,Server *>::iterator		iter;
+	std::vector<Socket *>::iterator					iter2;
 	Server											*server;
+	Socket											*sock;
+	time_t											current_time;
 	
 	iter = irc.get_global_server().begin();
 	while (iter != irc.get_global_server().end())
 	{
 		server = iter->second;
-		socket->write(Reply(RPL::STATSLLINE(), server->get_hostname(), server->get_name(), server->ger_port(), "").get_msg().c_str());
+		if (server->get_hopcount() == 1)
+		{
+			sock = server->get_socket();
+			time(&current_time);
+			socket->write(Reply(RPL::STATSLINKINFO(), server->get_name(), "0", 
+					ft::itos(sock->get_sent_cnt()), ft::itos(sock->get_sent_bytes()), 
+					ft::itos(sock->get_recv_cnt()), ft::itos(sock->get_recv_bytes()), 
+					ft::itos(current_time - sock->get_start_time())).get_msg().c_str());
+		}
 		iter++;
 	}
-	socket->write(Reply(RPL::ENDOFSTATS(), "c"));
+	iter2 = irc.get_socket_set().get_connect_sockets().begin();
+	while (iter2 != irc.get_socket_set().get_connect_sockets().end())
+	{
+		if ((*iter2)->get_type() == CLIENT)
+		{
+			sock = *iter2;
+			socket->write(Reply(RPL::STATSLINKINFO(), sock->get_hostname(), "0", 
+					ft::itos(sock->get_sent_cnt()), ft::itos(sock->get_sent_bytes()), 
+					ft::itos(sock->get_recv_cnt()), ft::itos(sock->get_recv_bytes()), 
+					ft::itos(current_time - sock->get_start_time())).get_msg().c_str());
+		}
+		iter2++;
+	}
+	socket->write(Reply(RPL::ENDOFSTATS(), "l"));
 }
 
 
@@ -183,8 +207,9 @@ void		StatsCommand::run(IrcServer &irc)
 		{
 			flag = (_msg.get_param(0).c_str())[0];
 			if (flag == 'l')
-				stats_c(irc, socket);
-			else if (flag == 'h')
+				stats_l(irc, socket);
+			else
+				throw (Reply(RPL::ENDOFSTATS(), std::string(&flag)));
 		}
 	}
 	else if (socket->get_type() == SERVER)

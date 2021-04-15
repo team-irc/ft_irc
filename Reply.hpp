@@ -196,13 +196,17 @@ public:
 	explicit Reply(RPL::NONE);
 	explicit Reply(RPL::USERHOST, std::vector<Member *>);
 	explicit Reply(RPL::YOUREOPER);
+	// NAMES
 	explicit Reply(RPL::NAMREPLY, const std::string &, std::vector<std::string>);
 	explicit Reply(RPL::ENDOFNAMES, const std::string &);
+	// LIST
 	explicit Reply(RPL::LISTSTART);
 	explicit Reply(RPL::LIST, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::LISTEND);
+	// TOPIC
 	explicit Reply(RPL::NOTOPIC, const std::string &);
 	explicit Reply(RPL::TOPIC, const std::string &, const std::string &);
+	// AWAY
 	explicit Reply(RPL::AWAY, const std::string &, const std::string &);
 	explicit Reply(RPL::UNAWAY);
 	explicit Reply(RPL::NOWAWAY);
@@ -211,6 +215,7 @@ public:
 	explicit Reply(RPL::ISON, const std::vector<std::string> &);
 	explicit Reply(RPL::LINKS, const std::string &, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::ENDOFLINKS, const std::string &);
+	// INFO
 	explicit Reply(RPL::INFO, const std::string &);
 	explicit Reply(RPL::ENDOFINFO);
 	explicit Reply(RPL::TIME, const std::string &, const std::string &);
@@ -236,7 +241,8 @@ public:
 	explicit Reply(RPL::ADMINLOC2, const std::string &);
 	explicit Reply(RPL::ADMINEMAIL, const std::string &);
 	//STATS
-	explicit Reply(RPL::STATSLINKINFO , const std::string &, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSLINKINFO , const std::string &, const std::string &, const std::string &, const std::string &, 
+					const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::STATSCOMMANDS , const std::string &, const std::string &);
 	explicit Reply(RPL::STATSCLINE , const std::string &, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::STATSNLINE , const std::string &, const std::string &, const std::string &, const std::string &);
@@ -260,6 +266,10 @@ public:
 	explicit Reply(RPL::TRACESERVER, const std::string &, int, int, const std::string &, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::TRACENEWTYPE, const std::string &, const std::string &);
 	explicit Reply(RPL::TRACELOG, const std::string &, const std::string &);
+	// MOTD
+	explicit Reply(RPL::MOTDSTART, std::string &);
+	explicit Reply(RPL::MOTD, std::string &);
+	explicit Reply(RPL::ENDOFMOTD);
 public:
 	~Reply();
 	Reply();

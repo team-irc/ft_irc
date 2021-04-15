@@ -80,6 +80,20 @@ std::string ft::itos(unsigned short n)
 	return (ret);
 }
 
+std::string ft::itos(unsigned long n)
+{
+	std::string ret;
+	int			ret_begin = 0;
+	
+	while (n)
+	{
+		// 0->48
+		ret.insert(ret_begin, 1, n % 10 + 48);
+		n /= 10;
+	}
+	return (ret);
+}
+
 int ft::split(const std::string str, char c, std::string *& ret)
 {
 	int size;
@@ -302,6 +316,28 @@ void	ft::get_up_time(time_t start, std::string &result)
 	delete[] tmp;
 }
 
+static std::string		remember_to_buf(std::string &remember)
+{
+	std::string		result;
+	
+	for (int i = 0; i < remember.length(); i++)
+	{
+		if (remember.at(i) != ASCII_CONST::CR && remember.at(i) != ASCII_CONST::LF)
+			result += remember.at(i);
+		else
+		{
+			result += ASCII_CONST::LF;
+			if (remember.at(i) == ASCII_CONST::CR &&
+				(i + 1) < remember.length() && remember.at(i + 1) == ASCII_CONST::LF)
+				i++;
+			remember = remember.substr(i + 1);
+			return (result);
+		}
+	}
+	remember.clear();
+	return (result);
+}
+
 int	ft::read_until_crlf(int fd, char *buffer, int *len)
 {
 	int					i = 0;
@@ -312,13 +348,12 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	int					rem_size = 0;
 
 	memset(buf, 0, BUFFER_SIZE);
-	// buf에 remember[fd]를 삽입
 	if (!remember[fd].empty())
 	{
-		rem_size = remember[fd].length();
-		strncpy(buf, remember[fd].c_str(), rem_size);
+		std::string	result = remember_to_buf(remember[fd]);
+		rem_size = result.length();
+		strncpy(buf + insert_idx, result.c_str(), rem_size);
 		insert_idx += rem_size;
-		remember[fd].clear();
 	}
 	while (insert_idx < BUFFER_SIZE)
 	{
@@ -333,8 +368,13 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		}
 		else
 		{
-			strncpy(buf, remember[fd].c_str(), rem_size);
-			remember[fd].clear();
+			if (insert_idx >= 1 && buf[insert_idx - 1] != '\n')
+			{
+				std::string	result = remember_to_buf(remember[fd]);
+				rem_size = result.length();
+				strncpy(buf + insert_idx, result.c_str(), rem_size);
+				insert_idx += rem_size;
+			}
 		}
 		for (i = 0; i < read_size + rem_size; i++)
 		{
@@ -376,8 +416,11 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		buffer[i] = buf[i];
 	}
 	buffer[insert_idx] = 0;
-	*len = BUFFER_SIZE;
-	return (0);
+	*len = insert_idx;
+	if (remember[fd].empty())
+		return (0);
+	else
+		return (1);
 }
 
 void	ft::ltrim(std::string & str, char c)

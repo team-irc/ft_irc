@@ -49,6 +49,7 @@ SRC = \
 	command/WhoisQuery.cpp		\
 	command/WhowasQuery.cpp		\
 	command/ConnectCommand.cpp	\
+	command/StatsCommand.cpp	\
 
 
 SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
