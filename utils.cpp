@@ -320,6 +320,13 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	int					rem_size = 0;
 
 	memset(buf, 0, BUFFER_SIZE);
+	if (!remember[fd].empty())
+	{
+		std::string	result = remember_to_buf(remember[fd]);
+		rem_size = result.length();
+		strncpy(buf + insert_idx, result.c_str(), rem_size);
+		insert_idx += rem_size;
+	}
 	while (insert_idx < BUFFER_SIZE)
 	{
 		if (remember[fd].empty())
@@ -333,10 +340,13 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		}
 		else
 		{
-			std::string	result = remember_to_buf(remember[fd]);
-			rem_size = result.length();
-			strncpy(buf + insert_idx, result.c_str(), rem_size);
-			insert_idx += rem_size;
+			if (insert_idx >= 1 && buf[insert_idx - 1] != '\n')
+			{
+				std::string	result = remember_to_buf(remember[fd]);
+				rem_size = result.length();
+				strncpy(buf + insert_idx, result.c_str(), rem_size);
+				insert_idx += rem_size;
+			}
 		}
 		for (i = 0; i < read_size + rem_size; i++)
 		{
