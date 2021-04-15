@@ -1,5 +1,6 @@
 #include "Socket.hpp"
 #include "Reply.hpp"
+#include <fcntl.h>
 
 Socket::Socket()
 {
@@ -10,28 +11,31 @@ Socket::Socket(const char *port)
 {
 	_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_fd == -1)
-		throw(Error("socket construct error"));
-
+		throw (Error("socket construct error"));
+	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw(Error("fcntl returned -1"));
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	_addr.sin_port = htons(ft::atoi(port));
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 Socket::Socket(unsigned short port)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
-
+	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw(Error("fcntl returned -1"));
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	_addr.sin_port = port;
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 Socket::Socket(struct sockaddr_in serv_addr)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
-
 	memset(&_addr, 0, sizeof(_addr));
 	_addr = serv_addr;
 }
@@ -99,9 +103,6 @@ std::pair<struct sockaddr_in, std::string> Socket::parsing_host_info(const char 
 	return (std::make_pair(host, string_password_network));
 };
 
-//110110011111010100000000100010
-//54 125 64 34
-
 // 127.0.0.1:port:pass
 Socket *Socket::connect(const char *connect_srv)
 {
@@ -119,7 +120,11 @@ Socket *Socket::connect(const char *connect_srv)
 	if (new_sock->_fd == -1)
 		throw(Error("connect socket create error"));
 	if (::connect(new_sock->_fd, (struct sockaddr *)&new_sock->_addr, sizeof(new_sock->_addr)) == -1)
-		throw(Error("socket connect error"));
+	{
+		if (errno != EINPROGRESS)
+			throw (Error("socket connect error"));
+	}
+	fcntl(new_sock->_fd, F_SETFL, O_NONBLOCK);
 	return (new_sock);
 }
 
@@ -138,6 +143,8 @@ Socket *Socket::accept() const
 	// copy
 	new_socket = new Socket();
 	new_socket->_fd = client_sock;
+	if (fcntl(new_socket->_fd, F_SETFL, O_NONBLOCK) == -1)
+		throw(Error("fcntl returned -1"));
 	memcpy(&new_socket->_addr, &client_addr, clnt_addr_size);
 	return (new_socket);
 }

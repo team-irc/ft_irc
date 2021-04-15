@@ -162,6 +162,8 @@ void	IrcServer::client_msg(int fd)
 			return ;
 		}
 		std::cout << "[RECV] " << buf << " [" << fd << "] " << "[" << _current_sock->show_type() << "]\n";
+		if (result == 2)
+			return ;
 		if (buf[0] == 0) // 클라이언트에서 Ctrl + C 입력한 경우
 		{	// 해당 클라이언트와 연결 종료
 			std::string msg;
@@ -221,7 +223,7 @@ void		IrcServer::fd_event_loop()
 
 	timeout.tv_sec = 1;
 	timeout.tv_usec = 0;
-	fds = _socket_set.get_read_fds();
+	fds = _socket_set.get_read_fds_copy();
 	if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
 		throw (Error(strerror(errno)));
 	else if (fd_num != 0)
