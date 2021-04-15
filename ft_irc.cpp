@@ -153,7 +153,11 @@ void	IrcServer::update_last_time()
 
 	while (begin != end)
 	{
-		(*begin)->set_last_action();
+		if ((*begin) == _current_sock)
+		{
+			(*begin)->set_last_action();
+			return ;
+		}
 		begin++;
 	}
 }
@@ -268,27 +272,45 @@ void	IrcServer::check_connection()
 	std::vector<Socket *>::iterator	begin = connects.begin();
 	std::vector<Socket *>::iterator	end = connects.end();
 
-
-	time(&_current_time);
 	while (begin != end)
 	{
 		if ((*begin)->get_type() != LISTEN)
 		{
+			time(&_current_time);
 			long	diff_time = _current_time - (*begin)->get_last_action();
 			if (diff_time > (_si.PING_TIMEOUT + _si.PONG_TIMEOUT))
 			{
 				// 해당 소켓 연결 종료
 				// SQUIT이나 quit에 있는 내용 넣어두면 될 것 같음
-				std::string	msg = "ERROR: Ping Timeout\n";
-				send_msg((*begin)->get_fd(), msg.c_str());
+				std::string	msg;
+				Command *cmd = NULL;
+				_current_sock = (*begin);
+				if ((*begin)->get_type() == SERVER)
+				{
+					cmd = _cmd_creator.get_command("SQUIT");
+					cmd->set_message(NULL);
+				}
+				else if ((*begin)->get_type() == CLIENT)
+				{
+					cmd = _cmd_creator.get_command("QUIT");
+					Member *member = find_member(_current_sock->get_fd());
+					if (member)
+						msg = "QUIT :" + member->get_nick() + "\n";
+					else
+						msg = "QUIT\n";
+					cmd->set_message(Message(msg.c_str()));
+				}
+				if (cmd)
+					cmd->execute(*this);
 			}
-			else if (diff_time > _si.PING_TIMEOUT)
+			else if (diff_time > _si.PING_TIMEOUT && !((*begin)->is_ping_check()))
 			{
 				std::string	msg = "PING :" + get_serverinfo().SERVER_NAME + "\n";
 				if ((*begin)->get_type() == SERVER)
 					msg = ":" + get_serverinfo().SERVER_NAME + " " + msg;
 				send_msg((*begin)->get_fd(), msg.c_str());
-			}	
+				(*begin)->set_ping_check();
+			}
 		}
 		begin++;
 	}

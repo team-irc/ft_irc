@@ -224,4 +224,11 @@ const char *Socket::show_type() const
 }
 
 time_t			Socket::get_last_action() { return (_last_action); }
-void			Socket::set_last_action() { time(&_last_action); }
+void			Socket::set_last_action()
+{
+	time(&_last_action);
+	_is_ping_check = false;
+}
+
+bool			Socket::is_ping_check() { return (_is_ping_check); }
+void			Socket::set_ping_check() { _is_ping_check = true; }

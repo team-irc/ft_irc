@@ -29,6 +29,7 @@ private:
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
 	time_t				_last_action;
+	bool				_is_ping_check;
 private:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
@@ -58,6 +59,9 @@ public:
 
 	time_t			get_last_action();
 	void			set_last_action();
+
+	bool			is_ping_check();
+	void			set_ping_check();
 };
 
 #endif
