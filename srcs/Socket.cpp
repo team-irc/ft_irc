@@ -1,5 +1,6 @@
 #include "Socket.hpp"
 #include "Reply.hpp"
+#include "ft_irc.hpp"
 #include <fcntl.h>
 
 Socket::Socket() : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
@@ -167,10 +168,12 @@ void Socket::write(char const *msg)
 	::write(_fd, msg, strlen(msg));
 }
 
-void Socket::write(Reply rpl)
+void Socket::write(IrcServer &irc, Reply rpl)
 {
 	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
+	rpl.set_servername(irc.get_serverinfo().SERVER_NAME);
+	rpl.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
 	_sent_bytes += strlen(rpl.get_msg().c_str());
 	_sent_cnt++;
 	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
@@ -276,4 +279,11 @@ std::string			Socket::get_linkname()
 
 time_t			Socket::get_start_time() { return (_start_time); }
 time_t			Socket::get_last_action() { return (_last_action); }
-void			Socket::set_last_action() { time(&_last_action); }
+void			Socket::set_last_action()
+{
+	time(&_last_action);
+	_is_ping_check = false;
+}
+
+bool			Socket::is_ping_check() { return (_is_ping_check); }
+void			Socket::set_ping_check() { _is_ping_check = true; }

@@ -463,19 +463,6 @@ Reply::Reply(RPL::ENDOFINFO rpl)
 	_msg = ":End of /INFO list";
 }
 
-Reply::~Reply()
-{
-}
-
-std::string 	Reply::get_msg() const
-{
-	std::string	ret;
-
-	ret = ":" + _server_name + " " + _errnum + " " + _user_name + " ";
-	ret += _msg + "\n";
-	return (ret);
-}
-
 Reply::Reply(RPL::NOTOPIC err, const std::string &channel)
 {
 	_errnum = ft::itos(err.ERRNO);
@@ -822,4 +809,17 @@ void		Reply::set_username(std::string const &username)
 void		Reply::set_servername(std::string const &servername)
 {
 	_server_name = servername;
+}
+
+Reply::~Reply()
+{
+}
+
+std::string 	Reply::get_msg() const
+{
+	std::string	ret;
+
+	ret = ":" + _server_name + " " + _errnum + " " + _user_name + " ";
+	ret += _msg + "\n";
+	return (ret);
 }

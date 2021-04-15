@@ -15,6 +15,7 @@
 # include "utils.hpp"
 
 class Reply;
+class IrcServer;
 
 enum SOCKET_TYPE
 {
@@ -37,6 +38,7 @@ private:
 
 	time_t				_start_time;
 	time_t				_last_action;
+	bool				_is_ping_check;
 private:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
@@ -52,9 +54,9 @@ public:
 	void				listen() const;
 	Socket				*accept() const;
 	Socket				*connect(const char *connect_srv);
-	void				write(char const *msg);
-	void				write(Reply rpl);
 	int					read(int fd, char *buffer, int *len);
+	void				write(char const *msg);
+	void				write(IrcServer &irc, Reply rpl);
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;
@@ -74,6 +76,9 @@ public:
 	time_t			get_start_time();
 	time_t			get_last_action();
 	void			set_last_action();
+
+	bool			is_ping_check();
+	void			set_ping_check();
 };
 
 #endif
