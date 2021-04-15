@@ -377,7 +377,7 @@ Reply::Reply(RPL::ENDOFNAMES rpl, const std::string &channel)
 	_errnum = ft::itos(rpl.ERRNO);
 	//"<channel> :End of /NAMES list"
 	_msg = channel;
-	_msg += " :End of /NAMES list";
+	_msg += " :End of NAMES list";
 }
 
 Reply::Reply(RPL::LISTSTART rpl)
@@ -700,6 +700,20 @@ Reply::Reply(RPL::TRACELOG rpl, const std::string &logfile, const std::string &d
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	_msg = "File " + logfile + " " + debug_level;
+}
+
+// STATS
+
+Reply::Reply(RPL::STATSCLINE rpl, const std::string &host, const std::string &name, const std::string &port, const std::string &class_name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "C " + host + " * " + name + " " + port + " " + class_name;
+}
+
+Reply::Reply(RPL::ENDOFSTATS rpl, const std::string &flag)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = flag + " :End of STATS report";
 }
 
 void		Reply::set_username(std::string const &username)

@@ -13,7 +13,6 @@
 
 	현재 지원되는 쿼리는 다음과 같습니다.
 	c-서버가 연결하거나 연결을 허용 할 수있는 서버 목록을 반환합니다.
-	s
 	h-잎사귀로 처리되거나 허브 역할을하도록 허용 된 서버 목록을 반환합니다.
 	i-서버가 클라이언트의 연결을 허용하는 호스트 목록을 반환합니다.
 	k-해당 서버에 대해 금지 된 사용자 이름 / 호스트 이름 조합 목록을 반환합니다.
@@ -86,11 +85,18 @@
 void StatsCommand::run(IrcServer &irc)
 {
 	Socket			*socket;
+    char             flag;
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
-		
+		if (_msg.get_param_size() == 0) // stats
+            throw (Reply(RPL::ENDOFSTATS(), "*"));
+        if (_msg.get_param_size() == 1) // stats m
+        {
+            flag = (_msg.get_param(0).c_str())[0];
+            if ()
+        }
 	}
 	else if (socket->get_type() == SERVER)
 	{
