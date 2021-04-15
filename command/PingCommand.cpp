@@ -75,8 +75,9 @@ void		PingCommand::run(IrcServer &irc)
 			(irc.get_serverinfo().SERVER_NAME == servername))
 		{
 			//pong메시지 전송
-			std::string		pong_msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG " +
-				_msg.get_prefix();
+			std::string		pong_msg = ":" + irc.get_serverinfo().SERVER_NAME + " PONG";
+			if (!_msg.get_prefix().empty())
+				pong_msg += " " + _msg.get_prefix();
 			if (_msg.get_param(0).at(0) == ':')
 				pong_msg += " " + _msg.get_param(0) + "\n";
 			else

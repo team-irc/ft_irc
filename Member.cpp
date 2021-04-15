@@ -68,8 +68,6 @@ const std::string	&Member::get_servername()								{ return (_servername); }
 void				Member::set_servername(const std::string &servername)	{ _servername = servername; }
 const std::string	&Member::get_realname()									{ return (_realname); }
 void				Member::set_realname(const std::string &realname)		{ _realname = realname; }
-const time_t		&Member::get_last_action()								{ return(_last_action); }
-void				Member::set_last_action()								{ time(&_last_action); }
 int					Member::get_fd()										{ return (_fd); }
 void				Member::set_fd(int fd)									{ _fd = fd; }
 std::set<Channel *>	&Member::get_joined_channels()							{ return (_joined_channels); }

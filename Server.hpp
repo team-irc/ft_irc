@@ -10,6 +10,7 @@ private:
 	int				_hopcount;
 	std::string		_info;
 	std::string		_name;
+	std::string		_host;
 	std::string		_password;
 	int				_token;
 	Socket			*_connected_socket;

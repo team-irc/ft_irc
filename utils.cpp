@@ -302,6 +302,28 @@ void	ft::get_up_time(time_t start, std::string &result)
 	delete[] tmp;
 }
 
+static std::string		remember_to_buf(std::string &remember)
+{
+	std::string		result;
+	
+	for (int i = 0; i < remember.length(); i++)
+	{
+		if (remember.at(i) != ASCII_CONST::CR && remember.at(i) != ASCII_CONST::LF)
+			result += remember.at(i);
+		else
+		{
+			result += ASCII_CONST::LF;
+			if (remember.at(i) == ASCII_CONST::CR &&
+				(i + 1) < remember.length() && remember.at(i + 1) == ASCII_CONST::LF)
+				i++;
+			remember = remember.substr(i + 1);
+			return (result);
+		}
+	}
+	remember.clear();
+	return (result);
+}
+
 int	ft::read_until_crlf(int fd, char *buffer, int *len)
 {
 	int					i = 0;
@@ -312,26 +334,33 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	int					rem_size = 0;
 
 	memset(buf, 0, BUFFER_SIZE);
-	// buf에 remember[fd]를 삽입
 	if (!remember[fd].empty())
 	{
-		rem_size = remember[fd].length();
-		strncpy(buf, remember[fd].c_str(), rem_size);
+		std::string	result = remember_to_buf(remember[fd]);
+		rem_size = result.length();
+		strncpy(buf + insert_idx, result.c_str(), rem_size);
 		insert_idx += rem_size;
 	}
 	while (insert_idx < BUFFER_SIZE)
 	{
 		if (remember[fd].empty())
 		{
-			if (!(read_size = read(fd, buf, BUFFER_SIZE - insert_idx)))
+			if ((read_size = read(fd, buf + insert_idx, BUFFER_SIZE - insert_idx)) == -1)
+				break;
+			else if (read_size == 0)
 				break;
 			if (read_size == -1)
 				return (-1);
 		}
 		else
 		{
-			strncpy(buf, remember[fd].c_str(), rem_size);
-			remember[fd].clear();
+			if (insert_idx >= 1 && buf[insert_idx - 1] != '\n')
+			{
+				std::string	result = remember_to_buf(remember[fd]);
+				rem_size = result.length();
+				strncpy(buf + insert_idx, result.c_str(), rem_size);
+				insert_idx += rem_size;
+			}
 		}
 		for (i = 0; i < read_size + rem_size; i++)
 		{
@@ -365,12 +394,19 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 		}
 		rem_size = 0;
 		// write(1, buf, read_size);
-		strncpy(buffer + insert_idx, buf, read_size);
-		insert_idx += read_size;
+		remember[fd] += buf;
+		return (2);
+	}
+	for (int i = 0; buf[i] != 0; i++)
+	{
+		buffer[i] = buf[i];
 	}
 	buffer[insert_idx] = 0;
-	*len = BUFFER_SIZE;
-	return (0);
+	*len = insert_idx;
+	if (remember[fd].empty())
+		return (0);
+	else
+		return (1);
 }
 
 void	ft::ltrim(std::string & str, char c)

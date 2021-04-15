@@ -58,9 +58,7 @@ void	ServerCommand::run(IrcServer &irc)
 		if (socket->get_pass().empty())
 		{
 			// :irc.example.net 461 * SERVER :Syntax error
-			std::string msg = irc.get_serverinfo().SERVER_NAME;
-			msg += " 461 * SERVER :Syntax error\n";
-			socket->write(msg.c_str());
+			throw (Reply(ERR::NEEDMOREPARAMS(), "SERVER"));
 		}
 		else if (irc.check_pass(socket))
 		{
