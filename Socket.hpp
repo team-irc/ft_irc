@@ -10,6 +10,7 @@
 # include <netdb.h>
 # include <utility>
 # include <time.h>
+# include <fcntl.h>
 # include "Error.hpp"
 # include "utils.hpp"
 
