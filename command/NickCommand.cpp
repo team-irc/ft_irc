@@ -139,6 +139,7 @@ void	NickCommand::run(IrcServer &irc)
 				Message		user_msg(str.c_str());
 				user_msg.set_prefix(nickname);
 				irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
+				irc.print_motd();
 			}
 			else
 			{

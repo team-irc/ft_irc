@@ -571,5 +571,20 @@ bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 	return (false);
 }
 
+void				IrcServer::print_motd()
+{
+	Socket *socket;
+	std::string *	split_ret;
+	int				split_size;
+
+	socket = get_current_socket();
+	split_size = ft::split(_si.MOTD, '\n', split_ret);
+	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
+	for (int i = 0; i < split_size - 1; ++i)
+		socket->write(Reply(RPL::MOTD(), split_ret[i]));
+	socket->write(Reply(RPL::ENDOFMOTD()));
+	delete[] split_ret;
+}
+
 time_t		IrcServer::get_start_time()
 { return (_start_time); }

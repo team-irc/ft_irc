@@ -14,8 +14,11 @@ public:
 	ReadConf();
 	~ReadConf();
 public:
-	void	open_file(const std::string & file_name);
-	void	read_config(ServerInfo & si);
+	void		open_file(const std::string & file_name);
+	void		read_config(ServerInfo & si);
+private:
+	std::string	read_motd(const std::string & file_name);
+	void		set_si(ServerInfo & si, const std::string & key, const std::string & value, int line_num);
 };
 
 #endif
