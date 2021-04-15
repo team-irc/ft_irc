@@ -702,6 +702,26 @@ Reply::Reply(RPL::TRACELOG rpl, const std::string &logfile, const std::string &d
 	_msg = "File " + logfile + " " + debug_level;
 }
 
+// MOTD
+
+Reply::Reply(RPL::MOTDSTART rpl, std::string & server)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = ":- " + server + " Message of the day - ";
+}
+
+Reply::Reply(RPL::MOTD rpl, std::string & text)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = ":- " + text;
+}
+
+Reply::Reply(RPL::ENDOFMOTD rpl)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = ":End of /MOTD command";
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;

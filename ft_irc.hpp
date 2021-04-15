@@ -106,6 +106,7 @@ public:
 	int					get_server_token();
 
 	bool				check_oper(const std::string & id, const std::string & pwd);
+	void				print_motd();
 	
 private:
 
