@@ -4,13 +4,11 @@ NAME = server
 
 CC = clang++
 
-# CFLAGS = -Wall -Werror -Wextra -std=c++98 -g
+CFLAGS = -std=c++98 -g
 
-CFLAGS = -std=c++98
+INC_DIR = ./includes
 
-HEADER_DIR = . 
-
-SRC_DIR = .
+SRC_DIR = ./srcs
 
 SRC = \
 	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			read_conf.cpp	\
@@ -57,10 +55,11 @@ SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
 
 ## 나중에 $(CLFAG) 추가
 $(NAME) : $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -g
+	$(CC) $(SRCS) $(CFLAGS) -I $(INC_DIR) -o $(NAME)
 
 sanitize : $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -fsanitize=address
+	$(CC) $(SRCS) $(CFLAGS) -I $(INC_DIR) -o $(NAME) -fsanitize=address
+
 # %.o : %.c
 # 		$(CC) -o $@ -c $^ -I $(HEADER_DIR) -I ./command
 
