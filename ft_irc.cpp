@@ -279,11 +279,10 @@ void	IrcServer::check_connection()
 		{
 			// 해당 소켓 연결 종료
 			// SQUIT이나 quit에 있는 내용 넣어두면 될 것 같음
+
 		}
 		else if (diff_time > 120)
 		{
-			//PING 전송
-			// PING :<servername>
 			std::string	msg = "PING :" + get_serverinfo().SERVER_NAME + "\n";
 			if ((*begin)->get_type() == SERVER)
 				msg = ":" + get_serverinfo().SERVER_NAME + " " + msg;
