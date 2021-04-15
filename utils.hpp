@@ -26,6 +26,7 @@ namespace ft
 	bool		isalpha(int c);
 
 	bool		isdigit(int c);
+	bool		isdigit(const std::string &s);
 
 	bool		check_mask(std::string const &str, std::string const &mask);
 

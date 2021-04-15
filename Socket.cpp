@@ -1,5 +1,6 @@
 #include "Socket.hpp"
 #include "Reply.hpp"
+#include <fcntl.h>
 
 Socket::Socket()
 {
@@ -17,6 +18,7 @@ Socket::Socket(const char *port)
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	_addr.sin_port = htons(ft::atoi(port));
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 Socket::Socket(unsigned short port)
@@ -28,6 +30,7 @@ Socket::Socket(unsigned short port)
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	_addr.sin_port = port;
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 Socket::Socket(struct sockaddr_in serv_addr)
@@ -78,7 +81,7 @@ void	Socket::listen() const
 
 // first: host
 // second: password
-std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *connect) const
+std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(const char *connect) const
 {
 	std::string *		split_ret;
 	std::string			string_host;
@@ -101,7 +104,7 @@ std::pair<struct sockaddr_in, std::string>	Socket::parsing_host_info(char *conne
 };
 
 // 127.0.0.1:port:pass
-Socket	*Socket::connect(char *connect_srv)
+Socket	*Socket::connect(const char *connect_srv)
 {
 	Socket										*new_sock;
 	struct sockaddr_in							serv_addr;
@@ -116,9 +119,12 @@ Socket	*Socket::connect(char *connect_srv)
 	new_sock->set_pass(pair.second);
 	if (new_sock->_fd == -1)
 		throw (Error("connect socket create error"));
-	::connect(new_sock->_fd, (struct sockaddr *)&new_sock->_addr, sizeof(new_sock->_addr));
-	if (fcntl(new_sock->_fd, F_SETFL, O_NONBLOCK) == -1)
-		throw(Error("fcntl returned -1"));
+	if (::connect(new_sock->_fd, (struct sockaddr *)&new_sock->_addr, sizeof(new_sock->_addr)) == -1)
+	{
+		if (errno != EINPROGRESS)
+			throw (Error("socket connect error"));
+	}
+	fcntl(new_sock->_fd, F_SETFL, O_NONBLOCK);
 	return (new_sock);
 }
 

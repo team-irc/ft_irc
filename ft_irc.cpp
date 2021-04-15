@@ -155,7 +155,14 @@ void	IrcServer::client_msg(int fd)
 	{
 		memset(buf, 0, BUFFER_SIZE);
 		result = ft::read_until_crlf(fd, buf, &str_len);
+		if (result == -1)
+		{
+			std::cout << "read_until_crlf return -1" << std::endl;
+			return ;
+		}
 		std::cout << "[RECV] " << buf << " [" << fd << "] " << "[" << _current_sock->show_type() << "]\n";
+		if (result == 2)
+			return ;
 		if (buf[0] == 0) // 클라이언트에서 Ctrl + C 입력한 경우
 		{	// 해당 클라이언트와 연결 종료
 			std::string msg;
@@ -225,7 +232,7 @@ void	IrcServer::run(int argc)
 	{
 		timeout.tv_sec = 1;
 		timeout.tv_usec = 0;
-		fds = _socket_set.get_fds();
+		fds = _socket_set.get_read_fds_copy();
 		if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
 			throw (Error("select return -1"));
 		else if (fd_num != 0)
@@ -293,7 +300,10 @@ Member		*IrcServer::get_member(int fd)
 Socket		*IrcServer::get_current_socket()
 { return (_current_sock); }
 
-int			IrcServer::get_fdmax()
+Socket		*IrcServer::get_listen_socket()
+{ return (_listen_socket); }
+
+int			&IrcServer::get_fdmax()
 {
 	return (_fd_max);
 }

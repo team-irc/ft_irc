@@ -28,7 +28,7 @@ private:
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
 private:
-	std::pair<struct sockaddr_in, std::string>	parsing_host_info(char *connect) const;
+	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
 	Socket();
 	Socket(const char *port);
@@ -41,7 +41,7 @@ public:
 	void				bind() const;
 	void				listen() const;
 	Socket				*accept() const;
-	Socket				*connect(char *connect_srv);
+	Socket				*connect(const char *connect_srv);
 	void				write(char const *msg) const;
 	void				write(Reply rpl) const;
 	void				show_info() const;
