@@ -223,7 +223,7 @@ void	IrcServer::client_msg(int fd)
 			{
 				Reply::set_servername(_si.SERVER_NAME);
 				Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
-				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
+				_current_sock->write(*this, Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
 			}
 		}
 	} while (result);
@@ -628,10 +628,10 @@ void				IrcServer::print_motd()
 
 	socket = get_current_socket();
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
-	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
+	socket->write(*this, Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	for (int i = 0; i < split_size - 1; ++i)
-		socket->write(Reply(RPL::MOTD(), split_ret[i]));
-	socket->write(Reply(RPL::ENDOFMOTD()));
+		socket->write(*this, Reply(RPL::MOTD(), split_ret[i]));
+	socket->write(*this, Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
 }
 
