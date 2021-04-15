@@ -11,6 +11,8 @@ struct ServerInfo
 	std::string	ADMININFO2;
 	std::string	ADMINEMAIL;
 	std::string MOTD;
+	int			PING_TIMEOUT;
+	int			PONG_TIMEOUT;
 };
 
 #endif

@@ -272,21 +272,23 @@ void	IrcServer::check_connection()
 	time(&_current_time);
 	while (begin != end)
 	{
-		if ((*begin)->get_type() == LISTEN)
-			begin++;
-		long	diff_time = _current_time - (*begin)->get_last_action();
-		if (diff_time > 140)
+		if ((*begin)->get_type() != LISTEN)
 		{
-			// 해당 소켓 연결 종료
-			// SQUIT이나 quit에 있는 내용 넣어두면 될 것 같음
-
-		}
-		else if (diff_time > 120)
-		{
-			std::string	msg = "PING :" + get_serverinfo().SERVER_NAME + "\n";
-			if ((*begin)->get_type() == SERVER)
-				msg = ":" + get_serverinfo().SERVER_NAME + " " + msg;
-			send_msg((*begin)->get_fd(), msg.c_str());
+			long	diff_time = _current_time - (*begin)->get_last_action();
+			if (diff_time > (_si.PING_TIMEOUT + _si.PONG_TIMEOUT))
+			{
+				// 해당 소켓 연결 종료
+				// SQUIT이나 quit에 있는 내용 넣어두면 될 것 같음
+				std::string	msg = "ERROR: Ping Timeout\n";
+				send_msg((*begin)->get_fd(), msg.c_str());
+			}
+			else if (diff_time > _si.PING_TIMEOUT)
+			{
+				std::string	msg = "PING :" + get_serverinfo().SERVER_NAME + "\n";
+				if ((*begin)->get_type() == SERVER)
+					msg = ":" + get_serverinfo().SERVER_NAME + " " + msg;
+				send_msg((*begin)->get_fd(), msg.c_str());
+			}	
 		}
 		begin++;
 	}
