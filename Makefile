@@ -1,81 +1,39 @@
 .PHONY: all clean fclean re
 
+_END		=	\033[0;0m
+_RED		=	\033[0;31m
+_GREEN		=	\033[0;32m
+
 NAME = server
 
-CC = clang++
+CXX = clang++
 
-# CFLAGS = -Wall -Werror -Wextra -std=c++98 -g
+CXXFLAGS = -std=c++98 -I ${INC_DIR} -g -fsanitize=address
 
-CFLAGS = -std=c++98
+INC_DIR = ./includes
 
-HEADER_DIR = . 
+SRCS = $(wildcard ./srcs/*.cpp)
+SRCS += $(wildcard ./srcs/command/*.cpp)
 
-SRC_DIR = .
-
-SRC = \
-	main.cpp	ft_irc.cpp		Socket.cpp		SocketSet.cpp		utils.cpp			read_conf.cpp	\
-	Error.cpp	Member.cpp		Message.cpp		Command.cpp		CommandFactory.cpp		Reply.cpp	\
-	Channel.cpp	Server.cpp\
-	command/ServerCommand.cpp	\
-	command/PassCommand.cpp		\
-	command/NickCommand.cpp		\
-	command/UserCommand.cpp		\
-	command/JoinCommand.cpp		\
-	command/PrivmsgCommand.cpp	\
-	command/PartCommand.cpp		\
-	command/QuitCommand.cpp		\
-	command/NamesCommand.cpp	\
-	command/SquitCommand.cpp	\
-	command/TopicCommand.cpp	\
-	command/ModeCommand.cpp		\
-	command/ListCommand.cpp		\
-	command/AwayCommand.cpp		\
-	command/KickCommand.cpp		\
-	command/InviteCommand.cpp	\
-	command/VersionCommand.cpp	\
-	command/IsonCommand.cpp		\
-	command/OperCommand.cpp		\
-	command/UserhostCommand.cpp	\
-	command/TimeCommand.cpp		\
-	command/InfoCommand.cpp		\
-	command/LinksCommand.cpp	\
-	command/NoticeCommand.cpp	\
-	command/AdminCommand.cpp	\
-	command/RehashCommand.cpp	\
-	command/PingCommand.cpp		\
-	command/PongCommand.cpp		\
-	command/TraceCommand.cpp	\
-	command/WhoQuery.cpp		\
-	command/WhoisQuery.cpp		\
-	command/WhowasQuery.cpp		\
-	command/ConnectCommand.cpp	\
-
-
-SRCS = $(addprefix $(SRC_DIR)/, $(SRC))
-
-# OBJS = $(SRCS:%.cpp=%.o)
+OBJS = $(patsubst %.cpp, %.o, ${SRCS})
 
 ## 나중에 $(CLFAG) 추가
-$(NAME) : $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -g
+$(NAME) : $(OBJS)
+	@$(CXX) $(OBJS) $(CFLAGS) -I $(INC_DIR) -o $(NAME)
+	@echo "${_GREEN}COMPILE COMPLETE${_END}"
 
-sanitize : $(SRCS)
-	$(CC) $(SRCS) $(CFLAGS) -I $(HEADER_DIR) -I ./command -o $(NAME) -fsanitize=address
-# %.o : %.c
-# 		$(CC) -o $@ -c $^ -I $(HEADER_DIR) -I ./command
+%.o : %.cpp
+	@$(CXX) -o $@ -c $^ -I $(INC_DIR)
 
 all : $(NAME)
 
-chatbot :
-	$(CC) chatbot.cpp $(CFLAGS) -o chatbot -g
+clean :
+	@echo "${_RED}REMOVE OBJECTS...${_END}"
+	@rm -f $(OBJS)
 
-# clean :
-# 		rm -f $(OBJS)
-
-fclean :
-	rm -f $(NAME)
-	rm -rf server.dSYM
-	rm -f chatbot
-	rm -rf chatbot.dSYM
+fclean : clean
+	@echo "${_RED}REMOVE PROGRAM...${_END}"
+	@rm -f $(NAME)
+	@rm -rf server.dSYM
 
 re : fclean all

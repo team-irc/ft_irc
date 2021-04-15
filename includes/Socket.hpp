@@ -15,6 +15,7 @@
 # include "utils.hpp"
 
 class Reply;
+class IrcServer;
 
 enum SOCKET_TYPE
 {
@@ -46,7 +47,7 @@ public:
 	Socket				*accept() const;
 	Socket				*connect(const char *connect_srv);
 	void				write(char const *msg) const;
-	void				write(Reply rpl) const;
+	void				write(IrcServer &irc, Reply rpl) const;
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;
