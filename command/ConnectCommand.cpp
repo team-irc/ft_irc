@@ -2,18 +2,36 @@
 
 void ConnectCommand::run(IrcServer &irc)
 {
-    int         param_size;
     Socket      *socket;
     Member      *member;
     std::string target;
     std::string port;
     std::string remote;
 
-    param_size  = _msg.get_param_size();
+    parsing(target, port, remote);
     socket      = irc.get_current_socket();
+    member      = irc.find_member(socket->get_fd());
+    if ((!remote.empty()) && !check_already_exist(irc, remote, ft::itos(6667)))
+        throw (Reply(ERR::NOSUCHSERVER(), remote));
+    if (remote.empty() || remote == irc.get_listen_socket()->get_hostname())
+    {
+        if (!check_already_exist(irc, target, port))
+            connect_to_target(irc, target, port);
+    }
+    else
+    {
+        _msg.set_prefix(member->get_nick());
+        irc.send_msg(irc.find_server_fd(remote), _msg.get_msg());
+    }
+}
+
+void ConnectCommand::parsing(std::string & target, std::string & port, std::string & remote)
+{
+    int param_size = _msg.get_param_size();
+
     if (param_size < 1)
         throw (Reply(ERR::NEEDMOREPARAMS(), "CONNECT"));
-    target  = _msg.get_param(0);
+    target = _msg.get_param(0);
     if (param_size == 1)
     {
         port    = ft::itos(6667);
@@ -32,17 +50,6 @@ void ConnectCommand::run(IrcServer &irc)
     {
         port    = _msg.get_param(1);
         remote  = _msg.get_param(2);
-    }
-    if (socket->get_type() == CLIENT)
-    {
-        Member * member      = irc.find_member(socket->get_fd());
-        if (member->check_mode('o', true))
-            throw (Reply(ERR::NOPRIVILEGES()));
-        if (!check_already_exist(irc, target, port))
-            connect_to_target(irc, target, port);
-    }
-    else if (socket->get_type() == SERVER)
-    {
     }
 }
 
@@ -86,7 +93,7 @@ void ConnectCommand::connect_to_target(IrcServer & irc, const std::string & targ
     }
     catch(Error & e)
     {
-        std::cerr << e.what() << std::endl;
+        irc.get_current_socket()->write(Reply(ERR::NOSUCHSERVER(), target));
     }
 }
 
