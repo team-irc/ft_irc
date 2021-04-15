@@ -59,6 +59,10 @@ void	    ReadConf::set_si(ServerInfo & si, const std::string & key, const std::s
         si.OPERPWD = value;
     else if (key == "MOTD")
         si.MOTD = read_motd(value);
+    else if (key == "PING_TIMEOUT")
+        si.PING_TIMEOUT = ft::atoi(value.c_str());
+    else if (key == "PONG_TIMEOUT")
+        si.PONG_TIMEOUT = ft::atoi(value.c_str());
     else
         throw (Error("CONFIG ERROR in line number " + ft::itos(line_num)));
 }
