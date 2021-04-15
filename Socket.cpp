@@ -18,6 +18,7 @@ Socket::Socket(const char *port)
 	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	_addr.sin_port = htons(ft::atoi(port));
 	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	time(&_last_action);
 }
 
 Socket::Socket(unsigned short port)
@@ -29,6 +30,7 @@ Socket::Socket(unsigned short port)
 	_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	_addr.sin_port = port;
 	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	time(&_last_action);
 }
 
 Socket::Socket(struct sockaddr_in serv_addr)
@@ -37,6 +39,7 @@ Socket::Socket(struct sockaddr_in serv_addr)
 
 	memset(&_addr, 0, sizeof(_addr));
 	_addr = serv_addr;
+	time(&_last_action);
 }
 
 Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
@@ -209,3 +212,6 @@ const char		*Socket::show_type() const
 	else
 		return ("not defined type");
 }
+
+time_t			Socket::get_last_action() { return (_last_action); }
+void			Socket::set_last_action() { time(&_last_action); }

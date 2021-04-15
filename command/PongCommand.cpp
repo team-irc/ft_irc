@@ -41,8 +41,10 @@ void			PongCommand::run(IrcServer &irc)
 		{
 			// 1개인 경우, server1은 해당 pong메시지르 ㄹ만든 주체
 			servername = _msg.get_param(0);
+			if (servername.at(0) == ':')
+				servername = servername.substr(1);
 			server = irc.get_server(servername);
-			if (!server)
+			if (!server && servername != irc.get_serverinfo().SERVER_NAME)
 				throw(Reply(ERR::NOSUCHSERVER(), servername));
 		}
 		else
@@ -53,17 +55,20 @@ void			PongCommand::run(IrcServer &irc)
 		}
 		if (servername.at(0) == ':')
 			servername = servername.substr(1);
-		if (!server)
+		if (servername != irc.get_serverinfo().SERVER_NAME)
 		{
-			// server가 아닌 경우(member)
-			Member	*member = irc.get_member(servername);
-			if (!member)
-				throw(Reply(ERR::NOSUCHSERVER(), servername));
-			if (member->get_socket()->get_type() == CLIENT)
-				_msg.set_param_at(0, _msg.get_prefix());
-			member->get_socket()->write(_msg.get_msg());
+			if (!server)
+			{
+				// server가 아닌 경우(member)
+				Member	*member = irc.get_member(servername);
+				if (!member)
+					throw(Reply(ERR::NOSUCHSERVER(), servername));
+				if (member->get_socket()->get_type() == CLIENT)
+					_msg.set_param_at(0, _msg.get_prefix());
+				member->get_socket()->write(_msg.get_msg());
+			}
+			else
+				server->get_socket()->write(_msg.get_msg());
 		}
-		else
-			server->get_socket()->write(_msg.get_msg());
 	}
 }

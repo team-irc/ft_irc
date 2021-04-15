@@ -145,6 +145,19 @@ bool	IrcServer::is_reply_code(std::string const &command)
 	return (false);
 }
 
+void	IrcServer::update_last_time()
+{
+	std::vector<Socket *>	connects = _socket_set.get_connect_sockets();
+	std::vector<Socket *>::iterator	begin = connects.begin();
+	std::vector<Socket *>::iterator	end = connects.end();
+
+	while (begin != end)
+	{
+		(*begin)->set_last_action();
+		begin++;
+	}
+}
+
 void	IrcServer::client_msg(int fd)
 {
 	char			buf[BUFFER_SIZE];
@@ -152,6 +165,7 @@ void	IrcServer::client_msg(int fd)
 	int				result;
 	Command			*cmd;
 
+	update_last_time();
 	do
 	{
 		memset(buf, 0, BUFFER_SIZE);
@@ -248,10 +262,42 @@ void		IrcServer::fd_event_loop()
 SocketSet	&IrcServer::get_socket_set()
 { return (_socket_set); }
 
+void	IrcServer::check_connection()
+{
+	std::vector<Socket *>	connects = _socket_set.get_connect_sockets();
+	std::vector<Socket *>::iterator	begin = connects.begin();
+	std::vector<Socket *>::iterator	end = connects.end();
+
+
+	time(&_current_time);
+	while (begin != end)
+	{
+		if ((*begin)->get_type() == LISTEN)
+			begin++;
+		long	diff_time = _current_time - (*begin)->get_last_action();
+		if (diff_time > 140)
+		{
+			// 해당 소켓 연결 종료
+			// SQUIT이나 quit에 있는 내용 넣어두면 될 것 같음
+		}
+		else if (diff_time > 120)
+		{
+			//PING 전송
+			// PING :<servername>
+			std::string	msg = "PING :" + get_serverinfo().SERVER_NAME + "\n";
+			if ((*begin)->get_type() == SERVER)
+				msg = ":" + get_serverinfo().SERVER_NAME + " " + msg;
+			send_msg((*begin)->get_fd(), msg.c_str());
+		}
+		begin++;
+	}
+}
+
 void	IrcServer::run(int argc)
 {
 	while (1)
 	{
+		check_connection();
 		fd_event_loop();
 	}
 }
