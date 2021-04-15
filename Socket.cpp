@@ -6,6 +6,7 @@ Socket::Socket() : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
 	memset(&_addr, 0, sizeof(_addr));
 	time(&_start_time);
+	time (&_last_action);
 }
 
 Socket::Socket(const char *port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
@@ -57,6 +58,7 @@ Socket &Socket::operator=(Socket const &copy)
 		close(_fd);
 	_fd = copy._fd;
 	_addr = copy._addr;
+	time(&_last_action);
 	return (*this);
 }
 
