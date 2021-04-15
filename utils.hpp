@@ -18,6 +18,7 @@ namespace ft
 
 	std::string itos(int n);
 	std::string itos(long n);
+	std::string itos(unsigned short n);
 
 	int			split(const std::string str, char c, std::string *& ret);
 
