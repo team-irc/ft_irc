@@ -26,12 +26,15 @@ class Socket
 private:
 	int					_fd;
 	std::string			_pass;
+	std::string			_linkname;
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
+
 	size_t				_recv_bytes;
 	size_t				_recv_cnt;
 	size_t				_sent_bytes;
 	size_t				_sent_cnt;
+
 	time_t				_start_time;
 	time_t				_last_action;
 private:
@@ -65,6 +68,8 @@ public:
 	size_t				get_recv_bytes();
 	size_t				get_sent_cnt();
 	size_t				get_recv_cnt();
+	void				set_linkname(std::string const &linkname);
+	std::string			get_linkname();
 
 	time_t			get_start_time();
 	time_t			get_last_action();

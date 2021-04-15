@@ -262,6 +262,18 @@ const char *Socket::show_type() const
 	else
 		return ("not defined type");
 }
+
+void				Socket::set_linkname(std::string const &linkname)
+{
+	_linkname = linkname;
+}
+
+std::string			Socket::get_linkname()
+{
+	return (_linkname);
+}
+
+
 time_t			Socket::get_start_time() { return (_start_time); }
 time_t			Socket::get_last_action() { return (_last_action); }
 void			Socket::set_last_action() { time(&_last_action); }

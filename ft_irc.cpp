@@ -169,7 +169,8 @@ void	IrcServer::client_msg(int fd)
 	do
 	{
 		memset(buf, 0, BUFFER_SIZE);
-		result = ft::read_until_crlf(fd, buf, &str_len);
+		// result = ft::read_until_crlf(fd, buf, &str_len);
+		result = _current_sock->read(fd, buf, &str_len);
 		if (result == -1)
 		{
 			std::cout << "read_until_crlf return -1" << std::endl;
