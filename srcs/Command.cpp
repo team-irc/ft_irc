@@ -37,7 +37,6 @@ void Command::execute(IrcServer &irc)
 	try
 	{
 		run(irc);
-		Member * member = irc.find_member(irc.get_current_socket()->get_fd());
 		std::cout << _msg.get_command() << " Command executed" << std::endl;
 	}
 	catch (const Reply &rpl)
