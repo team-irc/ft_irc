@@ -52,9 +52,9 @@ void WhoisQuery::run(IrcServer &irc)
                 }
             }
             ++first;
-            if (!search)
-                socket->write(Reply(ERR::NOSUCHNICK(), nickmasks[i]));
         }
+        if (!search)
+            socket->write(Reply(ERR::NOSUCHNICK(), nickmasks[i]));
     }
     delete[] nickmasks;
 }
