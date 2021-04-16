@@ -543,7 +543,9 @@ void		IrcServer::show_global_user()
 	std::cout.width(10);
 	std::cout << "username";
 	std::cout.width(10);
-	std::cout << "fd\n";
+	std::cout << "fd";
+	std::cout.width(10);
+	std::cout << "away\n";
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
@@ -552,7 +554,9 @@ void		IrcServer::show_global_user()
 		std::cout.width(10);
 		std::cout << member->get_username();
 		std::cout.width(10);
-		std::cout << member->get_fd() << "\n";
+		std::cout << member->get_fd();
+		std::cout.width(10);
+		std::cout << member->get_away() << "\n";
 		iter++;
 	}
 	return ;
@@ -650,6 +654,8 @@ void				IrcServer::print_motd()
 	int				split_size;
 
 	socket = get_current_socket();
+	Reply::set_servername(_si.SERVER_NAME);
+	Reply::set_username(find_member(socket->get_fd())->get_nick());
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
 	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	for (int i = 0; i < split_size - 1; ++i)
