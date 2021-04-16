@@ -32,6 +32,8 @@ void		ModeCommand::check_target(IrcServer &irc)
 		return (irc.get_current_socket()->write(result.c_str()));
 	}
 	param = _msg.get_param(1);
+	if (param.at(0) == ':')
+		param = param.substr(1);
 	msg = ":" + si.SERVER_NAME + " " + _msg.get_command() + " " + _msg.get_param(0) + " ";
 	if (channel)
 	{
