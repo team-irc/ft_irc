@@ -668,8 +668,9 @@ void				IrcServer::print_motd()
 	Reply::set_username(find_member(socket->get_fd())->get_nick());
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
 	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
+	std::cout << "[SEND] " << "print motd" << " [" << socket->get_fd() << "] " << "[" << "CLIENT" << "]\n";
 	for (int i = 0; i < split_size - 1; ++i)
-		socket->write(Reply(RPL::MOTD(), split_ret[i]));
+		write(socket->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
 	socket->write(Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
 }
