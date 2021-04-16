@@ -373,6 +373,7 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 				break;
 			if (read_size == -1)
 				return (-1);
+			buf[insert_idx + read_size] = 0;
 		}
 		else
 		{
