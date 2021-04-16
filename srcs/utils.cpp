@@ -32,6 +32,8 @@ std::string ft::itos(int n)
 	int			ret_begin;
 
 	ret_begin = n < 0 ? 1 : 0;
+	if (n == 0)
+		ret = "0";
 	if (n < 0)
 	{
 		ret += '-';
@@ -52,6 +54,8 @@ std::string ft::itos(long n)
 	int			ret_begin;
 
 	ret_begin = n < 0 ? 1 : 0;
+	if (n == 0)
+		ret = "0";
 	if (n < 0)
 	{
 		ret += '-';
@@ -70,7 +74,25 @@ std::string ft::itos(unsigned short n)
 {
 	std::string ret;
 	int			ret_begin = 0;
+
+	if (n == 0)
+		ret = "0";
+	while (n)
+	{
+		// 0->48
+		ret.insert(ret_begin, 1, n % 10 + 48);
+		n /= 10;
+	}
+	return (ret);
+}
+
+std::string ft::itos(unsigned long n)
+{
+	std::string ret;
+	int			ret_begin = 0;
 	
+	if (n == 0)
+		ret = "0";
 	while (n)
 	{
 		// 0->48
@@ -338,8 +360,8 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	{
 		std::string	result = remember_to_buf(remember[fd]);
 		rem_size = result.length();
-		strncpy(buf + insert_idx, result.c_str(), rem_size);
-		insert_idx += rem_size;
+		strncpy(buf, result.c_str(), rem_size);
+		insert_idx = rem_size;
 	}
 	while (insert_idx < BUFFER_SIZE)
 	{
@@ -368,7 +390,7 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 			{
 				if (rem_size == 0)
 				{
-					strncpy(buffer + insert_idx, buf, i + 1);
+					strncpy(buffer, buf, i + 1);
 					buffer[i + insert_idx + 1] = 0;
 					if (buffer[i] == '\r')
 						buffer[i] = '\n';

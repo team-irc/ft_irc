@@ -43,15 +43,38 @@ void	SquitCommand::delete_server(int fd, IrcServer &irc)
 	send_quit_user(fd, irc);
 }
 
+void	SquitCommand::delete_connected_server(IrcServer &irc, Server *server)
+{
+	std::vector<Socket *>	connect_socks = irc.get_socket_set().get_connect_sockets();
+	std::vector<Socket *>::iterator		begin = connect_socks.begin();
+	std::vector<Socket *>::iterator		end = connect_socks.end();
+
+	while (begin != end)
+	{
+		if (*begin == server->get_socket())
+		{
+			irc.get_socket_set().remove_socket(server->get_socket());
+			delete_server(server->get_socket()->get_fd(), irc);
+			delete server->get_socket();
+			return ;
+		}
+		begin++;
+	}
+}
+
 void	SquitCommand::run(IrcServer &irc)
 {
 	Socket				*sock = irc.get_current_socket();
 	std::string			servername;
 	int					fd = sock->get_fd();
 
-	// SQUIT은 서버에서 보내는 메시지라서 다른 타입이면 걍 무시
-	if (sock->get_type() == SERVER)
+	// squit은 서버 혹으 ㄴ관리자가 보냄
+	if (sock->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
+	else if (sock->get_type() == SERVER)
 	{
+		if (_msg.get_param_size() != 2)
+			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		if (_msg.get_prefix().empty()) // 직접 연결된 서버에서 SQUIT 하는 경우(signal처리로 들어오는 경우 or 다른 문제 때문에 보내는 경우)
 		{
 			// _global_server과 socketset에서 둘 다 지워야 함
@@ -66,6 +89,33 @@ void	SquitCommand::run(IrcServer &irc)
 		{
 			servername = _msg.get_param(0);
 			irc.delete_server(servername);
+			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
+			irc.send_msg_server(fd, _msg.get_msg());
+		}
+	}
+	else
+	{
+		// 관리자가 아니라면 noprivilege error
+		Member	*member = irc.find_member(sock->get_fd());
+
+		if (_msg.get_param_size() != 2)
+			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
+		if (member)
+		{
+			if (member->check_mode('o', true))
+				throw (Reply(ERR::NOPRIVILEGES()));
+			std::string		servername = _msg.get_param(0);
+
+			if (servername.at(0) == ':')
+				servername = servername.substr(1);
+			Server	*server = irc.get_server(servername);
+
+			if (!server)
+				throw (Reply(ERR::NOSUCHSERVER(), servername));
+			if (servername == irc.get_serverinfo().SERVER_NAME)
+				throw (Reply(ERR::NOPRIVILEGES()));
+			// 직접 연결 된 서버라면 여기서 제거해야 함
+			delete_connected_server(irc, server);
 			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			irc.send_msg_server(fd, _msg.get_msg());
 		}

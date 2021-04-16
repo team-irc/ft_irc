@@ -140,8 +140,8 @@ void		Message::set_param_at(int idx, const std::string &val)
 
 void		Message::set_prefix(const std::string &prefix)
 {
-	if (_prefix.empty())
-		_prefix += prefix;
+	// if (_prefix.empty())
+	_prefix = prefix;
 }
 
 void		Message::set_source_fd(const int fd)

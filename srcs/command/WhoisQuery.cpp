@@ -39,21 +39,21 @@ void WhoisQuery::run(IrcServer &irc)
                     ;
                 else
                 {
-                    socket->write(irc, Reply(RPL::WHOISUSER(), current_member));
-                    socket->write(irc, Reply(RPL::WHOISSERVER(), current_member->get_nick(), current_server));
+                    socket->write(Reply(RPL::WHOISUSER(), current_member));
+                    socket->write(Reply(RPL::WHOISSERVER(), current_member->get_nick(), current_server));
                     if (current_member->check_mode('o', false))
-                        socket->write(irc, Reply(RPL::WHOISOPERATOR(), current_member->get_nick()));
+                        socket->write(Reply(RPL::WHOISOPERATOR(), current_member->get_nick()));
                     time_t  current_time;
                     time(&current_time);
-                    socket->write(irc, Reply(RPL::WHOISIDLE(), current_member->get_nick(),
+                    socket->write(Reply(RPL::WHOISIDLE(), current_member->get_nick(),
                         difftime(current_time, current_member->get_socket()->get_last_action())));
-                    socket->write(irc, Reply(RPL::ENDOFWHOIS(), current_member->get_nick()));
+                    socket->write(Reply(RPL::ENDOFWHOIS(), current_member->get_nick()));
                     search = true;
                 }
             }
             ++first;
             if (!search)
-                socket->write(irc, Reply(ERR::NOSUCHNICK(), nickmasks[i]));
+                socket->write(Reply(ERR::NOSUCHNICK(), nickmasks[i]));
         }
     }
     delete[] nickmasks;

@@ -240,6 +240,21 @@ public:
 	explicit Reply(RPL::ADMINLOC1, const std::string &);
 	explicit Reply(RPL::ADMINLOC2, const std::string &);
 	explicit Reply(RPL::ADMINEMAIL, const std::string &);
+	//STATS
+	explicit Reply(RPL::STATSLINKINFO , const std::string &, const std::string &, const std::string &, const std::string &, 
+					const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSCOMMANDS , const std::string &, const std::string &);
+	explicit Reply(RPL::STATSCLINE , const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSNLINE , const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSILINE , const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSKLINE , const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSYLINE , const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::ENDOFSTATS , const std::string &);
+	explicit Reply(RPL::STATSLLINE , const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::STATSUPTIME, const time_t birthday);
+	explicit Reply(RPL::STATSOLINE , const std::string &, const std::string &);
+	explicit Reply(RPL::STATSHLINE , const std::string &, const std::string &);
+
 	//TRACE
 	explicit Reply(RPL::TRACELINK, const std::string &, const std::string &, const std::string &);
 	explicit Reply(RPL::TRACECONNECTING, const std::string &, const std::string &);

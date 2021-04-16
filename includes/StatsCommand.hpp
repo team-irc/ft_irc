@@ -14,6 +14,7 @@ public:
 	StatsCommand	&operator=(StatsCommand const &ref);
 
 	void	run(IrcServer &irc);
+	void	stats(IrcServer &irc, Socket *socket, char flag);
 };
 
 #endif
