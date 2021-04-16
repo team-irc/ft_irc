@@ -27,8 +27,16 @@ class Socket
 private:
 	int					_fd;
 	std::string			_pass;
+	std::string			_linkname;
 	struct sockaddr_in	_addr;
 	SOCKET_TYPE			_type;
+
+	size_t				_recv_bytes;
+	size_t				_recv_cnt;
+	size_t				_sent_bytes;
+	size_t				_sent_cnt;
+
+	time_t				_start_time;
 	time_t				_last_action;
 	bool				_is_ping_check;
 private:
@@ -46,8 +54,9 @@ public:
 	void				listen() const;
 	Socket				*accept() const;
 	Socket				*connect(const char *connect_srv);
-	void				write(char const *msg) const;
-	void				write(IrcServer &irc, Reply rpl) const;
+	int					read(int fd, char *buffer, int *len);
+	void				write(char const *msg);
+	void				write(IrcServer &irc, Reply rpl);
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;
@@ -57,7 +66,14 @@ public:
 	const char			*show_type() const;
 	std::string const	&get_pass() const;
 	void				set_pass(std::string const &val);
+	size_t				get_sent_bytes();
+	size_t				get_recv_bytes();
+	size_t				get_sent_cnt();
+	size_t				get_recv_cnt();
+	void				set_linkname(std::string const &linkname);
+	std::string			get_linkname();
 
+	time_t			get_start_time();
 	time_t			get_last_action();
 	void			set_last_action();
 

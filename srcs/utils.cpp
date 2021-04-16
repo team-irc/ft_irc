@@ -80,6 +80,20 @@ std::string ft::itos(unsigned short n)
 	return (ret);
 }
 
+std::string ft::itos(unsigned long n)
+{
+	std::string ret;
+	int			ret_begin = 0;
+	
+	while (n)
+	{
+		// 0->48
+		ret.insert(ret_begin, 1, n % 10 + 48);
+		n /= 10;
+	}
+	return (ret);
+}
+
 int ft::split(const std::string str, char c, std::string *& ret)
 {
 	int size;
