@@ -36,9 +36,9 @@ void WhowasQuery::run(IrcServer &irc, const std::string & nickname)
         Member member = *first;
         if (member.get_nick() == nickname)
         {
-            socket->write(irc, Reply(RPL::WHOWASUSER(), &member));
-            socket->write(irc, Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
-            socket->write(irc, Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
+            socket->write(Reply(RPL::WHOWASUSER(), &member));
+            socket->write(Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
+            socket->write(Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
         }
         ++first;
     }
@@ -57,9 +57,9 @@ void WhowasQuery::run(IrcServer &irc, const std::string & nickname, int count)
         Member member = *first;
         if (member.get_nick() == nickname)
         {
-            socket->write(irc, Reply(RPL::WHOWASUSER(), &member));
-            socket->write(irc, Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
-            socket->write(irc, Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
+            socket->write(Reply(RPL::WHOWASUSER(), &member));
+            socket->write(Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
+            socket->write(Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
         }
         ++first;
         --count;
@@ -81,9 +81,9 @@ void WhowasQuery::run(IrcServer &irc, const std::string & nickname, const std::s
         Member member = *first;
         if (member.get_nick() == nickname && member.get_servername() == server)
         {
-            socket->write(irc, Reply(RPL::WHOWASUSER(), &member));
-            socket->write(irc, Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
-            socket->write(irc, Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
+            socket->write(Reply(RPL::WHOWASUSER(), &member));
+            socket->write(Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
+            socket->write(Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
         }
         ++first;
     }
@@ -102,9 +102,9 @@ void WhowasQuery::run(IrcServer &irc, const std::string & nickname, int count, c
         Member member = *first;
         if (member.get_nick() == nickname && member.get_servername() == server && count)
         {
-            socket->write(irc, Reply(RPL::WHOWASUSER(), &member));
-            socket->write(irc, Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
-            socket->write(irc, Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
+            socket->write(Reply(RPL::WHOWASUSER(), &member));
+            socket->write(Reply(RPL::WHOISSERVER(), member.get_nick(), irc.get_server(member.get_servername())));
+            socket->write(Reply(RPL::ENDOFWHOWAS(), member.get_nick()));
         }
         ++first;
         --count;
