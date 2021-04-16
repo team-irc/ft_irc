@@ -93,7 +93,7 @@ void ConnectCommand::connect_to_target(IrcServer & irc, const std::string & targ
     }
     catch(Error & e)
     {
-        irc.get_current_socket()->write(irc, Reply(ERR::NOSUCHSERVER(), target));
+        irc.get_current_socket()->write(Reply(ERR::NOSUCHSERVER(), target));
     }
 }
 

@@ -94,6 +94,11 @@ Command	*CommandFactory::get_command(const std::string &cmd)
 		return (find->second);
 }
 
+std::map<std::string, Command *>	&CommandFactory::get_command_map()
+{
+	return (_map);
+}
+
 CommandFactory::~CommandFactory()
 {
 	_map.clear();

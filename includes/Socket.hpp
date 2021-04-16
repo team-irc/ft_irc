@@ -56,7 +56,7 @@ public:
 	Socket				*connect(const char *connect_srv);
 	int					read(int fd, char *buffer, int *len);
 	void				write(char const *msg);
-	void				write(IrcServer &irc, Reply rpl);
+	void				write(Reply rpl);
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;

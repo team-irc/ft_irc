@@ -107,6 +107,7 @@ public:
 
 	bool				check_oper(const std::string & id, const std::string & pwd);
 	void				print_motd();
+	CommandFactory		&get_command_factory();
 	
 private:
 
@@ -127,6 +128,8 @@ private:
 	void				update_last_time();
 	void				check_connection();
 	bool				is_reply_code(std::string const &command);
+
+	
 };
 
 void error_handling(const std::string buf);
