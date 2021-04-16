@@ -8,7 +8,7 @@ NAME = server
 
 CXX = clang++
 
-CXXFLAGS = -std=c++98 -I ${INC_DIR} -g -fsanitize=address
+CXXFLAGS = -std=c++98 -I ${INC_DIR} -g #-fsanitize=address
 
 INC_DIR = ./includes
 
@@ -19,11 +19,11 @@ OBJS = $(patsubst %.cpp, %.o, ${SRCS})
 
 ## 나중에 $(CLFAG) 추가
 $(NAME) : $(OBJS)
-	@$(CXX) $(OBJS) $(CFLAGS) -I $(INC_DIR) -o $(NAME)
+	@$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
 	@echo "${_GREEN}COMPILE COMPLETE${_END}"
 
 %.o : %.cpp
-	@$(CXX) -o $@ -c $^ -I $(INC_DIR)
+	$(CXX) -o $@ -c $^ $(CXXFLAGS)
 
 all : $(NAME)
 

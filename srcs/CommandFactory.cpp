@@ -32,6 +32,7 @@
 #include "WhoisQuery.hpp"
 #include "WhowasQuery.hpp"
 #include "ConnectCommand.hpp"
+#include "StatsCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -69,6 +70,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("WHOIS", new WhoisQuery()));
 	_map.insert(std::pair<std::string, Command *>("WHOWAS", new WhowasQuery()));
 	_map.insert(std::pair<std::string, Command *>("CONNECT", new ConnectCommand()));
+	_map.insert(std::pair<std::string, Command *>("STATS", new StatsCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)

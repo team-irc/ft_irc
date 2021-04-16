@@ -3,13 +3,14 @@
 #include "ft_irc.hpp"
 #include <fcntl.h>
 
-Socket::Socket()
+Socket::Socket() : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
 	memset(&_addr, 0, sizeof(_addr));
+	time(&_start_time);
 	time (&_last_action);
 }
 
-Socket::Socket(const char *port)
+Socket::Socket(const char *port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
 	_fd = socket(PF_INET, SOCK_STREAM, 0);
 	if (_fd == -1)
@@ -21,10 +22,11 @@ Socket::Socket(const char *port)
 	_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	_addr.sin_port = htons(ft::atoi(port));
 	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	time(&_start_time);
 	time(&_last_action);
 }
 
-Socket::Socket(unsigned short port)
+Socket::Socket(unsigned short port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
@@ -34,18 +36,20 @@ Socket::Socket(unsigned short port)
 	_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 	_addr.sin_port = port;
 	fcntl(_fd, F_SETFL, O_NONBLOCK);
+	time(&_start_time);
 	time(&_last_action);
 }
 
-Socket::Socket(struct sockaddr_in serv_addr)
+Socket::Socket(struct sockaddr_in serv_addr) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	memset(&_addr, 0, sizeof(_addr));
 	_addr = serv_addr;
+	time(&_start_time);
 	time(&_last_action);
 }
 
-Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr)
+Socket::Socket(Socket const &copy) : _fd(copy._fd), _addr(copy._addr), _recv_bytes(copy._recv_bytes), _sent_bytes(copy._sent_bytes)
 {
 }
 
@@ -155,21 +159,57 @@ Socket *Socket::accept() const
 	return (new_socket);
 }
 
-void Socket::write(char const *msg) const
+void Socket::write(char const *msg)
 {
 	std::cout << "[SEND] " << msg << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
+	_sent_bytes += strlen(msg);
+	_sent_cnt++;
 	::write(_fd, msg, strlen(msg));
 }
 
-void Socket::write(IrcServer &irc, Reply rpl) const
+void Socket::write(IrcServer &irc, Reply rpl)
 {
 	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
 	rpl.set_servername(irc.get_serverinfo().SERVER_NAME);
 	rpl.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
+	_sent_bytes += strlen(rpl.get_msg().c_str());
+	_sent_cnt++;
 	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
 }
+
+int			Socket::read(int fd, char *buffer, int *len)
+{
+	int		ret;
+
+	ret = ft::read_until_crlf(fd, buffer, len);
+	if (*len > 0)
+	{
+		_recv_bytes += static_cast<size_t>(*len);
+		_recv_cnt++;
+	}
+	return (ret);
+}
+
+size_t		Socket::get_sent_bytes()
+{
+	return (_sent_bytes);
+}
+size_t		Socket::get_recv_bytes()
+{
+	return (_recv_bytes);
+}
+
+size_t		Socket::get_sent_cnt()
+{
+	return (_sent_cnt);
+}
+size_t		Socket::get_recv_cnt()
+{
+	return (_recv_cnt);
+}
+
 
 void Socket::show_info() const
 {
@@ -226,6 +266,18 @@ const char *Socket::show_type() const
 		return ("not defined type");
 }
 
+void				Socket::set_linkname(std::string const &linkname)
+{
+	_linkname = linkname;
+}
+
+std::string			Socket::get_linkname()
+{
+	return (_linkname);
+}
+
+
+time_t			Socket::get_start_time() { return (_start_time); }
 time_t			Socket::get_last_action() { return (_last_action); }
 void			Socket::set_last_action()
 {

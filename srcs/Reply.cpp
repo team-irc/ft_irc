@@ -377,7 +377,7 @@ Reply::Reply(RPL::ENDOFNAMES rpl, const std::string &channel)
 	_errnum = ft::itos(rpl.ERRNO);
 	//"<channel> :End of /NAMES list"
 	_msg = channel;
-	_msg += " :End of /NAMES list";
+	_msg += " :End of NAMES list";
 }
 
 Reply::Reply(RPL::LISTSTART rpl)
@@ -687,6 +687,98 @@ Reply::Reply(RPL::TRACELOG rpl, const std::string &logfile, const std::string &d
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	_msg = "File " + logfile + " " + debug_level;
+}
+
+// STATS
+Reply::Reply(RPL::STATSLINKINFO rpl, const std::string &linkname, const std::string &sendq, const std::string &sent_msg, 
+	const std::string &sent_bytes, const std::string &recv_msg, const std::string &recv_bytes, const std::string &time_open)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = linkname + " " + sendq + " " + sent_msg + " " + sent_bytes + " " + recv_msg + " " + recv_bytes + " " + time_open;
+}
+
+Reply::Reply(RPL::STATSCOMMANDS rpl, const std::string &command, const std::string &count)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = command + " " + count;
+}
+
+Reply::Reply(RPL::STATSCLINE rpl, const std::string &host, const std::string &name, const std::string &port, const std::string &class_name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "C " + host + " * " + name + " " + port + " " + class_name;
+}
+
+Reply::Reply(RPL::STATSNLINE rpl, const std::string &host, const std::string &name, const std::string &port, const std::string &class_name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "N " + host + " * " + name + " " + port + " " + class_name;
+}
+
+Reply::Reply(RPL::STATSILINE rpl, const std::string &host, const std::string &host2, const std::string &port, const std::string &class_name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "I " + host + " * " + host2 + " " + port + " " + class_name;
+}
+
+Reply::Reply(RPL::STATSKLINE rpl, const std::string &host, const std::string &username, const std::string &port, const std::string &class_name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "K " + host + " * " + username + " " + port + " " + class_name;
+}
+
+Reply::Reply(RPL::STATSYLINE rpl, const std::string &class_name, const std::string &ping_freq, const std::string &conn_freq, const std::string &max_sendq)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "Y " + class_name + " " + ping_freq + " " + conn_freq + " " + max_sendq;
+}
+
+Reply::Reply(RPL::ENDOFSTATS rpl, const std::string &flag)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = flag + " :End of STATS report";
+}
+
+Reply::Reply(RPL::STATSLLINE rpl, const std::string &hostmask, const std::string &servername, const std::string &max_depth)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "L " + hostmask + " " + servername + " " + max_depth;
+}
+
+Reply::Reply(RPL::STATSUPTIME rpl, const time_t birthday)
+{
+	time_t			div;
+	time_t			rem;
+
+	_errnum = ft::itos(rpl.ERRNO);
+	time(&div);
+	div = div - birthday;
+	rem = div % 86400;
+	div = div / 86400;
+	
+	_msg = ":Server Up " + ft::itos(div) + " days ";
+
+	div = rem / 3600;
+	rem = rem % 3600;
+
+	_msg += ft::itos(div) + ":";
+
+	div = rem / 60;
+	rem = rem % 60;
+
+	_msg += ft::itos(div) + ":" + ft::itos(rem);
+}
+
+Reply::Reply(RPL::STATSOLINE rpl, const std::string &hostmask, const std::string &name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "O " + hostmask + " * " + name;
+}
+
+Reply::Reply(RPL::STATSHLINE rpl, const std::string &hostmask, const std::string &server_name)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = "H " + hostmask + " * " + server_name;
 }
 
 // MOTD
