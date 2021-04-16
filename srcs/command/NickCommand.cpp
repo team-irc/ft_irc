@@ -209,7 +209,7 @@ NickCommand	&NickCommand::operator=(NickCommand const &ref)
 
 bool NickCommand::check_nick(const std::string &nick)
 {
-	const char			special[] = {'-', '|', '\\', '`', '^', '{', '}'};
+	const char			special[] = {'-', '|', '\\', '`', '^', '{', '}', '\0'};
 
 	if (!ft::isalpha(nick[0]))
 		return (false);
