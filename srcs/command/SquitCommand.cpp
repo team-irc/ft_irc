@@ -73,6 +73,14 @@ void	SquitCommand::run(IrcServer &irc)
 		throw (Reply(ERR::NOTREGISTERED()));
 	else if (sock->get_type() == SERVER)
 	{
+		if (_msg.get_param_size() == 0)
+		{
+			// 해당 서버와 연결이 끊겨서 메시지가 넘어오질 않은 경우
+			irc.get_socket_set().remove_socket(sock);
+			delete_server(fd, irc);
+			delete sock;
+			return ;
+		}
 		if (_msg.get_param_size() != 2)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		if (_msg.get_prefix().empty()) // 직접 연결된 서버에서 SQUIT 하는 경우(signal처리로 들어오는 경우 or 다른 문제 때문에 보내는 경우)
