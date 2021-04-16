@@ -1,5 +1,7 @@
 #include "ConnectCommand.hpp"
 
+// connect target <port> <remote>
+
 void ConnectCommand::run(IrcServer &irc)
 {
     Socket      *socket;
@@ -88,6 +90,7 @@ void ConnectCommand::connect_to_target(IrcServer & irc, const std::string & targ
         msg = "PASS " + new_socket->get_pass() + "\n";
         new_socket->write(msg.c_str());
         msg = "SERVER " + irc.get_serverinfo().SERVER_NAME + " 1 :" + irc.get_serverinfo().VERSION + "\n";
+        irc.send_map_data(new_socket->get_fd());
         new_socket->write(msg.c_str());
         irc.send_user_data(new_socket->get_fd());
     }
