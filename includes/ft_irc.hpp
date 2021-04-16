@@ -67,6 +67,7 @@ public:
 
 	void						run(int argc);
 	Socket						*get_current_socket();
+	void						set_current_socket_null();
 	Socket						*get_listen_socket();
 	SocketSet					&get_socket_set();
 	int							&get_fdmax();
