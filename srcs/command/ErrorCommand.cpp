@@ -44,16 +44,15 @@ void            ErrorCommand::run(IrcServer &irc)
 {
 	Socket	*socket = irc.get_current_socket();
 
-	if (socket->get_type() == LISTEN)
-	{
-		// Error를 받아서 다른 서버로 전파하는 역할
-	}
-	else if (socket->get_type() == SERVER)
+	if (socket->get_type() == SERVER)
 	{
 		Server			*server = find_server(irc, socket);
 		std::string		msg = "NOTICE nick :ERROR from ";
 		if (server)
-			msg += ":" + server->get_name() + " -- " + _msg.get_param(0) + "\n";
+			msg += server->get_name();
+		else
+			msg += socket->get_hostname();
+		msg += " -- " + _msg.get_param(0) + "\n";
 		Message message(msg.c_str());
 		std::map<std::string, Member *>::iterator	begin = irc.get_global_user().begin();
 		std::map<std::string, Member *>::iterator	end = irc.get_global_user().end();
@@ -68,4 +67,6 @@ void            ErrorCommand::run(IrcServer &irc)
 			begin++;
 		}
 	}
+	else if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 }
