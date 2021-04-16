@@ -150,7 +150,7 @@ static void		stats_c(IrcServer &irc, Socket *socket)
 		//		socket->write(Reply(RPL::STATSCLINE(), server->get_hostname(), server->get_name(), server->ger_port(), ""));
 		iter++;
 	}
-	socket->write(Reply(RPL::ENDOFSTATS(), "c"));
+	socket->write(irc, Reply(RPL::ENDOFSTATS(), "c"));
 }
 
 static void		stats_l(IrcServer &irc, Socket *socket)
@@ -168,7 +168,7 @@ static void		stats_l(IrcServer &irc, Socket *socket)
 		{
 			sock = server->get_socket();
 			time(&current_time);
-			socket->write(Reply(RPL::STATSLINKINFO(), server->get_name(), "0", 
+			socket->write(irc, Reply(RPL::STATSLINKINFO(), server->get_name(), "0", 
 					ft::itos(sock->get_sent_cnt()), ft::itos(sock->get_sent_bytes()), 
 					ft::itos(sock->get_recv_cnt()), ft::itos(sock->get_recv_bytes()), 
 					ft::itos(current_time - sock->get_start_time())));
@@ -184,14 +184,22 @@ static void		stats_l(IrcServer &irc, Socket *socket)
 		if ((*iter2)->get_type() == CLIENT)
 		{
 			sock = *iter2;
-			socket->write(Reply(RPL::STATSLINKINFO(), sock->get_linkname(), "0", 
+			socket->write(irc, Reply(RPL::STATSLINKINFO(), sock->get_linkname(), "0", 
 					ft::itos(sock->get_sent_cnt()), ft::itos(sock->get_sent_bytes()), 
 					ft::itos(sock->get_recv_cnt()), ft::itos(sock->get_recv_bytes()), 
 					ft::itos(current_time - sock->get_start_time())));
 		}
 		iter2++;
 	}
-	socket->write(Reply(RPL::ENDOFSTATS(), "l"));
+	socket->write(irc, Reply(RPL::ENDOFSTATS(), "l"));
+}
+
+void		StatsCommand::stats(IrcServer &irc, Socket *socket, char flag)
+{
+	if (flag == 'l')
+		stats_l(irc, socket);
+	else
+		throw (Reply(RPL::ENDOFSTATS(), _msg.get_param(0).substr(0, 1)));
 }
 
 void		StatsCommand::run(IrcServer &irc)
@@ -202,20 +210,44 @@ void		StatsCommand::run(IrcServer &irc)
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
-		if (_msg.get_param_size() == 0) // stats
+		if (_msg.get_param_size() == 0)
 			throw (Reply(RPL::ENDOFSTATS(), "*"));
-		if (_msg.get_param_size() == 1) // stats m
+		else if (_msg.get_param_size() == 1)
 		{
-			flag = (_msg.get_param(0).c_str())[0];
-			if (flag == 'l')
-				stats_l(irc, socket);
-			else
-				throw (Reply(RPL::ENDOFSTATS(), _msg.get_param(0).substr(0, 1)));
+			stats(irc, socket, _msg.get_param(0).c_str()[0]);
+		}
+		else if (_msg.get_param_size() == 2)
+		{
+			int				fd;
+			std::string		server_name;
+
+			server_name = _msg.get_param(1);
+			if (server_name == irc.get_serverinfo().SERVER_NAME)
+			{
+				stats(irc, socket, _msg.get_param(0).c_str()[0]);
+				return ;
+			}
+			_msg.set_prefix(irc.find_member(socket->get_fd())->get_nick()); // 1. 닉네임으로 프리픽스 설정
+			fd = irc.find_server_fd(_msg.get_param(1)); // 2. 서버찾기
+			if (fd <= 0)
+				throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(1)));
+			irc.send_msg(fd, _msg.get_msg()); // 3. 해당 서버 fd에 전송
 		}
 	}
-	else if (socket->get_type() == SERVER)
+	else if (socket->get_type() == SERVER) 
 	{
-		
+		// 서버에서 오는 메세지 형식은 :nick STATS <flag> <server> 형식밖에 될 수 없다.
+		int				fd;
+		std::string		server_name;
+
+		server_name = _msg.get_param(1);
+		if (server_name == irc.get_serverinfo().SERVER_NAME)
+		{
+			stats(irc, socket, _msg.get_param(0).c_str()[0]);
+			return ;
+		}
+		fd = irc.find_server_fd(_msg.get_param(1)); // 1. 서버찾기
+		irc.send_msg(fd, _msg.get_msg()); // 2. 해당 서버 fd에 전송
 	}
 	else
 	{
