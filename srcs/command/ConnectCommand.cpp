@@ -13,6 +13,8 @@ void ConnectCommand::run(IrcServer &irc)
     parsing(target, port, remote);
     socket      = irc.get_current_socket();
     member      = irc.find_member(socket->get_fd());
+    if (member->check_mode('o', true))
+        throw (Reply(ERR::NOPRIVILEGES()));
     if ((!remote.empty()) && !check_already_exist(irc, remote, ft::itos(6667)))
         throw (Reply(ERR::NOSUCHSERVER(), remote));
     if (remote.empty() || remote == irc.get_listen_socket()->get_hostname())
@@ -89,9 +91,7 @@ void ConnectCommand::connect_to_target(IrcServer & irc, const std::string & targ
             irc.get_fdmax() = tmp;
         msg = "PASS " + new_socket->get_pass() + "\n";
         new_socket->write(msg.c_str());
-        msg = "SERVER " + irc.get_serverinfo().SERVER_NAME + " 1 :" + irc.get_serverinfo().VERSION + "\n";
         irc.send_map_data(new_socket->get_fd());
-        new_socket->write(msg.c_str());
         irc.send_user_data(new_socket->get_fd());
     }
     catch(Error & e)
