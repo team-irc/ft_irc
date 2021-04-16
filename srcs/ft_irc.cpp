@@ -218,7 +218,7 @@ void	IrcServer::client_msg(int fd)
 		}
 		else
 		{
-			if (is_reply_code(msg.get_command()))
+			if (is_reply_code(msg.get_command())) // 451
 			{
 				Member		*member;
 				member = get_member(msg.get_param(0));
@@ -227,7 +227,10 @@ void	IrcServer::client_msg(int fd)
 			else if (buf[0] != '\n')
 			{
 				Reply::set_servername(_si.SERVER_NAME);
-				Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				if (find_member(_current_sock->get_fd()))
+					Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				else
+					Reply::set_username("");
 				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
 			}
 		}
