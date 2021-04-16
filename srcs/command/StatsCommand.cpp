@@ -150,7 +150,7 @@ static void		stats_c(IrcServer &irc, Socket *socket)
 		//		socket->write(Reply(RPL::STATSCLINE(), server->get_hostname(), server->get_name(), server->ger_port(), ""));
 		iter++;
 	}
-	socket->write(irc, Reply(RPL::ENDOFSTATS(), "c"));
+	socket->write(Reply(RPL::ENDOFSTATS(), "c"));
 }
 
 static void		stats_l(IrcServer &irc, Socket *socket)
@@ -168,7 +168,7 @@ static void		stats_l(IrcServer &irc, Socket *socket)
 		{
 			sock = server->get_socket();
 			time(&current_time);
-			socket->write(irc, Reply(RPL::STATSLINKINFO(), server->get_name(), "0", 
+			socket->write(Reply(RPL::STATSLINKINFO(), server->get_name(), "0", 
 					ft::itos(sock->get_sent_cnt()), ft::itos(sock->get_sent_bytes()), 
 					ft::itos(sock->get_recv_cnt()), ft::itos(sock->get_recv_bytes()), 
 					ft::itos(current_time - sock->get_start_time())));
@@ -184,22 +184,43 @@ static void		stats_l(IrcServer &irc, Socket *socket)
 		if ((*iter2)->get_type() == CLIENT)
 		{
 			sock = *iter2;
-			socket->write(irc, Reply(RPL::STATSLINKINFO(), sock->get_linkname(), "0", 
+			socket->write(Reply(RPL::STATSLINKINFO(), sock->get_linkname(), "0", 
 					ft::itos(sock->get_sent_cnt()), ft::itos(sock->get_sent_bytes()), 
 					ft::itos(sock->get_recv_cnt()), ft::itos(sock->get_recv_bytes()), 
 					ft::itos(current_time - sock->get_start_time())));
 		}
 		iter2++;
 	}
-	socket->write(irc, Reply(RPL::ENDOFSTATS(), "l"));
+}
+
+static void		stats_m(IrcServer &irc, Socket *socket)
+{
+	std::map<std::string, Command *>::iterator		iter;
+	std::map<std::string, Command *>::iterator		end;
+
+	iter = irc.get_command_factory().get_command_map().begin();
+	end = irc.get_command_factory().get_command_map().end();
+	while (iter != end)
+	{
+		socket->write(Reply(RPL::STATSCOMMANDS(), iter->first, ft::itos(iter->second->get_count())));
+		iter++;	
+	}
+}
+
+static void		stats_u(IrcServer &irc, Socket *socket)
+{
+	socket->write(Reply(RPL::STATSUPTIME(), irc.get_start_time()));
 }
 
 void		StatsCommand::stats(IrcServer &irc, Socket *socket, char flag)
 {
 	if (flag == 'l')
 		stats_l(irc, socket);
-	else
-		throw (Reply(RPL::ENDOFSTATS(), _msg.get_param(0).substr(0, 1)));
+	else if (flag == 'm')
+		stats_m(irc, socket);
+	else if (flag == 'u')
+		stats_u(irc, socket);
+	socket->write(Reply(RPL::ENDOFSTATS(), _msg.get_param(0).substr(0, 1)));
 }
 
 void		StatsCommand::run(IrcServer &irc)

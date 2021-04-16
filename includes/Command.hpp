@@ -45,6 +45,7 @@ class Command
 {
 protected:
 	Message		_msg;
+	size_t		_call_count;
 public:
 	Command();
 	Command(const Command &ref);
@@ -54,6 +55,7 @@ public:
 public:
 	void execute(IrcServer &irc);
 	virtual void run(IrcServer &irc) = 0;
+	size_t		get_count();
 };
 
 # include "ft_irc.hpp"

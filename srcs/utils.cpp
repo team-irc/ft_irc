@@ -32,6 +32,8 @@ std::string ft::itos(int n)
 	int			ret_begin;
 
 	ret_begin = n < 0 ? 1 : 0;
+	if (n == 0)
+		ret = "0";
 	if (n < 0)
 	{
 		ret += '-';
@@ -52,6 +54,8 @@ std::string ft::itos(long n)
 	int			ret_begin;
 
 	ret_begin = n < 0 ? 1 : 0;
+	if (n == 0)
+		ret = "0";
 	if (n < 0)
 	{
 		ret += '-';
@@ -70,7 +74,9 @@ std::string ft::itos(unsigned short n)
 {
 	std::string ret;
 	int			ret_begin = 0;
-	
+
+	if (n == 0)
+		ret = "0";
 	while (n)
 	{
 		// 0->48
@@ -85,6 +91,8 @@ std::string ft::itos(unsigned long n)
 	std::string ret;
 	int			ret_begin = 0;
 	
+	if (n == 0)
+		ret = "0";
 	while (n)
 	{
 		// 0->48

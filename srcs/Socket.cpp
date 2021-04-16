@@ -168,12 +168,10 @@ void Socket::write(char const *msg)
 	::write(_fd, msg, strlen(msg));
 }
 
-void Socket::write(IrcServer &irc, Reply rpl)
+void Socket::write(Reply rpl)
 {
 	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
-	rpl.set_servername(irc.get_serverinfo().SERVER_NAME);
-	rpl.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
 	_sent_bytes += strlen(rpl.get_msg().c_str());
 	_sent_cnt++;
 	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
