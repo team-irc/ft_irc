@@ -129,7 +129,7 @@ void	NickCommand::run(IrcServer &irc)
 				_msg.set_param_at(1, "1");
 				// _msg.set_param_at(2, member->get_username());
 				// _msg.set_param_at(3, member->get_hostname());
-				// _msg.set_param_at(4, std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
+				// _msg.set_param_at(4, ft::itos(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
 				// _msg.set_param_at(5, member->get_mode_str());
 				// _msg.set_param_at(6, member->get_realname());
 

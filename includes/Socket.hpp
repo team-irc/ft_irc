@@ -11,6 +11,9 @@
 # include <utility>
 # include <time.h>
 # include <fcntl.h>
+# ifdef __linux__
+# include <errno.h>
+# endif
 # include "Error.hpp"
 # include "utils.hpp"
 

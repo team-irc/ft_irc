@@ -54,7 +54,7 @@ void	ServerCommand::run(IrcServer &irc)
 	{
 		// int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		// hopcount++;
-		// _msg.set_param_at(1, std::to_string(hopcount));
+		// _msg.set_param_at(1, ft::itos(hopcount));
 		if (socket->get_pass().empty())
 		{
 			// :irc.example.net 461 * SERVER :Syntax error
@@ -83,9 +83,9 @@ void	ServerCommand::run(IrcServer &irc)
 			irc.add_server(_msg.get_param(0), _msg.get_param(1), token, _msg.get_param(2), socket); // 6. _global_server에 추가
 			int hopcount = ft::atoi(_msg.get_param(1).c_str());
 			hopcount++;
-			_msg.set_param_at(1, std::to_string(hopcount));
+			_msg.set_param_at(1, ft::itos(hopcount));
 			_msg.set_param_at(3, _msg.get_param(2));
-			_msg.set_param_at(2, std::to_string(token));
+			_msg.set_param_at(2, ft::itos(token));
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 7. 다른 서버에 메세지 전파
 		}
 		else
@@ -108,7 +108,7 @@ void	ServerCommand::run(IrcServer &irc)
 			irc.add_server(_msg.get_param(0), _msg.get_param(1), irc.get_server_token(), _msg.get_param(2), socket); // _global_server에 추가
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
-		_msg.set_param_at(1, std::to_string(hopcount));
+		_msg.set_param_at(1, ft::itos(hopcount));
 		
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
