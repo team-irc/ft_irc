@@ -13,7 +13,9 @@
 # include <unistd.h>
 
 # define BUFFER_SIZE 512
+# ifdef __linux__
 # define OPEN_MAX 1024
+# endif
 
 namespace ft
 {
