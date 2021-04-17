@@ -1,15 +1,19 @@
 #ifndef UTILS_HPP
 # define UTILS_HPP
 
-#include <iostream>
-#include <time.h>
-#include <limits.h>
-#include <string>
-#include <vector>
-#include <ctime>
-#include <unistd.h>
+# include <iostream>
+# include <time.h>
+# include <limits.h>
+# include <string>
+# ifdef __linux__
+# include <string.h>
+# endif
+# include <vector>
+# include <ctime>
+# include <unistd.h>
 
-#define BUFFER_SIZE 512
+# define BUFFER_SIZE 512
+# define OPEN_MAX 1024
 
 namespace ft
 {
