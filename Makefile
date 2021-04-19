@@ -8,9 +8,10 @@ NAME = server
 
 CXX = clang++
 
-CXXFLAGS = -std=c++98 -I ${INC_DIR} -g #-fsanitize=address
+CXXFLAGS = -std=c++98 -I ${INC_DIR} -I ${INC_DIR2} -g #-fsanitize=address
 
 INC_DIR = ./includes
+INC_DIR2 = ./includes/command
 
 SRCS = $(wildcard ./srcs/*.cpp)
 SRCS += $(wildcard ./srcs/command/*.cpp)
