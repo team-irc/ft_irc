@@ -8,8 +8,13 @@ NAME = server
 
 CXX = clang++
 
+<<<<<<< HEAD
 CXXFLAGS = -std=c++98 -I ${INC_DIR} -I ${INC_DIR2} -g -fsanitize=address
+=======
+CXXFLAGS = -std=c++98 -I ${INC_DIR} -I ${INC_DIR2} -g -fsanitize=address -I ${SSL_DIR} -L ./${SSL_DIR} -lssl -lcrypto
+>>>>>>> a337ad65caccafeb85fe758534a99dd2af8c1923
 
+SSL_DIR = ./ssl
 INC_DIR = ./includes
 INC_DIR2 = ./includes/command
 

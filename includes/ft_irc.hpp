@@ -24,6 +24,7 @@
 #include "ServerInfo.hpp"
 #include "read_conf.hpp"
 #include "Server.hpp"
+#include "SSL_Socket.hpp"
 
 #define DEBUG 0
 
@@ -116,6 +117,7 @@ private:
 	void				client_msg(int fd);
 	void				unknown_msg(int fd);
 	void				client_connect();
+	void				ssl_connect();
 
 	void				connect_to_server(char **argv);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
