@@ -673,7 +673,11 @@ void				IrcServer::print_motd()
 	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	std::cout << "[SEND] " << "print motd" << " [" << socket->get_fd() << "] " << "[" << "CLIENT" << "]\n";
 	for (int i = 0; i < split_size - 1; ++i)
+	{
+		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
+		split_ret[i] += "\33[m";
 		write(socket->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
+	}
 	socket->write(Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
 }
