@@ -22,12 +22,12 @@ class IrcServer;
 
 enum SOCKET_TYPE
 {
-	SERVER, CLIENT, LISTEN, UNKNOWN
+	SERVER, CLIENT, LISTEN, SSL_LISTEN, UNKNOWN
 };
 
 class Socket
 {
-private:
+protected:
 	int					_fd;
 	std::string			_pass;
 	std::string			_linkname;
@@ -42,7 +42,7 @@ private:
 	time_t				_start_time;
 	time_t				_last_action;
 	bool				_is_ping_check;
-private:
+protected:
 	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
 public:
 	Socket();
