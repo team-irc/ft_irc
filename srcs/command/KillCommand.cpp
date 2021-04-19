@@ -87,17 +87,42 @@ static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
 	}
 }
 
-static void		kill_member(IrcServer &irc, Member *target)
+static void		kill_member(IrcServer &irc, Member *target, Member *oper, Message message)
 {
-	irc.delete_member(target->get_nick());
-	quit_from_joined_channel(irc, target); // 1. 접속중인 채널에서 제거
-	irc.get_user_history().push_back(*target); // 2. whowas를 위해 멤버 정보 저장
+	std::string		msg;
 	if (target->get_socket()->get_type() == CLIENT) // 3. 직접 연결되어 있다면 소켓까지 제거
 	{
+		if (irc.get_current_socket()->get_type() == CLIENT)
+		{
+			target->get_socket()->write(std::string("ERROR :KILLed by " + oper->get_nick() + message.get_param(1)).c_str());
+			msg = ":" + target->get_nick() + " QUIT " + message.get_param(1) + " :" + irc.get_serverinfo().SERVER_NAME + "\n"; 
+		}
+		else if (irc.get_current_socket()->get_type() == SERVER)
+		{
+			target->get_socket()->write(
+					std::string("ERROR :KILLed by " + message.get_prefix() + message.get_param(1) + " -> " + irc.get_serverinfo().SERVER_NAME + "\n")
+					.c_str());
+			msg = ":" + target->get_nick() + " QUIT " + message.get_param(1) + " -> " + irc.get_serverinfo().SERVER_NAME + "\n";			
+		}
+		irc.delete_member(target->get_nick());
+		quit_from_joined_channel(irc, target); // 1. 접속중인 채널에서 제거
+		irc.get_user_history().push_back(*target); // 2. whowas를 위해 멤버 정보 저장
 		irc.get_socket_set().remove_socket(target->get_socket());
 		delete target->get_socket();
+		delete target; // 4. 멤버 제거
+		irc.send_msg_server(3, msg.c_str()); // QUIT 전송
 	}
-	delete target; // 4. 멤버 제거
+	else
+	{
+		if (irc.get_current_socket()->get_type() == CLIENT)
+			msg = " :" + irc.get_serverinfo().SERVER_NAME;
+		else if (irc.get_current_socket()->get_type() == SERVER)
+			msg = " -> " + irc.get_serverinfo().SERVER_NAME;
+		if (message.get_prefix().empty())
+			message.set_prefix(oper->get_nick());
+		message.set_param_at(1, message.get_param(1) + msg);
+		target->get_socket()->write(message.get_msg());
+	}
 }
 
 void	KillCommand::run(IrcServer &irc)
@@ -118,19 +143,12 @@ void	KillCommand::run(IrcServer &irc)
 		if (target == NULL)
 			throw (Reply(ERR::NOSUCHNICK(), _msg.get_param(0)));
 		_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
-		kill_member(irc, target);
-		irc.send_msg_server(3, _msg.get_msg()); // KILL 전송
+		kill_member(irc, target, oper, _msg);
 	}
 	else if (socket->get_type() == SERVER)
 	{
 		target = irc.get_member(_msg.get_param(0));
-		if (target->get_socket()->get_type() == CLIENT)
-		{
-			// NOTICE 도 전송?
-			target->get_socket()->write("ERROR: Nick collision\n");
-		}
-		kill_member(irc, target);
-		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
+		kill_member(irc, target, NULL, _msg);
 	}
 	else
 		throw (Reply(ERR::NOTREGISTERED()));
