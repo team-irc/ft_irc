@@ -68,26 +68,72 @@
 
 // }
 
+static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
+{
+	std::set<Channel *>::iterator	channel_iter;
+	Channel		*channel;
+
+	channel_iter = member->get_joined_channels().begin();
+	while (channel_iter != member->get_joined_channels().end())
+	{
+		channel = (*channel_iter);
+		channel->delete_member(member); // 채널의 멤버 목록에서 제거
+		if (channel->get_members().empty()) 
+		{
+			irc.delete_channel(channel->get_name()); // _global_channel에서 제거
+			delete channel; // 채널 인스턴스 제거
+		}
+		++channel_iter;
+	}
+}
+
+static void		kill_member(IrcServer &irc, Member *target)
+{
+	irc.delete_member(target->get_nick());
+	quit_from_joined_channel(irc, target); // 1. 접속중인 채널에서 제거
+	irc.get_user_history().push_back(*target); // 2. whowas를 위해 멤버 정보 저장
+	if (target->get_socket()->get_type() == CLIENT) // 3. 직접 연결되어 있다면 소켓까지 제거
+	{
+		irc.get_socket_set().remove_socket(target->get_socket());
+		delete target->get_socket();
+	}
+	delete target; // 4. 멤버 제거
+}
+
 void	KillCommand::run(IrcServer &irc)
 {
 	Socket			*socket;
-
 	Member			*oper;
+	Member			*target;
 
 	socket = irc.get_current_socket();
 	if (socket->get_type() == CLIENT)
 	{
+		if (_msg.get_param_size() != 1 && _msg.get_param_size() != 2)
+			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		oper = irc.find_member(socket->get_fd());
 		if (oper->is_server_operator())
-			socket->write(Reply(ERR::NOPRIVILEGES()));
-		
+			throw (Reply(ERR::NOPRIVILEGES()));
+		target = irc.get_member(_msg.get_param(0));
+		if (target == NULL)
+			throw (Reply(ERR::NOSUCHNICK(), _msg.get_param(0)));
+		_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
+		kill_member(irc, target);
+		irc.send_msg_server(3, _msg.get_msg()); // KILL 전송
 	}
 	else if (socket->get_type() == SERVER)
 	{
-		
+		target = irc.get_member(_msg.get_param(0));
+		if (target->get_socket()->get_type() == CLIENT)
+		{
+			// NOTICE 도 전송?
+			target->get_socket()->write("ERROR: Nick collision\n");
+		}
+		kill_member(irc, target);
+		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 	else
-		throw (Reply(ERR::NOTREGISTERED()))
+		throw (Reply(ERR::NOTREGISTERED()));
 }
 
 KillCommand::KillCommand() : Command()
