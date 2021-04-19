@@ -127,7 +127,7 @@ void 	LinksCommand::run(IrcServer &irc)
 		}
 	}
 	else
-		return ;
+		socket->write(Reply(ERR::NOTREGISTERED()));
 }
 
 LinksCommand::LinksCommand(): Command()
