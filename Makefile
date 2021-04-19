@@ -8,8 +8,9 @@ NAME = server
 
 CXX = clang++
 
-CXXFLAGS = -std=c++98 -I ${INC_DIR} -g #-fsanitize=address
+CXXFLAGS = -std=c++98 -I ${INC_DIR} -g -fsanitize=address -I ${SSL_DIR} -L ./${SSL_DIR} -lssl -lcrypto
 
+SSL_DIR = ./ssl
 INC_DIR = ./includes
 
 SRCS = $(wildcard ./srcs/*.cpp)
