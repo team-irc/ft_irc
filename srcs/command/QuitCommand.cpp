@@ -52,15 +52,18 @@ static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
 
 static void		quit(IrcServer &irc, Member *member)
 {
-	irc.delete_member(member->get_nick()); // 1. 멤버를 _global_user에서 지운다.
-	quit_from_joined_channel(irc, member); // 2. 접속중인 채널에서 제거
-	irc.get_user_history().push_back(*member); // 3. whowas를 위해 멤버 정보 저장
-	if (member->get_socket()->get_type() == CLIENT)
+	if (member)
 	{
-		irc.get_socket_set().remove_socket(member->get_socket()); // 4. 소켓제거
-		delete member->get_socket();
+		irc.delete_member(member->get_nick()); // 1. 멤버를 _global_user에서 지운다.
+		quit_from_joined_channel(irc, member); // 2. 접속중인 채널에서 제거
+		irc.get_user_history().push_back(*member); // 3. whowas를 위해 멤버 정보 저장
+		if (member->get_socket()->get_type() == CLIENT)
+		{
+			irc.get_socket_set().remove_socket(member->get_socket()); // 4. 소켓제거
+			delete member->get_socket();
+		}
+		delete member; // 5. 멤버 제거
 	}
-	delete member; // 5. 멤버 제거
 }
 
 void	QuitCommand::run(IrcServer &irc)
@@ -73,7 +76,8 @@ void	QuitCommand::run(IrcServer &irc)
 	{
 		member = irc.find_member(socket->get_fd()); // 1. 멤버를 찾는다.
 		quit(irc, member); // 2. 제거
-		_msg.set_prefix(member->get_nick()); // 3. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
+		if (member)
+			_msg.set_prefix(member->get_nick()); // 3. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
 		irc.send_msg_server(0, _msg.get_msg()); // 4. 메세지 전파
 	}
 	else if (socket->get_type() == SERVER)

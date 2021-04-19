@@ -84,6 +84,7 @@ void	JoinCommand::run(IrcServer &irc)
 				channel->add_operator(member);
 				channel->set_mode(2048);
 				member->add_channel(channel);
+				channel->set_servername(irc.get_serverinfo().SERVER_NAME);
 
 				// 클라이언트에 전송
 				_msg.set_param_at(0, channel_names[i]);
