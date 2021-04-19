@@ -48,7 +48,8 @@ Message::Message(const char *msg)
 	int		idx = 0;
 	// msg를 받아서 prefix, command, param으로 분리
 	idx = 0;
-	if (msg == NULL)
+	_size = 0;
+	if (msg == NULL || msg[0] == 0)
 		return ;
 	_origin = msg;
 	std::string *arr;
@@ -59,10 +60,12 @@ Message::Message(const char *msg)
 			_prefix = arr[idx++].substr(1);
 		else
 			_prefix = arr[idx++];
+		_size +=  _prefix.length() + 1;
 	}
 	for (int i = 0; i < arr[idx].size(); i++)
 		arr[idx][i] = std::toupper(arr[idx][i]);
 	_command = arr[idx++];
+	_size +=  _command.length();
 	remove_crlf(&_command);
 	std::string param;
 	while (arr[idx].empty() == false)
@@ -70,6 +73,7 @@ Message::Message(const char *msg)
 		param = arr[idx];
 		remove_crlf(&param);
 		_param.push_back(param);
+		_size += param.length() + 1;
 		idx++;
 	}
 	std::cout << std::endl;
@@ -130,9 +134,7 @@ const std::string &Message::get_param(int idx) const
 
 void		Message::set_param_at(int idx, const std::string &val)
 {
-	if (idx > _param.size())
-		throw (Error("idx out of bounds"));
-	else if (idx == _param.size())
+	if (idx == _param.size())
 		_param.push_back(val);
 	else
 		_param[idx] = val;
@@ -166,8 +168,6 @@ const char	*Message::get_msg()
 	if (!_prefix.empty())
 		_msg += ":" + _prefix + " ";
 	_msg += _command;
-	if (_param.size() > 15)
-		throw (Error("msg out of range"));
 	std::vector<std::string>::iterator begin = _param.begin();
 	std::vector<std::string>::iterator end = _param.end();
 	while (begin != end)
@@ -178,8 +178,6 @@ const char	*Message::get_msg()
 		_msg += *begin;
 		begin++;
 	}
-	if (_msg.length() > 510)
-		throw (Error("msg out of range"));
 	_msg += '\n';
 	_size = _msg.length();
 	return (_msg.c_str());
