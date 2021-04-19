@@ -8,7 +8,7 @@ NAME = server
 
 CXX = clang++
 
-CXXFLAGS = -std=c++98 -I ${INC_DIR} -I ${INC_DIR2} -g -fsanitize=address -I ${SSL_DIR} -L ./${SSL_DIR} -lssl -lcrypto
+CXXFLAGS = -std=c++98 -I ${INC_DIR} -I ${INC_DIR2} -g -fsanitize=address -I ${SSL_DIR}
 
 SSL_DIR = ./ssl
 INC_DIR = ./includes
@@ -19,8 +19,10 @@ SRCS += $(wildcard ./srcs/command/*.cpp)
 
 OBJS = $(patsubst %.cpp, %.o, ${SRCS})
 
+LIBS = $(wildcard ./ssl/*.a)
+
 $(NAME) : $(OBJS)
-	@$(CXX) $(OBJS) $(CXXFLAGS) -o $(NAME)
+	@$(CXX) $(OBJS) $(CXXFLAGS) $(LIBS) -o $(NAME) 
 	@echo "${_GREEN}COMPILE COMPLETE${_END}"
 
 %.o : %.cpp
