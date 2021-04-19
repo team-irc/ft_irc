@@ -183,9 +183,18 @@ void	IrcServer::client_msg(int fd)
 		std::cout << "[RECV] " << buf << " [" << fd << "] " << "[" << _current_sock->show_type() << "]\n";
 		if (result == 2)
 			return ;
-		if (buf[0] == 0) // 클라이언트에서 Ctrl + C 입력한 경우
-		{	// 해당 클라이언트와 연결 종료
-			std::string msg;
+		Message msg(buf);
+		if (buf[0] == 0 || msg.get_size() >= 512) // 클라이언트에서 Ctrl + C 입력한 경우
+		{
+			// 해당 클라이언트와 연결 종료
+			// 512자를 넘은거면 ERROR를 실행하고 SQUIT, QUIT 처리
+			std::string message;
+
+			if (msg.get_size() >= 512)
+			{
+				message = "ERROR :Request too long\n";
+				_current_sock->write(message.c_str());
+			}
 			if (_current_sock->get_type() == SERVER)
 			{
 				cmd = _cmd_creator.get_command("SQUIT");
@@ -196,15 +205,21 @@ void	IrcServer::client_msg(int fd)
 				cmd = _cmd_creator.get_command("QUIT");
 				Member *member = find_member(_current_sock->get_fd());
 				if (member)
-					msg = "QUIT :" + member->get_nick() + "\n";
+				{
+					if (!message.empty())
+						message = "QUIT :" + message;
+					else
+						message = "QUIT :" + member->get_nick() + "\n";
+				}
 				else
-					msg = "QUIT\n";
-				cmd->set_message(Message(msg.c_str()));
+					message = "QUIT\n";
+				cmd->set_message(Message(message.c_str()));
 			}
 			cmd->execute(*this);
+			while (result)
+				result = ft::read_until_crlf(fd, buf, &str_len);
 			return ;
 		}
-		Message msg(buf);
 		msg.set_source_fd(fd);
 		cmd = _cmd_creator.get_command(msg.get_command());
 		if (cmd)
@@ -687,3 +702,7 @@ time_t		IrcServer::get_start_time()
 
 CommandFactory		&IrcServer::get_command_factory()
 { return (_cmd_creator); }
+
+
+
+// 12341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234
