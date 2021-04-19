@@ -34,7 +34,7 @@ void ListCommand::print_list(IrcServer &irc)
 		int			member_counter = channel->get_members().size();
 
 		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
-			socket->write(Reply(RPL::LIST(), channel->get_name(), std::to_string(member_counter), channel->get_topic()).get_msg().c_str());
+			socket->write(Reply(RPL::LIST(), channel->get_name(), ft::itos(member_counter), channel->get_topic()).get_msg().c_str());
 		++first;
 	}
 	socket->write(Reply(RPL::LISTEND()).get_msg().c_str());
@@ -54,7 +54,7 @@ void ListCommand::print_list(IrcServer &irc, std::string *channel_list, int spli
 			return ; // no error reply for NamesCommand
 		member_counter = channel->get_members().size();
 		if ((!(channel->check_mode('p', false) || channel->check_mode('s', false))) || (channel->find_member(current_user)))
-			socket->write(Reply(RPL::LIST(), channel->get_name(), std::to_string(member_counter), channel->get_topic()).get_msg().c_str());
+			socket->write(Reply(RPL::LIST(), channel->get_name(), ft::itos(member_counter), channel->get_topic()).get_msg().c_str());
 	}
 	socket->write(Reply(RPL::LISTEND()).get_msg().c_str());
 }

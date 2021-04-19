@@ -234,6 +234,13 @@ void	IrcServer::client_msg(int fd)
 				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
 			}
 		}
+		if (_current_sock == NULL)
+		{
+			while (result)
+				result = ft::read_until_crlf(fd, buf, &str_len);
+			return ;
+		}
+			
 	} while (result);
 }
 
@@ -376,6 +383,9 @@ Member		*IrcServer::get_member(int fd)
 
 Socket		*IrcServer::get_current_socket()
 { return (_current_sock); }
+
+void		IrcServer::set_current_socket_null()
+{ _current_sock = NULL; }
 
 Socket		*IrcServer::get_listen_socket()
 { return (_listen_socket); }
@@ -661,8 +671,9 @@ void				IrcServer::print_motd()
 	Reply::set_username(find_member(socket->get_fd())->get_nick());
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
 	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
+	std::cout << "[SEND] " << "print motd" << " [" << socket->get_fd() << "] " << "[" << "CLIENT" << "]\n";
 	for (int i = 0; i < split_size - 1; ++i)
-		socket->write(Reply(RPL::MOTD(), split_ret[i]));
+		write(socket->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
 	socket->write(Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
 }

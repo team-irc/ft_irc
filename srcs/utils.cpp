@@ -351,7 +351,7 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 	int					i = 0;
 	int					read_size = 0;
 	int					insert_idx = 0;
-	char				buf[BUFFER_SIZE];
+	char				buf[BUFFER_SIZE + 1];
 	static std::string	remember[OPEN_MAX];
 	int					rem_size = 0;
 

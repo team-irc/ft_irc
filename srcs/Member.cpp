@@ -1,7 +1,7 @@
 #include "Member.hpp"
 #include "Channel.hpp"
 
-Member::Member()
+Member::Member(): _mode(0)
 {
 };
 

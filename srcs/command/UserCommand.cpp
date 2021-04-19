@@ -74,7 +74,7 @@ void	UserCommand::run(IrcServer &irc)
 		else
 		{
 			// fd가 키 값으로 map에 삽입됨, 전송은 하지 않음(nick이 없으므로), 전송은 NICK에서
-			std::string	key = std::to_string(irc.get_current_socket()->get_fd());
+			std::string	key = ft::itos(irc.get_current_socket()->get_fd());
 			member = new Member(key, _msg.get_param(0), _msg.get_param(1), _msg.get_param(2), _msg.get_param(3), 0);
 			member->set_fd(irc.get_current_socket()->get_fd());
 			member->set_socket(irc.get_current_socket());
@@ -105,7 +105,7 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		member->set_realname(_msg.get_param(3));
 		// NICK 메시지 전송
 		// std::string msg = "NICK " + member->get_nick() + " 1 " + member->get_username() + " " + member->get_hostname() + " " +
-		// 	std::to_string(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()) + " " + member->get_mode_str() + " " +
+		// 	ft::itos(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()) + " " + member->get_mode_str() + " " +
 		// 	member->get_realname() + "\n";
 
 		std::string msg = "NICK " + member->get_nick() + " :1\n";

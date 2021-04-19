@@ -47,9 +47,9 @@ static void		send_links_reply(IrcServer &irc, Socket *socket, std::string const 
 		server_name = (*iter).first;
 		server = (*iter).second;
 		if (mask.empty()) // 마스크가 없다면 모두 보내고, 있다면 마스크 체크 후에 일치하는것만 전송
-			socket->write(Reply(RPL::LINKS(), "", server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
+			socket->write(Reply(RPL::LINKS(), "", server->get_name(), ft::itos(server->get_hopcount()), server->get_info()).get_msg().c_str());
 		else if (ft::check_mask(server_name, mask))
-			socket->write(Reply(RPL::LINKS(), mask, server->get_name(), std::to_string(server->get_hopcount()), server->get_info()).get_msg().c_str());
+			socket->write(Reply(RPL::LINKS(), mask, server->get_name(), ft::itos(server->get_hopcount()), server->get_info()).get_msg().c_str());
 		iter++;
 	}
 	socket->write(Reply(RPL::ENDOFLINKS(), mask).get_msg().c_str());

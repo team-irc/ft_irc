@@ -414,7 +414,7 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 	else
 	{
 		irc.get_current_socket()->write(
-			Reply(ERR::UNKNOWNMODE(), std::to_string(mode)).get_msg().c_str());
+			Reply(ERR::UNKNOWNMODE(), ft::itos(mode)).get_msg().c_str());
 	}
 	return (result);
 }

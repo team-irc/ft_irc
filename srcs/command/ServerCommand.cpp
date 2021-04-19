@@ -54,7 +54,7 @@ void	ServerCommand::run(IrcServer &irc)
 	{
 		// int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		// hopcount++;
-		// _msg.set_param_at(1, std::to_string(hopcount));
+		// _msg.set_param_at(1, ft::itos(hopcount));
 		if (socket->get_pass().empty())
 		{
 			// :irc.example.net 461 * SERVER :Syntax error
@@ -62,6 +62,17 @@ void	ServerCommand::run(IrcServer &irc)
 		}
 		else if (irc.check_pass(socket))
 		{
+			// 이미 등록 된 서버 이름이 있는 경우 ERROR 메시지를 전송
+			if (irc.get_server((_msg.get_param(0))))
+			{
+				//ERROR :ID "test4001.com" already registered
+				std::string	msg = "ERROR :ID \"" + _msg.get_param(0) + "\" already registered\n";
+				irc.get_current_socket()->write(msg.c_str());
+				irc.get_socket_set().remove_socket(socket);
+				delete socket;
+				irc.set_current_socket_null();
+				return ;
+			}
 			int		token = irc.get_server_token();
 			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			// hopcount 1, 다른 서버에 전송하려면 +1 해야 함
@@ -72,14 +83,17 @@ void	ServerCommand::run(IrcServer &irc)
 			irc.add_server(_msg.get_param(0), _msg.get_param(1), token, _msg.get_param(2), socket); // 6. _global_server에 추가
 			int hopcount = ft::atoi(_msg.get_param(1).c_str());
 			hopcount++;
-			_msg.set_param_at(1, std::to_string(hopcount));
+			_msg.set_param_at(1, ft::itos(hopcount));
 			_msg.set_param_at(3, _msg.get_param(2));
-			_msg.set_param_at(2, std::to_string(token));
+			_msg.set_param_at(2, ft::itos(token));
 			irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 7. 다른 서버에 메세지 전파
 		}
 		else
 		{
 			irc.get_current_socket()->write("ERROR :Bad password\n");
+			irc.get_socket_set().remove_socket(socket);
+			irc.set_current_socket_null();
+			delete socket;
 		}
 	}
 	else if (socket->get_type() == SERVER) // 다른 서버에서 서버가 추가되었음을 알리는 경우 (패스워드 확인 필요 없음)
@@ -94,7 +108,7 @@ void	ServerCommand::run(IrcServer &irc)
 			irc.add_server(_msg.get_param(0), _msg.get_param(1), irc.get_server_token(), _msg.get_param(2), socket); // _global_server에 추가
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
-		_msg.set_param_at(1, std::to_string(hopcount));
+		_msg.set_param_at(1, ft::itos(hopcount));
 		
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
