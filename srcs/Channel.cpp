@@ -192,6 +192,8 @@ bool			Channel::check_mode(char mode, bool is_set)
 
 int				Channel::get_mode() { return (_mode); }
 void			Channel::set_mode(int mode) { _mode = mode; }
+std::string		&Channel::get_servername() { return (_servername); }
+void			Channel::set_servername(std::string & name) { _servername = name; }
 size_t			Channel::get_limit() { return (_limit); }
 void			Channel::set_limit(size_t val) { _limit = val; }
 

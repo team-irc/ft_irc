@@ -4,19 +4,44 @@ void ListCommand::run(IrcServer &irc)
 {
     const int param_size = _msg.get_param_size();
 
-    if (param_size == 0)
-    {
-        print_list(irc);
-    }
-    if (param_size == 1)
-    {
-        std::string *   channel_list;
-        int             split_size;
+	if (irc.get_current_socket()->get_type() == CLIENT)
+	{
+		if (param_size == 0)
+		{
+			print_list(irc);
+		}
+		if (param_size == 1)
+		{
+			std::string *   channel_list;
+			int             split_size;
 
-        split_size = ft::split(_msg.get_param(0), ',', channel_list);
-        print_list(irc, channel_list, split_size);
-        delete[] channel_list;
-    }
+			split_size = ft::split(_msg.get_param(0), ',', channel_list);
+			print_list(irc, channel_list, split_size);
+			delete[] channel_list;
+		}
+		if (param_size == 2)
+		{
+			Server * server = irc.get_server(_msg.get_param(1));
+			if (!server)
+				throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(1)));
+			_msg.set_prefix(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
+			irc.send_msg(server->get_socket()->get_fd(), _msg.get_msg());
+		}
+	}
+	if (irc.get_current_socket()->get_type() == SERVER)
+	{
+		Member * member = irc.get_member(_msg.get_prefix());
+		Channel * channel = irc.get_channel(_msg.get_param(0));
+		if (channel == NULL)
+			return ;
+		irc.send_msg(member->get_socket()->get_fd(), Reply(RPL::LISTSTART()).get_msg().c_str());
+		if ((channel->check_mode('p', true) && channel->check_mode('s', true)) || channel->find_member(member))
+		{
+			if (channel->get_servername() == _msg.get_param(0));
+				irc.send_msg(member->get_socket()->get_fd(), Reply(RPL::LIST(), channel->get_name(), ft::itos(channel->get_members().size()), channel->get_topic()).get_msg().c_str());
+		}
+		irc.send_msg(member->get_socket()->get_fd(), Reply(RPL::LISTEND()).get_msg().c_str());
+	}
 }
 
 void ListCommand::print_list(IrcServer &irc)

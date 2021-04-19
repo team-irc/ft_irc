@@ -68,6 +68,7 @@ private:
 	std::vector<std::string>		_ban_list;
 	int								_mode;
 	size_t							_limit;
+	std::string						_servername;
 	//								_properties.op_members;
 	//								_properties.create_member;
 	//								...
@@ -93,6 +94,8 @@ public:
 	bool					check_mode(char mode, bool is_set);
 	int						get_mode();
 	void					set_mode(int mode);
+	std::string				&get_servername();
+	void					set_servername(std::string & name);
 
 	size_t					get_limit();
 	void					set_limit(size_t limit);
