@@ -10,8 +10,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
-		// std::cout << "=======\n";
-		_listen_socket->set_type(LISTEN);
+		_listen_socket->set_type(SSL_LISTEN);
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
 		_listen_socket->listen();
@@ -20,6 +19,12 @@ IrcServer::IrcServer(int argc, char **argv)
 		add_server(_si.SERVER_NAME, "0", get_server_token(), ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
 		time(&_start_time);
+
+		int		port;
+		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
+		_ssl_listen_socket = new SSL_Socket(ft::itos(port));
+		_ssl_listen_socket->set_type(LISTEN);
+		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -51,6 +56,13 @@ void	 IrcServer::connect_to_server(char **argv)
 	// 자기 자신 포함해서 map 내부에 데이터를 SERVER 형태로 전송
 	// Channel, USER도 마찬가지로 전송하는거 추가
 	// send_map_data(_listen_socket->get_fd());
+}
+
+void	IrcServer::ssl_connect()
+{
+	Socket	*new_sock;
+
+	new_sock = _ssl_listen_socket->accept();
 }
 
 void	IrcServer::client_connect()
@@ -265,6 +277,11 @@ void		IrcServer::fd_event_loop()
 				if (_current_sock->get_type() == LISTEN)
 				{
 					client_connect();
+					continue;
+				}
+				else if (_current_sock->get_type() == SSL_LISTEN)
+				{
+					ssl_connect();
 					continue;
 				}
 				else
