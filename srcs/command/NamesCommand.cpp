@@ -120,7 +120,7 @@ std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(Ir
 		std::set<Channel *>	joinned_channels = member->get_joined_channels();
 		if (joinned_channels.empty())
 		{
-			if (!member->check_mode('i', true))
+			if (member->check_mode('i', true))
 				ret.push_back(member->get_nick());
 		}
 		++first;
