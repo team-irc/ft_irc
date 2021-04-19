@@ -37,7 +37,7 @@ void ListCommand::run(IrcServer &irc)
 		irc.send_msg(member->get_socket()->get_fd(), Reply(RPL::LISTSTART()).get_msg().c_str());
 		if ((channel->check_mode('p', true) && channel->check_mode('s', true)) || channel->find_member(member))
 		{
-			if (channel->get_servername() == _msg.get_param(0));
+			if (channel->get_servername() == _msg.get_param(0))
 				irc.send_msg(member->get_socket()->get_fd(), Reply(RPL::LIST(), channel->get_name(), ft::itos(channel->get_members().size()), channel->get_topic()).get_msg().c_str());
 		}
 		irc.send_msg(member->get_socket()->get_fd(), Reply(RPL::LISTEND()).get_msg().c_str());
