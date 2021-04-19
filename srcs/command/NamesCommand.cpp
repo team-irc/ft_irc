@@ -75,22 +75,29 @@ void	NamesCommand::reply_all_channel(IrcServer & irc)
 
 void	NamesCommand::reply_specific_channel(IrcServer &irc)
 {
-	Socket	*socket;
-	Channel	*channel;
-	Member	*user;
+	Socket		*socket;
+	Channel		*channel;
+	Member		*user;
+	std::string *split_ret;
+	int			split_len;
 
 	socket = irc.get_current_socket();
 	user = irc.find_member(socket->get_fd());
-	if (!(channel = irc.get_channel(_msg.get_param(0))))
-		return ; // no error reply for NamesCommand
-	if (channel->check_mode('p', false) || channel->check_mode('s', false))
+	split_len = ft::split(_msg.get_param(0), ',', split_ret);
+	for (int i = 0; i < split_len; ++i)
 	{
-		if (channel->find_member(user))
+		if (!(channel = irc.get_channel(split_ret[i])))
+			continue ; // no error reply for NamesCommand
+		if (channel->check_mode('p', false) || channel->check_mode('s', false))
+		{
+			if (channel->find_member(user))
+				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
+		}
+		else
 			socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
 	}
-	else
-		socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
 	socket->write(Reply(RPL::ENDOFNAMES(), "*").get_msg().c_str());
+	delete[] split_ret;
 }
 
 NamesCommand::NamesCommand(): Command()
