@@ -1,17 +1,19 @@
-#ifndef KILLCOMMAND_HPP
-# define KILLCOMMAND_HPP
+#ifndef KILL_COMMAND_HPP
+# define KILL_COMMAND_HPP
 
 # include "Command.hpp"
 
-class	KillCommand : public Command
+class KillCommand : public Command
 {
-	public:
-		KillCommand();
-		virtual ~KillCommand();
-		KillCommand(KillCommand const &ref);
-		KillCommand	&operator=(KillCommand const &ref);
-	public:
-		void			run(IrcServer &irc);
+private:
+
+public:
+	KillCommand();
+	virtual ~KillCommand();
+	KillCommand(KillCommand const &copy);
+	KillCommand	&operator=(KillCommand const &ref);
+
+	void	run(IrcServer &irc);
 };
 
 #endif

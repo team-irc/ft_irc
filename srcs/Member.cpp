@@ -1,7 +1,7 @@
 #include "Member.hpp"
 #include "Channel.hpp"
 
-Member::Member()
+Member::Member(): _mode(0)
 {
 };
 
@@ -134,3 +134,10 @@ std::string const	&Member::get_mode_str()
 void				Member::set_mode(char mode) { _mode = mode; }
 Socket				*Member::get_socket() { return (_socket); }
 void				Member::set_socket(Socket *socket) { _socket = socket; }
+
+bool				Member::is_server_operator()
+{
+	if (check_mode('o', 1))
+		return (true);
+	return (false);
+}

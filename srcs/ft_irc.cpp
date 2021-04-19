@@ -218,7 +218,7 @@ void	IrcServer::client_msg(int fd)
 		}
 		else
 		{
-			if (is_reply_code(msg.get_command()))
+			if (is_reply_code(msg.get_command())) // 451
 			{
 				Member		*member;
 				member = get_member(msg.get_param(0));
@@ -227,7 +227,10 @@ void	IrcServer::client_msg(int fd)
 			else if (buf[0] != '\n')
 			{
 				Reply::set_servername(_si.SERVER_NAME);
-				Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				if (find_member(_current_sock->get_fd()))
+					Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				else
+					Reply::set_username("");
 				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
 			}
 		}
@@ -670,7 +673,11 @@ void				IrcServer::print_motd()
 	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	std::cout << "[SEND] " << "print motd" << " [" << socket->get_fd() << "] " << "[" << "CLIENT" << "]\n";
 	for (int i = 0; i < split_size - 1; ++i)
+	{
+		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
+		split_ret[i] += "\33[m";
 		write(socket->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
+	}
 	socket->write(Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
 }
