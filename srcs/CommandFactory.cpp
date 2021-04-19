@@ -34,6 +34,7 @@
 #include "ConnectCommand.hpp"
 #include "StatsCommand.hpp"
 #include "ErrorCommand.hpp"
+#include "KillCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -73,6 +74,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("CONNECT", new ConnectCommand()));
 	_map.insert(std::pair<std::string, Command *>("STATS", new StatsCommand()));
 	_map.insert(std::pair<std::string, Command *>("ERROR", new ErrorCommand()));
+	_map.insert(std::pair<std::string, Command *>("KILL", new KillCommand()));
 }
 
 CommandFactory::CommandFactory(const CommandFactory &ref) : _map(ref._map)
