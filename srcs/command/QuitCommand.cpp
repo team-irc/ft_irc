@@ -50,6 +50,19 @@ static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
 	}
 }
 
+static void		quit(IrcServer &irc, Member *member)
+{
+	irc.delete_member(member->get_nick()); // 1. 멤버를 _global_user에서 지운다.
+	quit_from_joined_channel(irc, member); // 2. 접속중인 채널에서 제거
+	irc.get_user_history().push_back(*member); // 3. whowas를 위해 멤버 정보 저장
+	if (member->get_socket()->get_type() == CLIENT)
+	{
+		irc.get_socket_set().remove_socket(member->get_socket()); // 4. 소켓제거
+		delete member->get_socket();
+	}
+	delete member; // 5. 멤버 제거
+}
+
 void	QuitCommand::run(IrcServer &irc)
 {
 	Socket		*socket;
@@ -59,25 +72,15 @@ void	QuitCommand::run(IrcServer &irc)
 	if (socket->get_type() == CLIENT)
 	{
 		member = irc.find_member(socket->get_fd()); // 1. 멤버를 찾는다.
-		_msg.set_prefix(member->get_nick()); // 2. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
-		irc.delete_member(member->get_nick()); // 3. 멤버를 _global_user에서 지운다.
-		quit_from_joined_channel(irc, member);
-		irc.get_user_history().push_back(*member);
-		delete member;							// 멤버 인스턴스 삭제; 채널나가기
-		irc.get_socket_set().remove_socket(socket);	// 소켓을 _global_socket에서 지운다.
-		delete socket;// 4. 소켓 인스턴스 제거; close
-		irc.send_msg_server(0, _msg.get_msg());// 5. 다른 서버에서도 _global_user에서 해당 유저를 지울 수 있도록 메세지를 보낸다.
+		quit(irc, member); // 2. 제거
+		_msg.set_prefix(member->get_nick()); // 3. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
+		irc.send_msg_server(0, _msg.get_msg()); // 4. 메세지 전파
 	}
 	else if (socket->get_type() == SERVER)
 	{
 		member = irc.get_member(_msg.get_prefix()); // 1. prefix로 멤버를 찾는다.
-		irc.delete_member(member->get_nick()); // 2. 멤버를 _global_user에서 지운다.
-		member->get_joined_channels().begin();
-		quit_from_joined_channel(irc, member);
-		irc.get_user_history().push_back(*member);
-		delete member;
+		quit(irc, member); // 2. 멤버 제거
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 3. 다른서버에도 메세지를 보낸다.
-		// 소켓을 제거하지는 않는다. 서버에서 전송된 메세지이므로
 	}
 	else if (socket->get_type() == UNKNOWN)
 	{
