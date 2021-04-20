@@ -277,6 +277,8 @@ bool	ft::check_mask(std::string const &str, std::string const &mask)
 	bool							ret;
 	std::vector<std::string>	*marker;
 
+	if (str == mask)
+		return (true);
 	marker = parse_marker(mask);
 	ret = check_str(str, *marker);
 	delete marker;
