@@ -10,7 +10,7 @@ IrcServer::IrcServer(int argc, char **argv)
 	if (argc == 3 || argc == 4)
 	{
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
-		_listen_socket->set_type(SSL_LISTEN);
+		_listen_socket->set_type(LISTEN);
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
 		_listen_socket->listen();
@@ -22,12 +22,8 @@ IrcServer::IrcServer(int argc, char **argv)
 
 		int		port;
 		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
-
-		// SSL Setting
-		init_ssl_setting();
-
-		_ssl_listen_socket = new SSL_Socket(ft::itos(port), _accept_ctx);
-		_ssl_listen_socket->set_type(LISTEN);
+		_ssl_listen_socket = new SSL_Socket(ft::itos(port));
+		_ssl_listen_socket->set_type(SSL_LISTEN);
 		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 	}
 	if (argc == 4)
