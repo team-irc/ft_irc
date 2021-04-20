@@ -21,7 +21,7 @@ public:
 	static SSL_Socket	*connect(const char *connect_srv, SSL_CTX *ctx);
 	int					read(int fd, char *buffer, int *len);
 	void				write(char const *msg);
-	void				write(Reply &rpl);
+	void				write(Reply rpl);
 	void				init_openssl();
 	void				cleanup_openssl();
 	SSL_CTX				*create_context();

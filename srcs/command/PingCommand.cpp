@@ -65,7 +65,7 @@ void		PingCommand::run(IrcServer &irc)
 			}
 		}
 	}
-	else
+	else if (socket->get_type() == SERVER)
 	{
 		std::string		servername = _msg.get_param(_msg.get_param_size() - 1);
 
