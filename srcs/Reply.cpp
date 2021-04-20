@@ -335,7 +335,7 @@ Reply::Reply(RPL::USERHOST reply, std::vector<Member *> member_list)
 		_msg += (*first)->get_nick();
 		if ((*first)->check_mode('o', false))
 			_msg += '*';
-		_msg += '=';
+		_msg += " = ";
 		if ((*first)->get_away().empty())
 			_msg += '+';
 		else

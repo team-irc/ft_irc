@@ -26,6 +26,7 @@ $(NAME) : $(OBJS)
 	@echo "${_GREEN}COMPILE COMPLETE${_END}"
 
 %.o : %.cpp
+	@echo "${_GREEN}COMPILING...${_END}"
 	@$(CXX) -o $@ -c $^ $(CXXFLAGS)
 
 all : $(NAME)

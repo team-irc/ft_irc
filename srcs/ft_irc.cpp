@@ -55,10 +55,14 @@ void	 IrcServer::connect_to_server(char **argv)
 	Socket			*new_socket;
 	int				tmp;
 
+<<<<<<< HEAD
 	if (is_ssl(argv[1]))
 		SSL_Socket::connect(argv[1], _connect_ctx);
 	else
 		new_socket = Socket::connect(argv[1]);
+=======
+	new_socket = _listen_socket->connect(argv[1], _connect_ctx);
+>>>>>>> ircorigin/master
 	new_socket->set_type(SERVER);
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
@@ -76,7 +80,32 @@ void	 IrcServer::connect_to_server(char **argv)
 	// send_map_data(_listen_socket->get_fd());
 }
 
+<<<<<<< HEAD
 void	IrcServer::ssl_connect_request()
+=======
+void		IrcServer::init_ssl_setting()
+{
+	SSL_METHOD	*smethod;
+
+	SSL_library_init();
+	SSL_load_error_strings();
+	SSLeay_add_ssl_algorithms();
+	_accept_ctx = SSL_CTX_new(SSLv23_server_method());
+	if (!_accept_ctx)
+		throw (Error(strerror(errno)));
+	_connect_ctx = SSL_CTX_new(SSLv23_client_method());
+	if (!_connect_ctx)
+		throw (Error(strerror(errno)));
+	if (SSL_CTX_use_certificate_file(_accept_ctx, "cert.pem", SSL_FILETYPE_PEM) <= 0)
+		throw (Error(strerror(errno)));
+	if (SSL_CTX_use_PrivateKey_file(_accept_ctx, "key.pem", SSL_FILETYPE_PEM) <= 0)
+		throw (Error(strerror(errno)));
+	if (!SSL_CTX_check_private_key(_accept_ctx))
+		throw (Error("Private key does not match the certification public key"));
+}
+
+void	IrcServer::ssl_connect()
+>>>>>>> ircorigin/master
 {
 	Socket	*accepted_socket;
 
@@ -86,6 +115,10 @@ void	IrcServer::ssl_connect_request()
 	if (_fd_max < accepted_socket->get_fd())
 		_fd_max = accepted_socket->get_fd();
 
+<<<<<<< HEAD
+=======
+	new_sock = _ssl_listen_socket->accept(_accept_ctx);
+>>>>>>> ircorigin/master
 }
 
 void	IrcServer::client_connect()

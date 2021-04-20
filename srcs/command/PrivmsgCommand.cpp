@@ -34,6 +34,7 @@ void			PrivmsgCommand::send_member(IrcServer &irc, Member &member)
 	Socket			*sock = irc.get_socket_set().find_socket(member.get_fd());
 
 	add_prefix(irc);
+	_msg.set_param_at(0, member.get_nick());
 	sock->write(_msg.get_msg());
 	if (!member.get_away().empty() && irc.get_current_socket()->get_type() == CLIENT)
 		irc.get_current_socket()->write(Reply(RPL::AWAY(), member.get_nick(), member.get_away()).get_msg().c_str());
