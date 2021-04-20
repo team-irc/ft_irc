@@ -33,7 +33,7 @@ class IrcServer
 private:
 	std::string						_my_pass;
 	Socket							*_listen_socket;
-	Socket							*_ssl_listen_socket;
+	SSL_Socket						*_ssl_listen_socket;
 
 	// std::vector<Socket *>		_socket_vector;
 	SocketSet						_socket_set;

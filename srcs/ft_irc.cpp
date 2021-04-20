@@ -2,6 +2,7 @@
 
 IrcServer::IrcServer(int argc, char **argv)
 {
+	int		port;
 	{
 		ReadConf	rc;
 		rc.open_file("ft_irc.conf");
@@ -14,17 +15,20 @@ IrcServer::IrcServer(int argc, char **argv)
 		_fd_max = _socket_set.add_socket(_listen_socket);
 		_listen_socket->bind();
 		_listen_socket->listen();
+		time(&_start_time);
+
+		init_ssl_setting();
+		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
+		_ssl_listen_socket = new SSL_Socket(ft::itos(port), _accept_ctx);
+		_ssl_listen_socket->set_type(SSL_LISTEN);
+		_ssl_listen_socket->bind();
+		_ssl_listen_socket->listen();
+		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
+
 		if (_si.SERVER_NAME == "${AUTO}")
 			_si.SERVER_NAME = std::string("test") + ft::itos(_listen_socket->get_port()) + ".com";
 		add_server(_si.SERVER_NAME, "0", get_server_token(), ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
-		time(&_start_time);
-
-		int		port;
-		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
-		_ssl_listen_socket = new SSL_Socket(ft::itos(port));
-		_ssl_listen_socket->set_type(SSL_LISTEN);
-		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -34,13 +38,27 @@ IrcServer::~IrcServer()
 {
 };
 
+static bool		is_ssl(const char *host_str)
+{
+	std::pair<struct sockaddr_in, std::string>	host_info;
+
+	host_info = Socket::parsing_host_info(host_str);
+	if (ntohs(host_info.first.sin_port) % 2 == 0)
+		return (true);
+	else
+		return (false);
+}
+
 // 새로운 서버에서 기존 서버로 연결하는 함수
 void	 IrcServer::connect_to_server(char **argv)
 {
 	Socket			*new_socket;
 	int				tmp;
 
-	new_socket = _listen_socket->connect(argv[1], _connect_ctx);
+	if (is_ssl(argv[1]))
+		SSL_Socket::connect(argv[1], _connect_ctx);
+	else
+		new_socket = Socket::connect(argv[1]);
 	new_socket->set_type(SERVER);
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
@@ -81,9 +99,13 @@ void		IrcServer::init_ssl_setting()
 
 void	IrcServer::ssl_connect()
 {
-	Socket	*new_sock;
+	Socket	*accepted_socket;
 
-	new_sock = _ssl_listen_socket->accept(_accept_ctx);
+	accepted_socket = _ssl_listen_socket->accept(_accept_ctx);
+	accepted_socket->set_type(UNKNOWN);
+	_socket_set.add_socket(accepted_socket);
+	if (_fd_max < accepted_socket->get_fd())
+		_fd_max = accepted_socket->get_fd();
 }
 
 void	IrcServer::client_connect()
@@ -93,7 +115,6 @@ void	IrcServer::client_connect()
 	new_socket = _listen_socket->accept();
 	new_socket->set_type(UNKNOWN);
 	_socket_set.add_socket(new_socket);
-	// _user_map.insert(std::pair<unsigned short, int>(new_socket->get_port(), new_socket->get_fd()));
 	if (_fd_max < new_socket->get_fd())
 		_fd_max = new_socket->get_fd();
 }
