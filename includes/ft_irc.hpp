@@ -41,6 +41,10 @@ private:
 	Socket							*_current_sock;
 	CommandFactory					_cmd_creator;
 
+	// SSL
+	SSL_CTX							*_accept_ctx;
+	SSL_CTX							*_connect_ctx;
+
 	time_t							_start_time;
 	time_t							_current_time;
 
@@ -132,7 +136,7 @@ private:
 	void				check_connection();
 	bool				is_reply_code(std::string const &command);
 
-	
+	void				init_ssl_setting();
 };
 
 void error_handling(const std::string buf);
