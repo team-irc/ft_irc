@@ -4,7 +4,7 @@ _END		=	\033[0;0m
 _RED		=	\033[0;31m
 _GREEN		=	\033[0;32m
 
-NAME = server
+NAME = ircserv
 
 CXX = clang++
 
