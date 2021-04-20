@@ -56,7 +56,7 @@ void	 IrcServer::connect_to_server(char **argv)
 	int				tmp;
 
 	if (is_ssl(argv[1]))
-		SSL_Socket::connect(argv[1], _connect_ctx);
+		new_socket = SSL_Socket::connect(argv[1], _connect_ctx);
 	else
 		new_socket = Socket::connect(argv[1]);
 	new_socket->set_type(SERVER);
