@@ -16,7 +16,7 @@ SSL_Socket::SSL_Socket(SSL_CTX *ctx) : Socket()
 
 SSL_Socket::~SSL_Socket()
 {
-	delete _ssl;
+	SSL_free(_ssl);
 }
 
 SSL_Socket  *SSL_Socket::accept(SSL_CTX *ctx)
@@ -60,7 +60,7 @@ SSL_Socket	*SSL_Socket::connect(const char *connect_srv, SSL_CTX *ctx)
 		if (errno != EINPROGRESS)
 			throw (Error("socket connect error"));
 	}
-	if (SSL_connect(_ssl) <= 0)
+	if (SSL_connect(connect_socket->_ssl) <= 0)
 	{
 		if (errno != EINPROGRESS)
 			throw ("SSL_connect Error\n");

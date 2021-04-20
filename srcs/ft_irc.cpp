@@ -17,7 +17,7 @@ IrcServer::IrcServer(int argc, char **argv)
 		_listen_socket->listen();
 		time(&_start_time);
 
-		
+		init_ssl_setting();
 		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
 		_ssl_listen_socket = new SSL_Socket(ft::itos(port), _accept_ctx);
 		_ssl_listen_socket->set_type(SSL_LISTEN);
@@ -55,14 +55,10 @@ void	 IrcServer::connect_to_server(char **argv)
 	Socket			*new_socket;
 	int				tmp;
 
-<<<<<<< HEAD
 	if (is_ssl(argv[1]))
 		SSL_Socket::connect(argv[1], _connect_ctx);
 	else
 		new_socket = Socket::connect(argv[1]);
-=======
-	new_socket = _listen_socket->connect(argv[1], _connect_ctx);
->>>>>>> ircorigin/master
 	new_socket->set_type(SERVER);
 	tmp = _socket_set.add_socket(new_socket);
 	if (_fd_max < tmp)
@@ -80,9 +76,6 @@ void	 IrcServer::connect_to_server(char **argv)
 	// send_map_data(_listen_socket->get_fd());
 }
 
-<<<<<<< HEAD
-void	IrcServer::ssl_connect_request()
-=======
 void		IrcServer::init_ssl_setting()
 {
 	SSL_METHOD	*smethod;
@@ -105,7 +98,6 @@ void		IrcServer::init_ssl_setting()
 }
 
 void	IrcServer::ssl_connect()
->>>>>>> ircorigin/master
 {
 	Socket	*accepted_socket;
 
@@ -114,11 +106,6 @@ void	IrcServer::ssl_connect()
 	_socket_set.add_socket(accepted_socket);
 	if (_fd_max < accepted_socket->get_fd())
 		_fd_max = accepted_socket->get_fd();
-
-<<<<<<< HEAD
-=======
-	new_sock = _ssl_listen_socket->accept(_accept_ctx);
->>>>>>> ircorigin/master
 }
 
 void	IrcServer::client_connect()
@@ -351,7 +338,7 @@ void		IrcServer::fd_event_loop()
 				}
 				else if (_current_sock->get_type() == SSL_LISTEN)
 				{
-					ssl_connect_request();
+					ssl_connect();
 					continue;
 				}
 				else

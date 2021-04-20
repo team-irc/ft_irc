@@ -50,15 +50,15 @@ public:
 	Socket(struct sockaddr_in serv_addr);
 	Socket(Socket const &copy);
 	Socket& operator=(Socket const &copy);
-	~Socket();
+	virtual ~Socket();
 public:
 	void				bind() const;
 	void				listen() const;
-	Socket				*accept() const;
+	virtual Socket		*accept() const;
 	static Socket		*connect(const char *connect_srv);
-	int					read(int fd, char *buffer, int *len);
-	void				write(char const *msg);
-	void				write(Reply rpl);
+	virtual int			read(int fd, char *buffer, int *len);
+	virtual void		write(char const *msg);
+	virtual void		write(Reply rpl);
 	void				show_info() const;
 	int					get_fd() const;
 	unsigned short		get_port() const;

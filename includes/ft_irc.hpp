@@ -40,8 +40,6 @@ private:
 	int								_fd_max;
 	Socket							*_current_sock;
 	CommandFactory					_cmd_creator;
-	SSL_CTX							*_accept_ctx;
-	SSL_CTX							*_connect_ctx;
 
 	// SSL
 	SSL_CTX							*_accept_ctx;
@@ -123,7 +121,7 @@ private:
 	void				client_msg(int fd);
 	void				unknown_msg(int fd);
 	void				client_connect();
-	void				ssl_connect_request();
+	void				ssl_connect();
 
 	void				connect_to_server(char **argv);
 	void				send_msg(int my_fd, int except_fd, const char *msg);
