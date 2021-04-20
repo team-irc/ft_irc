@@ -75,10 +75,10 @@ void	QuitCommand::run(IrcServer &irc)
 	if (socket->get_type() == CLIENT)
 	{
 		member = irc.find_member(socket->get_fd()); // 1. 멤버를 찾는다.
-		quit(irc, member); // 2. 제거
 		if (member)
-			_msg.set_prefix(member->get_nick()); // 3. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
-		irc.send_msg_server(0, _msg.get_msg()); // 4. 메세지 전파
+			_msg.set_prefix(member->get_nick()); 	// 2. 메세지를 전파하기 위해 닉네임을 프리픽스로 설정
+		quit(irc, member);							// 3. 제거
+		irc.send_msg_server(0, _msg.get_msg()); 	// 4. 메세지 전파
 	}
 	else if (socket->get_type() == SERVER)
 	{
