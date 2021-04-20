@@ -11,6 +11,8 @@
 # include <vector>
 # include <ctime>
 # include <unistd.h>
+# include <openssl/ssl.h>
+# include <openssl/err.h>
 
 # define BUFFER_SIZE 512
 # ifdef __linux__
@@ -43,6 +45,7 @@ namespace ft
 	void		get_up_time(time_t start, std::string &result);
 
 	int			read_until_crlf(int fd, char *buffer, int *len);
+	int			ssl_read_until_crlf(int fd, char *buffer, int *len, SSL *ssl);
 
 	void		ltrim(std::string & str, char c);
 

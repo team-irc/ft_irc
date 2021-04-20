@@ -33,13 +33,15 @@ class IrcServer
 private:
 	std::string						_my_pass;
 	Socket							*_listen_socket;
-	Socket							*_ssl_listen_socket;
+	SSL_Socket						*_ssl_listen_socket;
 
 	// std::vector<Socket *>		_socket_vector;
 	SocketSet						_socket_set;
 	int								_fd_max;
 	Socket							*_current_sock;
 	CommandFactory					_cmd_creator;
+	SSL_CTX							*_accept_ctx;
+	SSL_CTX							*_connect_ctx;
 
 	time_t							_start_time;
 	time_t							_current_time;
@@ -117,7 +119,7 @@ private:
 	void				client_msg(int fd);
 	void				unknown_msg(int fd);
 	void				client_connect();
-	void				ssl_connect();
+	void				ssl_connect_request();
 
 	void				connect_to_server(char **argv);
 	void				send_msg(int my_fd, int except_fd, const char *msg);

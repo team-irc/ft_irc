@@ -42,8 +42,7 @@ protected:
 	time_t				_start_time;
 	time_t				_last_action;
 	bool				_is_ping_check;
-protected:
-	std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect) const;
+	
 public:
 	Socket();
 	Socket(const char *port);
@@ -56,7 +55,7 @@ public:
 	void				bind() const;
 	void				listen() const;
 	Socket				*accept() const;
-	Socket				*connect(const char *connect_srv);
+	static Socket		*connect(const char *connect_srv);
 	int					read(int fd, char *buffer, int *len);
 	void				write(char const *msg);
 	void				write(Reply rpl);
@@ -82,6 +81,7 @@ public:
 
 	bool			is_ping_check();
 	void			set_ping_check();
+	static std::pair<struct sockaddr_in, std::string>	parsing_host_info(const char *connect);
 };
 
 #endif
