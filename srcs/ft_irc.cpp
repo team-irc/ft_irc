@@ -21,9 +21,9 @@ IrcServer::IrcServer(int argc, char **argv)
 		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
 		_ssl_listen_socket = new SSL_Socket(ft::itos(port), _accept_ctx);
 		_ssl_listen_socket->set_type(SSL_LISTEN);
+		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 		_ssl_listen_socket->bind();
 		_ssl_listen_socket->listen();
-		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 
 		if (_si.SERVER_NAME == "${AUTO}")
 			_si.SERVER_NAME = std::string("test") + ft::itos(_listen_socket->get_port()) + ".com";

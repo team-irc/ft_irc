@@ -26,7 +26,7 @@ SSL_Socket  *SSL_Socket::accept(SSL_CTX *ctx)
 	struct sockaddr_in		accepted_addr;
 	socklen_t				addr_size;
 
-	fd = ::accept(fd, (struct sockaddr *)&accepted_addr, &addr_size);
+	fd = ::accept(_fd, (struct sockaddr *)&accepted_addr, &addr_size);
 	if (fd <= 0)
 		throw ("SSL Socket accept error\n");
 	accepted_socket = new SSL_Socket(ctx);
