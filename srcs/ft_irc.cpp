@@ -21,9 +21,9 @@ IrcServer::IrcServer(int argc, char **argv)
 		port = ft::atoi(argv[argc == 4 ? 2 : 1]) + 1;
 		_ssl_listen_socket = new SSL_Socket(ft::itos(port), _accept_ctx);
 		_ssl_listen_socket->set_type(SSL_LISTEN);
+		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 		_ssl_listen_socket->bind();
 		_ssl_listen_socket->listen();
-		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
 
 		if (_si.SERVER_NAME == "${AUTO}")
 			_si.SERVER_NAME = std::string("test") + ft::itos(_listen_socket->get_port()) + ".com";
@@ -734,25 +734,44 @@ bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 	return (false);
 }
 
+void				IrcServer::print_serverinfo()
+{
+	std::string tmp;
+	Member		*member = find_member(_current_sock->get_fd());
+	const std::string prefix = ':' + _si.SERVER_NAME + ' ';
+
+	tmp = prefix + "001 " + member->get_nick() + " :Welcome to the Internet Relay Network " + member->get_nick() + "!~" + member->get_username() + "@" + member->get_hostname() + '\n';
+	_current_sock->write(tmp.c_str());
+	tmp = prefix + "002 " + member->get_nick() + " :Your host is " + _si.SERVER_NAME + ", running version " + _si.VERSION + '\n';
+	_current_sock->write(tmp.c_str());
+	tmp = prefix + "003 " + member->get_nick() + " :This server has been started " + ctime(&_start_time);
+	_current_sock->write(tmp.c_str());
+	tmp = prefix + "004 " + member->get_nick() + ' ' + _si.SERVER_NAME + ' ' + _si.VERSION + '\n';
+	_current_sock->write(tmp.c_str());
+	tmp = prefix + "005 " + member->get_nick() + " RFC1459 IRCD=ftIRC CHARSET=UTF-8 :are supported on this server\n";
+	_current_sock->write(tmp.c_str());
+}
+
 void				IrcServer::print_motd()
 {
-	Socket *socket;
+	Member			*member;
 	std::string *	split_ret;
 	int				split_size;
 
-	socket = get_current_socket();
+	member = find_member(_current_sock->get_fd());
 	Reply::set_servername(_si.SERVER_NAME);
-	Reply::set_username(find_member(socket->get_fd())->get_nick());
+	Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+	print_serverinfo();
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
-	socket->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
-	std::cout << "[SEND] " << "print motd" << " [" << socket->get_fd() << "] " << "[" << "CLIENT" << "]\n";
+	_current_sock->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
+	std::cout << "[SEND] " << "print motd" << " [" << _current_sock->get_fd() << "] " << "[" << "CLIENT" << "]\n";
 	for (int i = 0; i < split_size - 1; ++i)
 	{
 		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
 		split_ret[i] += "\33[m";
-		write(socket->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
+		write(_current_sock->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
 	}
-	socket->write(Reply(RPL::ENDOFMOTD()));
+	_current_sock->write(Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
 }
 

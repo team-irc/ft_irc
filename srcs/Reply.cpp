@@ -391,7 +391,7 @@ Reply::Reply(RPL::LIST rpl, const std::string &channel, const std::string &visib
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	//"<channel> <# visible> :<topic>"
-	_msg = channel + " " + visible + " :" + topic;
+	_msg = channel + " " + visible + " " + topic;
 }
 
 Reply::Reply(RPL::LISTEND rpl)
