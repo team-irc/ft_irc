@@ -4,9 +4,11 @@
 
 SSL_Socket::SSL_Socket(std::string const &port, SSL_CTX *ctx) : Socket(port.c_str())
 {
-	init_openssl();
+    bind();
+    listen();
 	_ssl = SSL_new(ctx);
-	fcntl(_fd, F_SETFL, O_NONBLOCK);
+    SSL_set_fd(_ssl, _fd);
+	// fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 SSL_Socket::SSL_Socket(SSL_CTX *ctx) : Socket()
@@ -53,6 +55,7 @@ SSL_Socket	*SSL_Socket::connect(const char *connect_srv, SSL_CTX *ctx)
 	connect_socket->_fd = socket(AF_INET, SOCK_STREAM, 0);
 	connect_socket->_addr = connect_addr;
 	connect_socket->set_pass(pair.second);
+    SSL_set_fd(connect_socket->_ssl, connect_socket->_fd);
 	if (connect_socket->_fd == -1)
 		throw(Error("connect socket create error"));
 	if (::connect(connect_socket->_fd, (struct sockaddr *)&connect_socket->_addr, sizeof(connect_socket->_addr)) == -1)
@@ -91,7 +94,7 @@ void		SSL_Socket::write(char const *msg)
 	SSL_write(_ssl, msg, strlen(msg));
 }
 
-void		SSL_Socket::write(Reply &rpl)
+void		SSL_Socket::write(Reply rpl)
 {
 	std::cout << "[SSL_SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
