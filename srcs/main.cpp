@@ -19,4 +19,8 @@ int main(int argc, char **argv)
 	{
 		std::cerr << err << '\n';
 	}
+	catch(char const*err)
+	{
+		std::cerr << err << '\n';
+	}
 }
