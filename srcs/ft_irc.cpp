@@ -22,8 +22,6 @@ IrcServer::IrcServer(int argc, char **argv)
 		_ssl_listen_socket = new SSL_Socket(ft::itos(port), _accept_ctx);
 		_ssl_listen_socket->set_type(SSL_LISTEN);
 		_fd_max = _socket_set.add_socket(_ssl_listen_socket);
-		_ssl_listen_socket->bind();
-		_ssl_listen_socket->listen();
 
 		if (_si.SERVER_NAME == "${AUTO}")
 			_si.SERVER_NAME = std::string("test") + ft::itos(_listen_socket->get_port()) + ".com";
@@ -359,7 +357,7 @@ void	IrcServer::check_connection()
 
 	while (begin != end)
 	{
-		if ((*begin)->get_type() != LISTEN)
+		if ((*begin)->get_type() != LISTEN && (*begin)->get_type() != SSL_LISTEN)
 		{
 			time(&_current_time);
 			long	diff_time = _current_time - (*begin)->get_last_action();
@@ -764,12 +762,11 @@ void				IrcServer::print_motd()
 	print_serverinfo();
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
 	_current_sock->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
-	std::cout << "[SEND] " << "print motd" << " [" << _current_sock->get_fd() << "] " << "[" << "CLIENT" << "]\n";
 	for (int i = 0; i < split_size - 1; ++i)
 	{
 		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
 		split_ret[i] += "\33[m";
-		write(_current_sock->get_fd(), Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str(), Reply(RPL::MOTD(), split_ret[i]).get_msg().length());
+		_current_sock->write(Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str());
 	}
 	_current_sock->write(Reply(RPL::ENDOFMOTD()));
 	delete[] split_ret;
@@ -781,6 +778,3 @@ time_t		IrcServer::get_start_time()
 CommandFactory		&IrcServer::get_command_factory()
 { return (_cmd_creator); }
 
-
-
-// 12341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234123412341234
