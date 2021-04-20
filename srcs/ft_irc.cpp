@@ -359,7 +359,7 @@ void	IrcServer::check_connection()
 
 	while (begin != end)
 	{
-		if ((*begin)->get_type() != LISTEN)
+		if ((*begin)->get_type() != LISTEN && (*begin)->get_type() != SSL_LISTEN)
 		{
 			time(&_current_time);
 			long	diff_time = _current_time - (*begin)->get_last_action();
