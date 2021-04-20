@@ -11,7 +11,7 @@ void    RehashCommand::run(IrcServer & irc)
 	rc.open_file("ft_irc.conf");
 	rc.read_config(irc.get_serverinfo());
 	if (irc.get_serverinfo().SERVER_NAME == "${AUTO}")
-		irc.get_serverinfo().SERVER_NAME = std::string("test") + ft::itos(irc.get_listen_socket()->get_port()) + ".com";
+		irc.get_serverinfo().SERVER_NAME = "test" + ft::itos(irc.get_listen_socket()->get_port()) + ".com";
 	socket->write(Reply(RPL::REHASHING(), "ft_irc.conf").get_msg().c_str());
 }
 
