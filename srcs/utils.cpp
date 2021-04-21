@@ -369,12 +369,19 @@ int	ft::ssl_read_until_crlf(int fd, char *buffer, int *len, SSL *ssl)
 	{
 		if (remember[fd].empty())
 		{
-			if ((read_size = SSL_read(ssl, buf + insert_idx, BUFFER_SIZE - insert_idx)) == -1)
-				break;
-			else if (read_size == 0)
-				break;
-			if (read_size == -1)
-				return (-1);
+			int ret = 1;
+			while (ret)
+			{
+				if ((read_size = SSL_read(ssl, buf + insert_idx, BUFFER_SIZE - insert_idx)) <= 0)
+				{
+					ret = SSL_get_error(ssl, read_size);
+					// std::cout << "READ ERROR: " << ret << "\n";
+					if (ret == SSL_ERROR_WANT_READ)
+						continue;
+				}
+				else
+					break;
+			}
 			buf[insert_idx + read_size] = 0;
 		}
 		else
