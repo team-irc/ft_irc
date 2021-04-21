@@ -231,7 +231,6 @@ void	IrcServer::client_msg(int fd)
 			std::cout << "read_until_crlf return -1" << std::endl;
 			return ;
 		}
-		std::cout << "[RECV] " << buf << " [" << fd << "] " << "[" << _current_sock->show_type() << "]\n";
 		if (result == 2)
 			return ;
 		Message msg(buf);

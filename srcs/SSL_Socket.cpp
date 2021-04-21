@@ -81,6 +81,7 @@ int			SSL_Socket::read(int fd, char *buffer, int *len)
 	int		ret;
 
 	ret = ft::ssl_read_until_crlf(fd, buffer, len, _ssl);
+	std::cout << "[SSL_RECV] " << buffer << " [" << fd << "] " << "[" << show_type() << "]\n";
 	if (*len > 0)
 	{
 		_recv_bytes += static_cast<size_t>(*len);
