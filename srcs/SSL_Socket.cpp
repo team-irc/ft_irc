@@ -18,6 +18,7 @@ SSL_Socket::SSL_Socket(SSL_CTX *ctx) : Socket()
 
 SSL_Socket::~SSL_Socket()
 {
+	SSL_shutdown(_ssl);
 	SSL_free(_ssl);
 }
 
