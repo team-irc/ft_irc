@@ -537,6 +537,8 @@ bool		IrcServer::add_server(const std::string &server_name, const std::string &h
 
 void		IrcServer::delete_server(std::string const &server_name)
 {
+	Server	*server = _global_server.find(server_name)->second;
+	delete server;
 	_global_server.erase(server_name);
 }
 
