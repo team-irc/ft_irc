@@ -13,20 +13,38 @@ void ConnectCommand::run(IrcServer &irc)
     parsing(target, port, remote);
     socket      = irc.get_current_socket();
     member      = irc.find_member(socket->get_fd());
-    if (member->check_mode('o', true))
-        throw (Reply(ERR::NOPRIVILEGES()));
-    if ((!remote.empty()) && !check_already_exist(irc, remote, ft::itos(6667)))
-        throw (Reply(ERR::NOSUCHSERVER(), remote));
-    if (remote.empty() || remote == irc.get_listen_socket()->get_hostname())
+    if (socket->get_type() == UNKNOWN)
+        throw (Reply(ERR::NOTREGISTERED()));
+    else if (socket->get_type() == CLIENT)
     {
-        if (!check_already_exist(irc, target, port))
-            connect_to_target(irc, target, port);
+        if (member->check_mode('o', true))
+            throw (Reply(ERR::NOPRIVILEGES()));
+        if ((!remote.empty()) && !check_already_exist(irc, remote))
+            throw (Reply(ERR::NOSUCHSERVER(), remote));
+        if (remote.empty() || remote == irc.get_serverinfo().SERVER_NAME)
+        {
+            if (!check_already_exist(irc, target, port))
+                connect_to_target(irc, target, port);
+        }
+        else
+        {
+            _msg.set_prefix(member->get_nick());
+            irc.send_msg(irc.find_server_fd(remote), _msg.get_msg());
+        }    
     }
-    else
+    else if (socket->get_type() == SERVER)
     {
-        _msg.set_prefix(member->get_nick());
-        irc.send_msg(irc.find_server_fd(remote), _msg.get_msg());
+        if (remote == irc.get_serverinfo().SERVER_NAME)
+        {
+            if (!check_already_exist(irc, target, port))
+                connect_to_target(irc, target, port);
+        }
+        else
+            irc.send_msg(irc.find_server_fd(remote), _msg.get_msg());
+        
     }
+    
+    
 }
 
 void ConnectCommand::parsing(std::string & target, std::string & port, std::string & remote)
@@ -47,17 +65,21 @@ void ConnectCommand::parsing(std::string & target, std::string & port, std::stri
         else
         {
             port    = ft::itos(6667);
-            remote  = _msg.get_param(1);
         }
     }
     if (param_size == 3)
     {
-        port    = _msg.get_param(1);
+        if (ft::isdigit(_msg.get_param(1)))
+            port    = _msg.get_param(1);
+        else
+        {
+            port    = ft::itos(6667);
+        }
         remote  = _msg.get_param(2);
     }
 }
 
-bool ConnectCommand::check_already_exist(IrcServer &irc, const std::string & target, const std::string & port)
+bool ConnectCommand::check_already_exist(IrcServer &irc, const std::string & target)
 {
     std::map<std::string, Server *>::iterator first;
     std::map<std::string, Server *>::iterator last;
@@ -66,8 +88,26 @@ bool ConnectCommand::check_already_exist(IrcServer &irc, const std::string & tar
     last = irc.get_global_server().end();
     while (first != last)
     {
-        const std::string current_port(ft::itos(first->second->get_socket()->get_port()));
+        const std::string current_servername(first->second->get_name());
+        if (target == current_servername)
+            return (true);
+        ++first;
+    }
+    return (false);
+}
+
+// target = hostname, check target:port is already connect
+bool ConnectCommand::check_already_exist(IrcServer &irc, const std::string & target, const std::string &port)
+{
+    std::map<std::string, Server *>::iterator first;
+    std::map<std::string, Server *>::iterator last;
+
+    first = irc.get_global_server().begin();
+    last = irc.get_global_server().end();
+    while (first != last)
+    {
         const std::string current_hostname(first->second->get_socket()->get_hostname());
+        const std::string current_port(ft::itos(first->second->get_socket()->get_port()));
         if (target == current_hostname && port == current_port)
             return (true);
         ++first;
@@ -83,8 +123,11 @@ void ConnectCommand::connect_to_target(IrcServer & irc, const std::string & targ
 
     try
     {
-        msg = target + ":" + port + ":asdf";
-        new_socket = irc.get_listen_socket()->connect(msg.c_str());
+        msg = target + ":" + port + ":" + irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_password();
+        if (ft::atoi(port.c_str()) % 2 == 0)
+            new_socket = irc.get_ssl_listen_socket()->connect(msg.c_str(), irc.get_connect_ctx());
+        else
+            new_socket = irc.get_listen_socket()->connect(msg.c_str());
         new_socket->set_type(SERVER);
         tmp = irc.get_socket_set().add_socket(new_socket);
         if (irc.get_fdmax() < tmp)
