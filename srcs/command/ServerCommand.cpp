@@ -48,8 +48,6 @@ void	ServerCommand::run(IrcServer &irc)
 	{
 		throw (Reply(ERR::UNKNOWNCOMMAND(), "SERVER"));
 	}
-	if (irc.get_server(_msg.get_param(0)) != false)
-		throw (Reply(ERR::ALREADYREGISTRED()));
 	if (socket->get_type() == UNKNOWN) // 새로운 서버 추가요청을 받은경우 (패스워드 확인 필요)
 	{
 		// int hopcount = ft::atoi(_msg.get_param(1).c_str());
@@ -109,7 +107,6 @@ void	ServerCommand::run(IrcServer &irc)
 		int hopcount = ft::atoi(_msg.get_param(1).c_str());
 		hopcount++;
 		_msg.set_param_at(1, ft::itos(hopcount));
-		
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
 }

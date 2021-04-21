@@ -74,6 +74,9 @@ public:
 	Socket						*get_current_socket();
 	void						set_current_socket_null();
 	Socket						*get_listen_socket();
+	SSL_Socket					*get_ssl_listen_socket();
+	SSL_CTX						*get_accept_ctx();
+	SSL_CTX						*get_connect_ctx();
 	SocketSet					&get_socket_set();
 	int							&get_fdmax();
 	void						send_msg(int send_fd, const char *msg);
