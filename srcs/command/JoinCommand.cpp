@@ -134,6 +134,7 @@ void	JoinCommand::run(IrcServer &irc)
 				irc.send_msg_server(socket->get_fd(), msg.c_str());
 			}
 		}
+		delete[] channel_names;
 	}
 	else if (socket->get_type() == SERVER)
 	{
