@@ -15,11 +15,7 @@ int main(int argc, char **argv)
 	{
 		std::cerr << e.what() << '\n';
 	}
-	catch(char *err)
-	{
-		std::cerr << err << '\n';
-	}
-	catch(char const*err)
+	catch(char const *err)
 	{
 		std::cerr << err << '\n';
 	}

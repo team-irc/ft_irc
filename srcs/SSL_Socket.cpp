@@ -8,7 +8,7 @@ SSL_Socket::SSL_Socket(std::string const &port, SSL_CTX *ctx) : Socket(port.c_st
     listen();
 	_ssl = SSL_new(ctx);
     SSL_set_fd(_ssl, _fd);
-	// fcntl(_fd, F_SETFL, O_NONBLOCK);
+	fcntl(_fd, F_SETFL, O_NONBLOCK);
 }
 
 SSL_Socket::SSL_Socket(SSL_CTX *ctx) : Socket()
@@ -30,13 +30,17 @@ SSL_Socket  *SSL_Socket::accept(SSL_CTX *ctx)
 
 	fd = ::accept(_fd, (struct sockaddr *)&accepted_addr, &addr_size);
 	if (fd <= 0)
-		throw ("SSL Socket accept error\n");
+		throw ("SSL Socket accept error");
 	accepted_socket = new SSL_Socket(ctx);
 	accepted_socket->_fd = fd;
 	memcpy(&(accepted_socket->_addr), &accepted_addr, addr_size);
 	SSL_set_fd(accepted_socket->_ssl, accepted_socket->_fd);
-	if (SSL_accept(accepted_socket->_ssl) <= 0)
-		throw ("SSL_accept error\n");
+	int ret;
+	while ((ret = SSL_accept(accepted_socket->_ssl)) < 0)
+	{
+		
+	}
+	std::cout << "SSL accepted\n";
 	fcntl(accepted_socket->_fd, F_SETFL, O_NONBLOCK);
 	return (accepted_socket);
 }
