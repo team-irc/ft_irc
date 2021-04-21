@@ -27,6 +27,7 @@ IrcServer::IrcServer(int argc, char **argv)
 			_si.SERVER_NAME = std::string("test") + ft::itos(_listen_socket->get_port()) + ".com";
 		add_server(_si.SERVER_NAME, "0", get_server_token(), ":" + _si.VERSION, _listen_socket);
 		_my_pass = std::string(argv[argc == 4 ? 3 : 2]);
+		get_server(_si.SERVER_NAME)->set_password(_my_pass);
 	}
 	if (argc == 4)
 		connect_to_server(argv);
@@ -459,6 +460,15 @@ void		IrcServer::set_current_socket_null()
 
 Socket		*IrcServer::get_listen_socket()
 { return (_listen_socket); }
+
+SSL_Socket	*IrcServer::get_ssl_listen_socket()
+{ return (_ssl_listen_socket); }
+
+SSL_CTX		*IrcServer::get_accept_ctx()
+{ return (_accept_ctx); }
+
+SSL_CTX		*IrcServer::get_connect_ctx()
+{ return (_connect_ctx); }
 
 int			&IrcServer::get_fdmax()
 {
