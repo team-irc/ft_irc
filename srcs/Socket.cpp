@@ -180,6 +180,7 @@ int			Socket::read(int fd, char *buffer, int *len)
 	int		ret;
 
 	ret = ft::read_until_crlf(fd, buffer, len);
+	std::cout << "[RECV] " << buffer << " [" << fd << "] " << "[" << show_type() << "]\n";
 	if (*len > 0)
 	{
 		_recv_bytes += static_cast<size_t>(*len);
