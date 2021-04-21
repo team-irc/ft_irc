@@ -127,11 +127,6 @@ void	NickCommand::run(IrcServer &irc)
 				socket->set_type(CLIENT); // 1. 소켓타입 변경
 				// RFC 2813
 				_msg.set_param_at(1, "1");
-				// _msg.set_param_at(2, member->get_username());
-				// _msg.set_param_at(3, member->get_hostname());
-				// _msg.set_param_at(4, ft::itos(irc.get_server(irc.get_serverinfo().SERVER_NAME)->get_token()));
-				// _msg.set_param_at(5, member->get_mode_str());
-				// _msg.set_param_at(6, member->get_realname());
 
 				irc.send_msg_server(socket->get_fd(), _msg.get_msg()); // 2. nick 메세지 전송
 				// 3. USER 메세지 전송
@@ -154,10 +149,16 @@ void	NickCommand::run(IrcServer &irc)
 		}
 		else // 새로운 NICK 등록 (User 들어오기 전, 멤버에 추가만)
 		{
-			member = new Member();
+			// 해당 소켓에서 이전에 등록한 nick 이 있는지 체크
+			if ((member = irc.find_member(socket->get_fd())) != NULL)
+				irc.delete_member(member->get_nick());
+			else
+			{
+				member = new Member();
+				member->set_fd(socket->get_fd());
+				member->set_socket(irc.get_current_socket());
+			}
 			member->set_nick(nickname);
-			member->set_fd(socket->get_fd());
-			member->set_socket(irc.get_current_socket());
 			irc.add_member(nickname, member);
 		}
 	}
