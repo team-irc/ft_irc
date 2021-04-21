@@ -40,6 +40,7 @@ void	PartCommand::run(IrcServer &irc)
 				delete channel;
 			}
 		}
+		delete[] channel_names;
 	}
 	else if (socket->get_type() == SERVER)
 	{
