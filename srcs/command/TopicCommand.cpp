@@ -37,7 +37,7 @@ void	TopicCommand::run(IrcServer &irc)
 	}
 	else // 2. 토픽 설정하는 경우
 	{
-		if (channel->check_mode('i', 0) == 1 && !channel->is_operator(member)) // 채널 모드가 i라면 오퍼레이터만 가능
+		if (channel->check_mode('t', 0) == 1 && !channel->is_operator(member)) // 채널 모드가 i라면 오퍼레이터만 가능
 			throw(Reply(ERR::CHANOPRIVSNEEDED(), channel_name));
 		else
 		{
