@@ -383,20 +383,18 @@ int	ft::ssl_read_until_crlf(int fd, char *buffer, int *len, SSL *ssl)
 	{
 		if (remember[fd].empty())
 		{
-			int ret = 1;
-			while (ret)
+			int	ret = 0;
+			if ((read_size = SSL_read(ssl, buf + insert_idx, BUFFER_SIZE - insert_idx)) <= 0)
 			{
-				if ((read_size = SSL_read(ssl, buf + insert_idx, BUFFER_SIZE - insert_idx)) <= 0)
+				ret = SSL_get_error(ssl, read_size);
+				if (ret == SSL_ERROR_WANT_READ)
 				{
-					ret = SSL_get_error(ssl, read_size);
-					// std::cout << "READ ERROR: " << ret << "\n";
-					if (ret == SSL_ERROR_WANT_READ)
-						continue ;
-					else
-						return (break_return(buf, buffer, insert_idx, len, remember[fd]));
+					rem_size = 0;
+					remember[fd] += buf;
+					return (2);
 				}
 				else
-					break ;
+					return (break_return(buf, buffer, insert_idx, len, remember[fd]));
 			}
 			buf[insert_idx + read_size] = 0;
 		}
@@ -441,7 +439,6 @@ int	ft::ssl_read_until_crlf(int fd, char *buffer, int *len, SSL *ssl)
 			}
 		}
 		rem_size = 0;
-		// write(1, buf, read_size);
 		remember[fd] += buf;
 		return (2);
 	}
@@ -473,8 +470,6 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 				break;
 			else if (read_size == 0)
 				break;
-			if (read_size == -1)
-				return (-1);
 			buf[insert_idx + read_size] = 0;
 		}
 		else
