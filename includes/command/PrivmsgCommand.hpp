@@ -54,7 +54,7 @@ public:
 private:
 	void	add_prefix(IrcServer &irc);
 	void	check_receiver(IrcServer &irc, const std::string &recv);
-	void	send_channel(IrcServer &irc, Channel &channel);
+	void	send_channel(IrcServer &irc, Channel &channel, Member *sender);
 	void	send_member(IrcServer &irc, Member &member);
 };
 
