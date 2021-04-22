@@ -66,6 +66,8 @@ void	JoinCommand::run(IrcServer &irc)
 	Member			*member;
 
 	socket = irc.get_current_socket();
+	if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() < 1)

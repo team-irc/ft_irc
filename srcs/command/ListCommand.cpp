@@ -4,6 +4,8 @@ void ListCommand::run(IrcServer &irc)
 {
     const int param_size = _msg.get_param_size();
 
+	if (irc.get_current_socket()->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 	if (irc.get_current_socket()->get_type() == CLIENT)
 	{
 		if (param_size == 0)

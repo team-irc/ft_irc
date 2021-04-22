@@ -17,7 +17,7 @@ Command	&Command::operator=(const Command &ref)
 	return (*this);
 }
 
-void	Command::set_message(const Message &msg)
+void			Command::set_message(const Message &msg)
 {
 	this->_msg = msg;
 }
@@ -26,22 +26,25 @@ Command::~Command()
 {
 }
 
-void Command::execute(IrcServer &irc)
+void			Command::set_reply_header(IrcServer &irc)
 {
-	Reply	reply;
-	
 	if (irc.get_current_socket()->get_type() == CLIENT)
 	{
-		reply.set_servername(irc.get_serverinfo().SERVER_NAME);
-		reply.set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
+		Reply::set_servername(irc.get_serverinfo().SERVER_NAME);
+		Reply::set_username(irc.find_member(irc.get_current_socket()->get_fd())->get_nick());
 	}
 	else if (irc.get_current_socket()->get_type() == SERVER && !_msg.get_prefix().empty())
 	{
-		reply.set_servername(irc.get_serverinfo().SERVER_NAME);
-		reply.set_username(_msg.get_prefix());
+		Reply::set_servername(irc.get_serverinfo().SERVER_NAME);
+		Reply::set_username(_msg.get_prefix());
 	}
+}
+
+void 			Command::execute(IrcServer &irc)
+{
 	try
 	{
+		set_reply_header(irc);
 		run(irc);
 		std::cout << _msg.get_command() << " Command executed" << std::endl;
 		_call_count++;
@@ -52,7 +55,7 @@ void Command::execute(IrcServer &irc)
 	}
 }
 
-size_t		Command::get_count()
+size_t			Command::get_count()
 {
 	return (_call_count);
 }
