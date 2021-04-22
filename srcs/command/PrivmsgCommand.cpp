@@ -85,11 +85,86 @@ void			PrivmsgCommand::check_receiver(IrcServer &irc, const std::string &recv)
 {
 	Channel			*channel = irc.get_channel(recv);
 	Member			*member = irc.get_member(recv);
+	Member			*sender = irc.find_member(irc.get_current_socket()->get_fd());
 
 	if (channel)
 		send_channel(irc, *channel);
 	else if (member)
 		send_member(irc, *member);
+	else
+	{
+		if (ft::strchr(recv.c_str(), '*') || ft::strchr(recv.c_str(), '?'))
+		{
+			// 운영자 권한 확인
+			// 없으면 noprivileged
+			// 있으면 도메인쪽 확인 필요
+			// '.'이 있는가, 있다면 그 이후로 와일드카드가 있는가
+			// 제일 앞부분이 #인가 $인가에 따라 채널/서버 나눔
+			// 서버의 경우 member의 서버 부분 확인 후 전송
+			if (sender->check_mode('o', true))
+				throw (Reply(ERR::NOPRIVILEGES()));
+			size_t		domain_idx = recv.find_last_of('.');
+			if (domain_idx == std::string::npos)
+				throw (Reply(ERR::NOTOPLEVEL(), recv));
+			std::string	domain = recv.substr(domain_idx + 1);
+			if (ft::strchr(domain.c_str(), '*') || ft::strchr(domain.c_str(), '?'))
+				throw (Reply(ERR::WILDTOPLEVEL(), recv));
+			if (recv.at(0) == '#')
+			{
+				// channel
+				std::map<std::string, Channel *>::iterator begin = irc.get_global_channel().begin();
+				std::map<std::string, Channel *>::iterator end = irc.get_global_channel().end();
+
+				while (begin != end)
+				{
+					if (ft::check_mask(begin->second->get_name(), recv))
+						send_channel(irc, *(begin->second));
+					begin++;
+				}
+			}
+			else if (recv.at(0) == '$')
+			{
+				// 해당 서버를 가지고 있는 멤버들
+				std::map<std::string, Member *>::iterator begin = irc.get_global_user().begin();
+				std::map<std::string, Member *>::iterator end = irc.get_global_user().end();
+
+				while (begin != end)
+				{
+					if (ft::check_mask(begin->second->get_servername(), recv.substr(1)))
+						send_member(irc, *(begin->second));
+					begin++;
+				}
+			}
+			else
+				throw (Reply(ERR::NOSUCHNICK(), recv));
+		}
+		else
+		{
+			// 서버한테 보내는거 아니면 nosuchnick
+			// 일치하는 서버가 없으면 nosuchnick, 있으면 운영자 권한 확인 후 전송(이 시점에선 와일드카드 없음)
+			if (recv.at(0) == '$')
+			{
+				Server	*server = irc.get_server(recv.substr(1));
+				if (server)
+				{
+					if (sender->check_mode('o', true))
+						throw (Reply(ERR::NOPRIVILEGES()));
+					std::map<std::string, Member *>::iterator begin = irc.get_global_user().begin();
+					std::map<std::string, Member *>::iterator end = irc.get_global_user().end();
+					while (begin != end)
+					{
+						if (ft::check_mask(begin->second->get_servername(), recv.substr(1)))
+							send_member(irc, *(begin->second));
+						begin++;
+					}
+				}
+				else
+					throw (Reply(ERR::NOSUCHNICK(), recv));
+			}
+			else
+				throw (Reply(ERR::NOSUCHNICK(), recv));
+		}
+	}
 }
 
 void			PrivmsgCommand::run(IrcServer &irc)
