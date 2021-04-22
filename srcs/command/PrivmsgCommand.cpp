@@ -54,7 +54,7 @@ static bool		isInside(std::vector<int> const &vec, int val)
 	return (false);
 }
 
-void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
+void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel, Member *sender)
 {
 	std::vector<ChanMember>				members = channel.get_members();
 	std::vector<ChanMember>::iterator	begin = members.begin();
@@ -74,6 +74,13 @@ void			PrivmsgCommand::send_channel(IrcServer &irc, Channel &channel)
 			((*begin)._member->get_fd() != _msg.get_source_fd()) &&
 			(!isInside(send_fd, fd)))
 			{
+				// 해당 채널의 모드를 확인하고 그에 맞는 동작 처리
+				// n이 설정되었다면 sender가 해당 채널에 속했는지 확인
+				// m이 설정된 상태면 sender가 해당 채널의 operator, creator, voice 권한이 있는지 확인
+				if (channel.check_mode('n', false) && !channel.is_member(sender))
+					throw (Reply(ERR::CANNOTSENDTOCHAN(), channel.get_name()));
+				if (channel.check_mode('m', false) && !(channel.is_voice(sender) || channel.is_operator(sender)))
+					throw (Reply(ERR::CANNOTSENDTOCHAN(), channel.get_name()));
 				(irc.get_socket_set().find_socket(fd))->write(_msg.get_msg());
 				send_fd.push_back(fd);
 			}
@@ -88,7 +95,7 @@ void			PrivmsgCommand::check_receiver(IrcServer &irc, const std::string &recv)
 	Member			*sender = irc.find_member(irc.get_current_socket()->get_fd());
 
 	if (channel)
-		send_channel(irc, *channel);
+		send_channel(irc, *channel, sender);
 	else if (member)
 		send_member(irc, *member);
 	else
@@ -118,7 +125,7 @@ void			PrivmsgCommand::check_receiver(IrcServer &irc, const std::string &recv)
 				while (begin != end)
 				{
 					if (ft::check_mask(begin->second->get_name(), recv))
-						send_channel(irc, *(begin->second));
+						send_channel(irc, *(begin->second), sender);
 					begin++;
 				}
 			}

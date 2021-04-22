@@ -319,7 +319,7 @@ void			Channel::delete_voice(Member *member)
 	{
 		if ((*begin)._member == member)
 		{
-			(*begin)._is_voice = true;
+			(*begin)._is_voice = false;
 			return ;
 		}
 		begin++;
