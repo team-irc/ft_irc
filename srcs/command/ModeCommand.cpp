@@ -409,6 +409,7 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 		{
 			std::string		key = _msg.get_param(_param_idx);
 			result += not_check_mode(channel, mode, set, 1);
+			channel->set_key(key);
 		}
 	}
 	else
