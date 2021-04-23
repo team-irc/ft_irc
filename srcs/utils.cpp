@@ -116,6 +116,8 @@ int ft::split(const std::string str, char c, std::string *& ret)
 			++size;
 			while (str[i] == c)
 				++i;
+			if (str[i] == 0 || str[i] == ASCII_CONST::CR || str[i] == ASCII_CONST::LF)
+				--size;
 		}
 		else
 			++i;
@@ -502,8 +504,6 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 				}
 				if (buf[i + 1] == ASCII_CONST::LF)
 					++i;
-				// strncpy(buffer + (rem_size == 0 ? insert_idx : 0), buf, i + 1);
-				// buffer[i + (rem_size == 0 ? insert_idx : 0) + 1] = 0;
 				for (int j = 1; buf[i + j]; ++j)
 					remember[fd] += buf[i + j];
 				*len = i + insert_idx;
@@ -513,7 +513,6 @@ int	ft::read_until_crlf(int fd, char *buffer, int *len)
 			}
 		}
 		rem_size = 0;
-		// write(1, buf, read_size);
 		remember[fd] += buf;
 		return (2);
 	}

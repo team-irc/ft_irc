@@ -235,13 +235,13 @@ void	IrcServer::client_msg(int fd)
 		if (result == 2)
 			return ;
 		Message msg(buf);
-		if (buf[0] == 0 || msg.get_size() >= 512) // 클라이언트에서 Ctrl + C 입력한 경우
+		if (buf[0] == 0 || msg.get_size() >= 512 || msg.get_param_size() > 15) // 클라이언트에서 Ctrl + C 입력한 경우
 		{
 			// 해당 클라이언트와 연결 종료
 			// 512자를 넘은거면 ERROR를 실행하고 SQUIT, QUIT 처리
 			std::string message;
 
-			if (msg.get_size() >= 512)
+			if (msg.get_size() >= 512 || msg.get_param_size() > 15)
 			{
 				message = "ERROR :Request too long\n";
 				_current_sock->write(message.c_str());
