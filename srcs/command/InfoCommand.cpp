@@ -69,6 +69,11 @@ void InfoCommand::run(IrcServer &irc)
 			socket->write(Reply(RPL::INFO(), ret).get_msg().c_str());
 			socket->write(Reply(RPL::ENDOFINFO()).get_msg().c_str());
 		}
+		else
+		{
+			int server_fd = irc.find_server_fd(_msg.get_param(0));
+			irc.get_socket_set().find_socket(server_fd)->write(_msg.get_msg());
+		}
 	}
 }
 
