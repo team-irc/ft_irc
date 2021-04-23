@@ -41,7 +41,7 @@ void InfoCommand::run(IrcServer &irc)
 		throw(Reply(ERR::NOTREGISTERED()));
 	if (socket->get_type() == CLIENT)
 	{
-		if (_msg.get_param_size() == 0)
+		if (_msg.get_param_size() == 0 || _msg.get_param(0) == irc.get_serverinfo().SERVER_NAME)
 		{
 			socket->write(Reply(RPL::INFO(), ret).get_msg().c_str());
 			socket->write(Reply(RPL::ENDOFINFO()).get_msg().c_str());
