@@ -25,7 +25,7 @@ void	TimeCommand::run(IrcServer &irc)
 	int					server_fd;
 	std::string			result;
 	struct ServerInfo	si = irc.get_serverinfo();
-	
+
 	if (socket->get_type() == CLIENT)
 	{
 		// 0. 인자가 주어진 경우 해당 서버가 있는지 확인
@@ -33,7 +33,7 @@ void	TimeCommand::run(IrcServer &irc)
 		// 1. 인자가 없다면 연결된 서버의 시간을 확인하여 쿼리 전송(391)
 		if (_msg.get_param_size() > 1)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
-		else if (_msg.get_param_size() == 0)
+		else if (_msg.get_param_size() == 0 || _msg.get_param(0) == irc.get_serverinfo().SERVER_NAME)
 		{
 			// 자신의 서버 시간 쿼리 전송
 			ft::get_current_time(result);
