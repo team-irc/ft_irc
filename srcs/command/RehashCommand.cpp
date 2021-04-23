@@ -6,6 +6,8 @@ void    RehashCommand::run(IrcServer & irc)
 	Member		*member = irc.find_member(socket->get_fd());
 	ReadConf	rc;
 
+	if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 	if (!member->check_mode('o', false))
 		throw (Reply(ERR::NOPRIVILEGES()));
 	rc.open_file("ft_irc.conf");

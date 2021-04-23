@@ -54,20 +54,87 @@ JOIN #foo,#bar                  ; join channels #foo and #bar.
 ** ERR_BADCHANMASK
 */
 
+static void		send_join_reply(Socket *socket, Channel *channel)
+{
+	std::string		join_msg;
+
+	join_msg = ":" + channel->get_name() + " JOIN " + socket->get_linkname() + "\n";
+	channel->send_msg_to_members(join_msg.c_str());
+	if (!channel->get_topic().empty())
+		socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()));
+	socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()));
+	socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()));
+}
+
+int		JoinCommand::join(IrcServer &irc, Member *member, std::string const &channel_name, std::string const &channel_key = "")
+{
+	std::string		msg;
+	Channel			*channel;
+	Socket			*socket;
+
+	channel = irc.get_channel(channel_name);
+	socket = irc.get_current_socket();
+	if (channel == NULL)
+	{
+		channel = new Channel(channel_name, member);
+		irc.add_channel(channel->get_name(), channel);
+		channel->add_operator(member);
+		channel->set_mode(2048);
+		if (!channel_key.empty())
+			channel->set_key(channel_key);
+		member->add_channel(channel);
+		channel->set_servername(irc.get_serverinfo().SERVER_NAME);
+
+		// 클라이언트에 전송
+		send_join_reply(socket, channel);
+
+		// 서버에 전송
+		if (channel_key.empty())
+			msg = ":" + member->get_nick() + " JOIN " + channel->get_name() + "\n";
+		else
+			msg = ":" + member->get_nick() + " JOIN " + channel->get_name() + " " + channel_key + "\n";
+		irc.send_msg_server(socket->get_fd(), msg.c_str());
+		msg = ":" + member->get_nick() + " MODE " + channel->get_name() + " +o " + member->get_nick() + "\n";
+		irc.send_msg_server(socket->get_fd(), msg.c_str());
+
+	}
+	else
+	{
+		if (channel->is_member(member))
+			throw (Reply(ERR::USERONCHANNEL(), member->get_nick(), channel->get_name()));
+		if (member->get_joined_channels().size() > MEMBER_CONST::JOINED_CHANNEL_LIMIT)
+			throw (Reply(ERR::TOOMANYCHANNELS(), channel->get_name()));
+		if (channel->is_ban_list(member->get_nick()))
+			throw (Reply(ERR::BANNEDFROMCHAN(), channel->get_name()));
+		if (channel->get_members().size() >= channel->get_limit())
+			throw (Reply(ERR::CHANNELISFULL(), channel->get_name()));
+		if (channel->check_mode('i', 0) && !channel->is_invited_member(member))
+			throw (Reply(ERR::INVITEONLYCHAN(), channel->get_name()));
+		else
+		{
+			member->add_channel(channel);
+			channel->add_member(member);
+		}
+
+		// 클라이언트에 전송
+		send_join_reply(socket, channel);
+
+		// 서버에 전송
+		msg = ":" + member->get_nick() + " JOIN " + channel->get_name() + "\n";
+		irc.send_msg_server(socket->get_fd(), msg.c_str());
+	}
+}
 
 void	JoinCommand::run(IrcServer &irc)
 {
 	int				number_of_channel;
+	int				number_of_key;
 	std::string		*channel_names;
-	std::string		prefix;
-	std::string		msg;
-	Channel			*channel;
+	std::string		*channel_keys;
 	Socket			*socket;
 	Member			*member;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() == UNKNOWN)
-		throw (Reply(ERR::NOTREGISTERED()));
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() < 1)
@@ -75,80 +142,31 @@ void	JoinCommand::run(IrcServer &irc)
 		if ((_msg.get_param(0)[0] != '&') && (_msg.get_param(0)[0] != '#') && (_msg.get_param(0)[0] != '+'))
 			throw (Reply(ERR::NOSUCHCHANNEL(), _msg.get_param(0)));
 		number_of_channel = ft::split(_msg.get_param(0), ',', channel_names);
+		if (_msg.get_param_size() == 2)
+			number_of_key = ft::split(_msg.get_param(1), ',', channel_keys);
 		member = irc.find_member(socket->get_fd());
 		for (int i = 0; i < number_of_channel; i++)
 		{
-			channel = irc.get_channel(channel_names[i]);	
-			if (channel == NULL)
-			{
-				channel = new Channel(channel_names[i], member);
-				irc.add_channel(channel_names[i], channel);
-				channel->add_operator(member);
-				channel->set_mode(2048);
-				member->add_channel(channel);
-				channel->set_servername(irc.get_serverinfo().SERVER_NAME);
-
-				// 클라이언트에 전송
-				_msg.set_param_at(0, channel_names[i]);
-				_msg.set_prefix(member->get_nick() + "~!" + member->get_username() + "@" + member->get_hostname());
-				channel->send_msg_to_members(_msg.get_msg());
-				if (!channel->get_topic().empty())
-					socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
-				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
-				socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
-
-				// 서버에 전송
-				msg = ":" + member->get_nick() + " JOIN " + channel_names[i] + "\n";
-				irc.send_msg_server(socket->get_fd(), msg.c_str());
-				msg = ":" + member->get_nick() + " MODE " + channel_names[i] + " +o " + member->get_nick() + "\n";
-				irc.send_msg_server(socket->get_fd(), msg.c_str());
-
-			}
+			if (i < number_of_key)
+				join(irc, member, channel_names[i], channel_keys[i]);
 			else
-			{
-				if (channel->is_member(member))
-					throw(Reply(ERR::USERONCHANNEL(), member->get_nick(), channel->get_name()));
-				if (member->get_joined_channels().size() > MEMBER_CONST::JOINED_CHANNEL_LIMIT)
-					throw(Reply(ERR::TOOMANYCHANNELS(), channel->get_name()));
-				if (channel->is_ban_list(member->get_nick()))
-					throw(Reply(ERR::BANNEDFROMCHAN(), channel->get_name()));
-				if (channel->get_members().size() >= channel->get_limit())
-					throw(Reply(ERR::CHANNELISFULL(), channel->get_name()));
-				if (channel->check_mode('i', 0) && !channel->is_invited_member(member))
-					throw(Reply(ERR::INVITEONLYCHAN(), channel->get_name()));
-				else
-				{
-					member->add_channel(channel);
-					channel->add_member(member);
-				}
-
-				// 클라이언트에 전송
-				_msg.set_param_at(0, channel_names[i]);
-				_msg.set_prefix(member->get_nick() + "~!" + member->get_username() + "@" + member->get_hostname());
-				channel->send_msg_to_members(_msg.get_msg());
-				if (!channel->get_topic().empty())
-					socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()).get_msg().c_str());
-				socket->write(Reply(RPL::NAMREPLY(), channel->get_name(), channel->get_member_list()).get_msg().c_str());
-				socket->write(Reply(RPL::ENDOFNAMES(), channel->get_name()).get_msg().c_str());
-
-				// 서버에 전송
-				msg = ":" + member->get_nick() + " JOIN " + channel_names[i] + "\n";
-				irc.send_msg_server(socket->get_fd(), msg.c_str());
-			}
+				join(irc, member, channel_names[i]);
 		}
 		delete[] channel_names;
+		delete[] channel_keys;
 	}
 	else if (socket->get_type() == SERVER)
 	{
 		// :t1 join #a (서버측으론 ,로 넘어오지 않는다.)
 		std::string		channel_name = _msg.get_param(0);
+		Channel			*channel;
 
-		member = irc.get_member(_msg.get_prefix());		
+		member = irc.get_member(_msg.get_prefix());
 		channel = irc.get_channel(channel_name);
 		if (channel == 0) // 채널 새로 생성시
 		{
 			channel = new Channel(channel_name, member);
-			irc.add_channel(channel_name, channel);
+			irc.add_channel(channel->get_name(), channel);
 			member->add_channel(channel);
 		}
 		else // 기존 채널 참여시
@@ -159,6 +177,8 @@ void	JoinCommand::run(IrcServer &irc)
 		}
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
+	else if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 JoinCommand::JoinCommand() : Command()

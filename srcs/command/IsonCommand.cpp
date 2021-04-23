@@ -46,6 +46,8 @@ void IsonCommand::run(IrcServer &irc)
     size = _msg.get_param_size();
     if (size <= 0)
         throw (Reply(ERR::NEEDMOREPARAMS(), "ISON"));
+    if (socket->get_type() == UNKNOWN)
+        throw(Reply(ERR::NOTREGISTERED()));
     for (int i = 0; i < size; ++i)
     {
         Member * member = irc.get_member(_msg.get_param(i));

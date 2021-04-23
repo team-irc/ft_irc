@@ -14,7 +14,9 @@ void	TopicCommand::run(IrcServer &irc)
 	std::string		topic;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() != SERVER && socket->get_type() != CLIENT) // 서버나  클라이언트에서 보낸 메세지가 아니면 무시
+	if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
+	else if (socket->get_type() != SERVER && socket->get_type() != CLIENT) // 서버나  클라이언트에서 보낸 메세지가 아니면 무시
 		return ;
 	if (socket->get_type() == SERVER) // 서버에서 왔다면, prefix를 통해서 멤버를 찾는다.
 		member = irc.get_member(_msg.get_prefix());
@@ -37,7 +39,7 @@ void	TopicCommand::run(IrcServer &irc)
 	}
 	else // 2. 토픽 설정하는 경우
 	{
-		if (channel->check_mode('i', 0) == 1 && !channel->is_operator(member)) // 채널 모드가 i라면 오퍼레이터만 가능
+		if (channel->check_mode('t', 0) == 1 && !channel->is_operator(member)) // 채널 모드가 i라면 오퍼레이터만 가능
 			throw(Reply(ERR::CHANOPRIVSNEEDED(), channel_name));
 		else
 		{

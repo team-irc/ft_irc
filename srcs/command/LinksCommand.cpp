@@ -88,8 +88,6 @@ void 	LinksCommand::run(IrcServer &irc)
 	std::string		server_name;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() == UNKNOWN)
-		throw (Reply(ERR::NOTREGISTERED()));
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() == 0) // Links만 온 경우
@@ -128,6 +126,8 @@ void 	LinksCommand::run(IrcServer &irc)
 			server->get_socket()->write(_msg.get_origin());
 		}
 	}
+	if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 LinksCommand::LinksCommand(): Command()

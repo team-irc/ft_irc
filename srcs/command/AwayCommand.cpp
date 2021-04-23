@@ -35,6 +35,8 @@ void AwayCommand::run(IrcServer &irc)
         }
         irc.send_msg_server(socket->get_fd(), _msg.get_msg());
     }
+    if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 AwayCommand::AwayCommand(): Command()

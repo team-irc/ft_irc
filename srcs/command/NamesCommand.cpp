@@ -36,6 +36,8 @@
 
 void	NamesCommand::run(IrcServer &irc)
 {
+	if (irc.get_current_socket()->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 	if (_msg.get_param_size() == 0)
 	{
 		reply_all_channel(irc);
@@ -54,8 +56,6 @@ void	NamesCommand::reply_all_channel(IrcServer & irc)
 	Member										*user = irc.find_member(socket->get_fd());
 	Channel										*channel;
 
-	if (socket->get_type() == UNKNOWN)
-		return ;
 	while (first != last)
 	{
 		channel = first->second;

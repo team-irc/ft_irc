@@ -132,8 +132,6 @@ void	KillCommand::run(IrcServer &irc)
 	Member			*target;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() == UNKNOWN)
-		throw (Reply(ERR::NOTREGISTERED()));
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() != 1 && _msg.get_param_size() != 2)
@@ -152,6 +150,8 @@ void	KillCommand::run(IrcServer &irc)
 		target = irc.get_member(_msg.get_param(0));
 		kill_member(irc, target, NULL, _msg);
 	}
+	else if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 KillCommand::KillCommand() : Command()

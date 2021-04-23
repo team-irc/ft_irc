@@ -61,10 +61,8 @@ void	PartCommand::run(IrcServer &irc)
 			}
 		}
 	}
-	else
-	{
-		return ;
-	}
+	else if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 }
 
 PartCommand::PartCommand() : Command()

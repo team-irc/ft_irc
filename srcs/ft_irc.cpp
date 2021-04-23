@@ -88,9 +88,9 @@ void		IrcServer::init_ssl_setting()
 	_connect_ctx = SSL_CTX_new(SSLv23_client_method());
 	if (!_connect_ctx)
 		throw (Error(strerror(errno)));
-	if (SSL_CTX_use_certificate_file(_accept_ctx, "cert.pem", SSL_FILETYPE_PEM) <= 0)
+	if (SSL_CTX_use_certificate_file(_accept_ctx, "./ssl/cert.pem", SSL_FILETYPE_PEM) <= 0)
 		throw (Error(strerror(errno)));
-	if (SSL_CTX_use_PrivateKey_file(_accept_ctx, "key.pem", SSL_FILETYPE_PEM) <= 0)
+	if (SSL_CTX_use_PrivateKey_file(_accept_ctx, "./ssl/key.pem", SSL_FILETYPE_PEM) <= 0)
 		throw (Error(strerror(errno)));
 	if (!SSL_CTX_check_private_key(_accept_ctx))
 		throw (Error("Private key does not match the certification public key"));
@@ -235,13 +235,13 @@ void	IrcServer::client_msg(int fd)
 		if (result == 2)
 			return ;
 		Message msg(buf);
-		if (buf[0] == 0 || msg.get_size() >= 512) // 클라이언트에서 Ctrl + C 입력한 경우
+		if (buf[0] == 0 || msg.get_size() >= 512 || msg.get_param_size() > 15) // 클라이언트에서 Ctrl + C 입력한 경우
 		{
 			// 해당 클라이언트와 연결 종료
 			// 512자를 넘은거면 ERROR를 실행하고 SQUIT, QUIT 처리
 			std::string message;
 
-			if (msg.get_size() >= 512)
+			if (msg.get_size() >= 512 || msg.get_param_size() > 15)
 			{
 				message = "ERROR :Request too long\n";
 				_current_sock->write(message.c_str());
@@ -578,7 +578,7 @@ std::map<std::string, Server *>		&IrcServer::get_global_server()
 	return (_global_server);
 }
 
-void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
+void		IrcServer::add_channel(std::string const &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
 }

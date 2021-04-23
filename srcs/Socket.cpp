@@ -15,8 +15,6 @@ Socket::Socket(const char *port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0),
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd == -1)
 		throw (Error("socket construct error"));
-	// if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
-	// 	throw(Error("fcntl returned -1"));
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
