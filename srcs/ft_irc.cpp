@@ -101,10 +101,13 @@ void	IrcServer::ssl_connect()
 	Socket	*accepted_socket;
 
 	accepted_socket = _ssl_listen_socket->accept(_accept_ctx);
-	accepted_socket->set_type(UNKNOWN);
-	_socket_set.add_socket(accepted_socket);
-	if (_fd_max < accepted_socket->get_fd())
-		_fd_max = accepted_socket->get_fd();
+	if (accepted_socket)
+	{
+		accepted_socket->set_type(UNKNOWN);
+		_socket_set.add_socket(accepted_socket);
+		if (_fd_max < accepted_socket->get_fd())
+			_fd_max = accepted_socket->get_fd();
+	}
 }
 
 void	IrcServer::client_connect()
