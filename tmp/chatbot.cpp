@@ -7,7 +7,55 @@
 #include <stdio.h>
 #include <algorithm>
 
+int split(const std::string str, char c, std::string *& ret)
+{
+	int size;
+	int str_counter;
+
+	size = 0;
+	str_counter = 0;
+	for (int i = 0; i < str.length();)
+	{
+		if (str[i] == c)
+		{
+			++size;
+			while (str[i] == c)
+				++i;
+		}
+		else
+			++i;
+	}
+	++size;
+	ret = new std::string[size + 1];
+	for (int i = 0; i < size; ++i)
+	{
+		for (; (str[str_counter] != c && str_counter < str.length()); ++str_counter)
+			ret[i] += str[str_counter];
+		while (str[str_counter] == c)
+			++str_counter;
+	}
+	ret += 0;
+	return (size);
+}
+
 // :yochoi!~y@121.135.181.42 PRIVMSG bot :hello world!!
+
+void ignore_motd(int sock)
+{
+	char buf[512];
+	while (1)
+	{
+		read(sock, buf, 512);
+		std::string *ret;
+		split(std::string(buf), ' ', ret);
+		if (ret[3] == ":End")
+		{
+			delete[] ret;
+			break ;
+		}
+		delete[] ret;
+	}
+}
 
 std::string get_message_type(char *message)
 {
@@ -110,6 +158,8 @@ int main(int argc, char **argv)
 	}
     write(sock, "nick bot\n", 9);
     write(sock, "user b b b b\n", 13);
+	ignore_motd(sock);
+	std::cout << "ignore complete\n";
     while (1)
     {
 		memset(message, 0, 512);
