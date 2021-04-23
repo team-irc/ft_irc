@@ -801,6 +801,18 @@ Reply::Reply(RPL::ENDOFMOTD rpl)
 	_msg = ":End of /MOTD command";
 }
 
+Reply::Reply(RPL::BANLIST rpl, std::string const &channel, std::string const &banid)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = channel + " " + banid;
+}
+
+Reply::Reply(RPL::ENDOFBANLIST rpl, std::string const &channel)
+{
+	_errnum = ft::itos(rpl.ERRNO);
+	_msg = channel + " :End of Channel ban list";
+}
+
 void		Reply::set_username(std::string const &username)
 {
 	_user_name = username;

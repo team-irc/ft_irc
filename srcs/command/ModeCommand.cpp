@@ -127,7 +127,7 @@ void		ModeCommand::check_target(IrcServer &irc)
 			msg += result + "\n";
 	}
 	else
-		msg = ":" + si.SERVER_NAME + " " + Reply(ERR::NOSUCHNICK(), _msg.get_param(0)).get_msg();
+		throw (Reply(ERR::NOSUCHNICK(), _msg.get_param(0)));
 	if (!result.empty())
 	{
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
@@ -353,14 +353,10 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 
 			while (begin != end)
 			{
-				// 해당 ban 리스트를 출력
-				std::string msg = channel->get_name() + " " + (*begin) + "\n";
-				irc.get_current_socket()->write(msg.c_str());
+				irc.get_current_socket()->write(Reply(RPL::BANLIST(), channel->get_name(), (*begin)));
 				begin++;
 			}
-			// end of ban list 출력
-			std::string msg = channel->get_name() + " " + ": End of channel ban list\n";
-			irc.get_current_socket()->write(msg.c_str());
+			irc.get_current_socket()->write(Reply(RPL::ENDOFBANLIST(), channel->get_name()));
 		}
 	}
 	else if (mode == 'v')
