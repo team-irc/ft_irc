@@ -228,6 +228,8 @@ void			PrivmsgCommand::run(IrcServer &irc)
 	std::vector<int>			send_channel_fd;
 	std::vector<std::string>	send_nick;
 
+	if (irc.get_current_socket()->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 	if (_msg.get_param_size() == 0)
 		throw (Reply(ERR::NORECIPIENT(), "PRIVMSG"));
 	if (_msg.get_param_size() == 1 || _msg.get_param(1).empty())

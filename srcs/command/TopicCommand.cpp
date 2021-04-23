@@ -14,7 +14,9 @@ void	TopicCommand::run(IrcServer &irc)
 	std::string		topic;
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() != SERVER && socket->get_type() != CLIENT) // 서버나  클라이언트에서 보낸 메세지가 아니면 무시
+	if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
+	else if (socket->get_type() != SERVER && socket->get_type() != CLIENT) // 서버나  클라이언트에서 보낸 메세지가 아니면 무시
 		return ;
 	if (socket->get_type() == SERVER) // 서버에서 왔다면, prefix를 통해서 멤버를 찾는다.
 		member = irc.get_member(_msg.get_prefix());

@@ -29,6 +29,8 @@ void UserhostCommand::run(IrcServer &irc)
     Socket  *socket = irc.get_current_socket();
     std::vector<Member *> list;
 
+    if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
     if (param_size <= 0)
         throw (Reply(ERR::NEEDMOREPARAMS(), "USERHOST"));
     for (int i = 0; i < param_size; ++i)

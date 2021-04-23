@@ -193,10 +193,8 @@ void	TraceCommand::run(IrcServer &irc)
 			socket->write(Reply(RPL::TRACELINK(), irc.get_serverinfo().VERSION, target_server_name, find_next_server(irc, target_server_name)->get_name()).get_msg().c_str());
 		}
 	}
-	else
-	{
-		return ;
-	}
+	else if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 }
 
 TraceCommand::TraceCommand() : Command()

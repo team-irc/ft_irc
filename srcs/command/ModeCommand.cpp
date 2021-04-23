@@ -460,10 +460,7 @@ void	ModeCommand::run(IrcServer &irc)
 	// _msg의 param을 분석해야 함
 	// - + 중복 허용됨
 	if (irc.get_current_socket()->get_type() == UNKNOWN)
-	{
-		// error msg
-		irc.get_current_socket()->write(Reply(ERR::NOTREGISTERED()).get_msg().c_str());
-	}
+		throw(Reply(ERR::NOTREGISTERED()));
 	else
 	{
 		// 채널인지 유저인지 확인

@@ -270,10 +270,8 @@ void		StatsCommand::run(IrcServer &irc)
 		fd = irc.find_server_fd(_msg.get_param(1)); // 1. 서버찾기
 		irc.send_msg(fd, _msg.get_msg()); // 2. 해당 서버 fd에 전송
 	}
-	else
-	{
-		return ;
-	}
+	else if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 }
 
 StatsCommand::StatsCommand(): Command()

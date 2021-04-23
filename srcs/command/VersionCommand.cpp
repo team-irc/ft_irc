@@ -61,10 +61,8 @@ void VersionCommand::run(IrcServer &irc)
 			irc.get_socket_set().find_socket(irc.find_server_fd(target_server))->write(_msg.get_msg());
 		}
 	}
-	else
-	{
-		return ;
-	}
+	else if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 }
 
 VersionCommand::VersionCommand(): Command()

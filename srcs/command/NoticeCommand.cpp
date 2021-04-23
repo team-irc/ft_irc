@@ -200,6 +200,8 @@ void			NoticeCommand::run(IrcServer &irc)
 	std::vector<std::string>	send_nick;
 	std::vector<int>			send_channel_fd;
 
+	if (irc.get_current_socket()->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 	if (_msg.get_param_size() == 0)
 		return ;
 	if (_msg.get_param_size() == 1 || _msg.get_param(1).empty())

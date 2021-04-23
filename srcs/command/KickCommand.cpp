@@ -121,10 +121,8 @@ void KickCommand::run(IrcServer &irc)
 		channel->delete_member(target_member);
 		target_member->delete_channel(channel);
 	}
-	else
-	{
-		return ;
-	}
+	else if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 KickCommand::KickCommand(): Command()

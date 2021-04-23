@@ -10,6 +10,8 @@ void WhoisQuery::run(IrcServer &irc)
     std::map<std::string, Member *>::iterator   first;
     std::map<std::string, Member *>::iterator   last;
 
+    if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
     param_size = _msg.get_param_size();
     if (param_size == 0)
         throw (Reply(ERR::NONICKNAMEGIVEN()));

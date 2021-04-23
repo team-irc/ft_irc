@@ -4,6 +4,8 @@ void WhowasQuery::run(IrcServer &irc)
 {
     int         param_size = _msg.get_param_size();
 
+    if (irc.get_current_socket()->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
     if (param_size == 0)
         throw (Reply(ERR::NONICKNAMEGIVEN()));
     if (param_size == 1)
