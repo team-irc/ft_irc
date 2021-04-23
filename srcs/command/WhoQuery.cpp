@@ -13,6 +13,8 @@ void WhoQuery::run(IrcServer &irc)
     global_user = irc.get_global_user();
     first = global_user.begin();
     last = global_user.end();
+    if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
     for (; first != last; ++first)
     {
         Member * current_member = first->second;

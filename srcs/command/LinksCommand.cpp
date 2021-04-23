@@ -126,8 +126,8 @@ void 	LinksCommand::run(IrcServer &irc)
 			server->get_socket()->write(_msg.get_origin());
 		}
 	}
-	else
-		socket->write(Reply(ERR::NOTREGISTERED()));
+	if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 LinksCommand::LinksCommand(): Command()

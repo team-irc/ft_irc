@@ -37,6 +37,8 @@ void InfoCommand::run(IrcServer &irc)
 	si = irc.get_serverinfo();
 	member = irc.find_member(socket->get_fd());
 	ret = si.SERVER_NAME + " VERSION: " + si.VERSION;
+	if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 	if (socket->get_type() == CLIENT)
 	{
 		if (_msg.get_param_size() == 0)

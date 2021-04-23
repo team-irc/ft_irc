@@ -28,14 +28,14 @@ static int	split_for_message(const char *msg, char c, std::string *& arr)
 		while (msg[i])
 			tmp[1] += msg[i++];
 		tmp_size = ft::split(tmp[0].c_str(), c, tmp_split_ret);
-		arr = new std::string[tmp_size + 1];
+		arr = new std::string[tmp_size + 2];
 		i = 0;
 		while (i < tmp_size)
 		{
 			arr[i] = tmp_split_ret[i];
 			++i;
 		}
-		arr[i - 1] = tmp[1];
+		arr[i] = tmp[1];
 		delete[] tmp_split_ret;
 		return (tmp_size + 1);
 	}

@@ -15,8 +15,10 @@ void	OperCommand::run(IrcServer &irc)
 	
 
 	socket = irc.get_current_socket();
-	if (socket->get_type() == UNKNOWN || socket->get_type() == SERVER)
+	if (socket->get_type() == UNKNOWN)
 		throw (Reply(ERR::NOTREGISTERED()));
+	else if (socket->get_type() == SERVER)
+		return ;
 	if (_msg.get_param_size() != 2)
 		throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 	member = irc.find_member(socket->get_fd());

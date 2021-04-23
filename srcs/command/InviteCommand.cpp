@@ -86,10 +86,8 @@ void	InviteCommand::run(IrcServer &irc)
 		// 다른 서버에 메세지 전파
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg());
 	}
-	else
-	{
-		return ;
-	}
+	else if (socket->get_type() == UNKNOWN)
+		throw(Reply(ERR::NOTREGISTERED()));
 }
 
 InviteCommand::InviteCommand() : Command()
