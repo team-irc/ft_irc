@@ -88,9 +88,9 @@ void		IrcServer::init_ssl_setting()
 	_connect_ctx = SSL_CTX_new(SSLv23_client_method());
 	if (!_connect_ctx)
 		throw (Error(strerror(errno)));
-	if (SSL_CTX_use_certificate_file(_accept_ctx, "cert.pem", SSL_FILETYPE_PEM) <= 0)
+	if (SSL_CTX_use_certificate_file(_accept_ctx, "./ssl/cert.pem", SSL_FILETYPE_PEM) <= 0)
 		throw (Error(strerror(errno)));
-	if (SSL_CTX_use_PrivateKey_file(_accept_ctx, "key.pem", SSL_FILETYPE_PEM) <= 0)
+	if (SSL_CTX_use_PrivateKey_file(_accept_ctx, "./ssl/key.pem", SSL_FILETYPE_PEM) <= 0)
 		throw (Error(strerror(errno)));
 	if (!SSL_CTX_check_private_key(_accept_ctx))
 		throw (Error("Private key does not match the certification public key"));
