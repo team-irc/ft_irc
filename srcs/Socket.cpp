@@ -12,9 +12,12 @@ Socket::Socket() : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 
 Socket::Socket(const char *port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
+	int	set = 1;
+
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd == -1)
 		throw (Error("socket construct error"));
+	setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
 	_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
@@ -25,7 +28,10 @@ Socket::Socket(const char *port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0),
 
 Socket::Socket(unsigned short port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
+	int	set = 1;
+
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK) == -1)
 		throw(Error("fcntl returned -1"));
 	memset(&_addr, 0, sizeof(_addr));
@@ -38,7 +44,10 @@ Socket::Socket(unsigned short port) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(
 
 Socket::Socket(struct sockaddr_in serv_addr) : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
 {
+	int	set = 1;
+
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 	memset(&_addr, 0, sizeof(_addr));
 	_addr = serv_addr;
 	time(&_start_time);
@@ -140,6 +149,7 @@ Socket *Socket::accept() const
 	struct sockaddr_in client_addr;
 	int client_sock;
 	socklen_t clnt_addr_size;
+	int	set = 1;
 
 	clnt_addr_size = sizeof(client_addr);
 	client_sock = ::accept(_fd, (struct sockaddr *)&client_addr, &clnt_addr_size);
@@ -149,6 +159,7 @@ Socket *Socket::accept() const
 	// copy
 	new_socket = new Socket();
 	new_socket->_fd = client_sock;
+	setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 	if (fcntl(new_socket->_fd, F_SETFL, O_NONBLOCK) == -1)
 		throw(Error("fcntl returned -1"));
 	memcpy(&new_socket->_addr, &client_addr, clnt_addr_size);
@@ -157,20 +168,27 @@ Socket *Socket::accept() const
 
 void Socket::write(char const *msg)
 {
-	std::cout << "[SEND] " << msg << " [" << _fd << "] "
+	int ret = 0;
+	if ((ret = ::send(_fd, msg, strlen(msg), 0)) > -1)
+	{
+		std::cout << "[SEND] " << msg << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
-	_sent_bytes += strlen(msg);
-	_sent_cnt++;
-	::write(_fd, msg, strlen(msg));
+		_sent_bytes += strlen(msg);
+		_sent_cnt++;		
+	}
 }
 
 void Socket::write(Reply rpl)
 {
-	std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
+	int	ret = 0;
+	
+	if ((ret = ::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()))) > -1)
+	{
+		std::cout << "[SEND] " << rpl.get_msg().c_str() << " [" << _fd << "] "
 			  << "[" << show_type() << "]\n";
-	_sent_bytes += strlen(rpl.get_msg().c_str());
-	_sent_cnt++;
-	::write(_fd, rpl.get_msg().c_str(), strlen(rpl.get_msg().c_str()));
+		_sent_bytes += strlen(rpl.get_msg().c_str());
+		_sent_cnt++;
+	}
 }
 
 int			Socket::read(int fd, char *buffer, int *len)
