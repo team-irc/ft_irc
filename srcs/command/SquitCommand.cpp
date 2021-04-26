@@ -51,11 +51,10 @@ void	SquitCommand::delete_connected_server(IrcServer &irc, Server *server)
 
 	while (begin != end)
 	{
-		if (*begin == server->get_socket())
+		if (*begin == server->get_socket()) // 직접 연결된 서버라면
 		{
-			irc.get_socket_set().remove_socket(server->get_socket());
-			delete_server(server->get_socket()->get_fd(), irc);
-			delete server->get_socket();
+			irc.get_socket_set().remove_socket(server->get_socket()); // 1. 소켓셋에서 제거
+			delete_server(server->get_socket()->get_fd(), irc); // 2. 다른곳에도 메세지 전달 + global_server에서 제거 + 소켓 인스턴스 제거 + 그쪽 서버에 연결된 유저 제거
 			return ;
 		}
 		begin++;
@@ -68,7 +67,7 @@ void	SquitCommand::run(IrcServer &irc)
 	std::string			servername;
 	int					fd = sock->get_fd();
 
-	// squit은 서버 혹으 ㄴ관리자가 보냄
+	// squit은 서버 혹은 관리자가 보냄
 	if (sock->get_type() == UNKNOWN)
 		throw (Reply(ERR::NOTREGISTERED()));
 	else if (sock->get_type() == SERVER)
@@ -101,7 +100,7 @@ void	SquitCommand::run(IrcServer &irc)
 			irc.send_msg_server(fd, _msg.get_msg());
 		}
 	}
-	else
+	else // CLIENT
 	{
 		// 관리자가 아니라면 noprivilege error
 		Member	*member = irc.find_member(sock->get_fd());
@@ -110,7 +109,7 @@ void	SquitCommand::run(IrcServer &irc)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		if (member)
 		{
-			if (member->check_mode('o', true))
+			if (!member->is_server_operator())
 				throw (Reply(ERR::NOPRIVILEGES()));
 			std::string		servername = _msg.get_param(0);
 
@@ -122,10 +121,10 @@ void	SquitCommand::run(IrcServer &irc)
 				throw (Reply(ERR::NOSUCHSERVER(), servername));
 			if (servername == irc.get_serverinfo().SERVER_NAME)
 				throw (Reply(ERR::NOPRIVILEGES()));
-			// 직접 연결 된 서버라면 여기서 제거해야 함
-			delete_connected_server(irc, server);
 			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			irc.send_msg_server(fd, _msg.get_msg());
+			// 직접 연결 된 서버라면 여기서 제거해야 함
+			delete_connected_server(irc, server); // 메세지 보낸 후에 제거?
 		}
 	}
 }
