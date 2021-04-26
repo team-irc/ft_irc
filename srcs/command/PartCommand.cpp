@@ -70,14 +70,3 @@ PartCommand::PartCommand() : Command()
 PartCommand::~PartCommand()
 {
 }
-
-PartCommand::PartCommand(PartCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-PartCommand	&PartCommand::operator=(PartCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
-}

@@ -5,13 +5,11 @@
 
 class	AdminCommand : public Command
 {
-	public:
-		AdminCommand();
-		virtual ~AdminCommand();
-		AdminCommand(AdminCommand const &ref);
-		AdminCommand	&operator=(AdminCommand const &ref);
-	public:
-		void			run(IrcServer &irc);
+public:
+	AdminCommand();
+	~AdminCommand();
+public:
+	void			run(IrcServer &irc);
 };
 
 #endif

@@ -9,9 +9,7 @@ class NoticeCommand : public Command
 {
 public:
 	NoticeCommand();
-	NoticeCommand(const NoticeCommand &ref);
-	NoticeCommand	&operator=(const NoticeCommand &ref);
-	virtual ~NoticeCommand();
+	~NoticeCommand();
 	void	run(IrcServer &irc);
 private:
 	void	add_prefix(IrcServer &irc);

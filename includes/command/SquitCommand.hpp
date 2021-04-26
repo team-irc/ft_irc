@@ -25,10 +25,8 @@ private:
 	void	delete_connected_server(IrcServer &irc, Server *server);
 public:
 	SquitCommand();
-	virtual ~SquitCommand();
-	SquitCommand(SquitCommand const &copy);
-	SquitCommand	&operator=(SquitCommand const &ref);
-
+	~SquitCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

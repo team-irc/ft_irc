@@ -161,14 +161,3 @@ KillCommand::KillCommand() : Command()
 KillCommand::~KillCommand()
 {
 }
-
-KillCommand::KillCommand(KillCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-KillCommand	&KillCommand::operator=(KillCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
-}

@@ -1,5 +1,6 @@
 #ifndef PRIVMSGCOMMAND_HPP
 # define PRIVMSGCOMMAND_HPP
+
 # include "Command.hpp"
 
 /*
@@ -47,9 +48,8 @@ class PrivmsgCommand : public Command
 {
 public:
 	PrivmsgCommand();
-	PrivmsgCommand(const PrivmsgCommand &ref);
-	PrivmsgCommand	&operator=(const PrivmsgCommand &ref);
-	virtual ~PrivmsgCommand();
+	~PrivmsgCommand();
+public:
 	void	run(IrcServer &irc);
 private:
 	void	add_prefix(IrcServer &irc);

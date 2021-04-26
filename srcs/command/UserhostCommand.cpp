@@ -43,3 +43,7 @@ void UserhostCommand::run(IrcServer &irc)
 UserhostCommand::UserhostCommand(): Command()
 {
 }
+
+UserhostCommand::~UserhostCommand()
+{
+}

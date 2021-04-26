@@ -49,14 +49,3 @@ OperCommand::OperCommand() : Command()
 OperCommand::~OperCommand()
 {
 }
-
-OperCommand::OperCommand(OperCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-OperCommand	&OperCommand::operator=(OperCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
-}

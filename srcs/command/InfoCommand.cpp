@@ -82,3 +82,7 @@ void InfoCommand::run(IrcServer &irc)
 InfoCommand::InfoCommand(): Command()
 {
 }
+
+InfoCommand::~InfoCommand()
+{
+}

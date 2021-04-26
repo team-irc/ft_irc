@@ -7,6 +7,7 @@ class AwayCommand: public Command
 {
 public:
     AwayCommand();
+    ~AwayCommand();
 public:
     void run(IrcServer &irc);
 };

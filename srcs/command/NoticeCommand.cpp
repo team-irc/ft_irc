@@ -1,15 +1,7 @@
 #include "NoticeCommand.hpp"
 
-NoticeCommand::NoticeCommand()
+NoticeCommand::NoticeCommand(): Command()
 {}
-
-NoticeCommand::NoticeCommand(const NoticeCommand &ref)
-{}
-
-NoticeCommand &NoticeCommand::operator=(const NoticeCommand &ref)
-{
-	return (*this);
-}
 
 NoticeCommand::~NoticeCommand()
 {}

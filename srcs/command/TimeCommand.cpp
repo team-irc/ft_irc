@@ -6,18 +6,6 @@ TimeCommand::TimeCommand() : Command()
 TimeCommand::~TimeCommand()
 {}
 
-TimeCommand::TimeCommand(TimeCommand const &ref)
-{
-	_msg = ref._msg;
-}
-
-TimeCommand		&TimeCommand::operator=(TimeCommand const &ref)
-{
-	if (this != &ref)
-		_msg = ref._msg;
-	return (*this);
-}
-
 void	TimeCommand::run(IrcServer &irc)
 {
 	Socket				*socket = irc.get_current_socket();

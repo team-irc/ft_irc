@@ -20,7 +20,7 @@ class ModeCommand : public Command
 		ModeCommand();
 		// ModeCommand(const ModeCommand &ref);
 		// ModeCommand	&operator=(const ModeCommand &ref);
-		virtual ~ModeCommand();
+		~ModeCommand();
 		void	run(IrcServer &irc);
 	private:
 		int			_param_idx;

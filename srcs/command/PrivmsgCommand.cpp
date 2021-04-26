@@ -1,15 +1,7 @@
 #include "PrivmsgCommand.hpp"
 
-PrivmsgCommand::PrivmsgCommand()
+PrivmsgCommand::PrivmsgCommand(): Command()
 {}
-
-PrivmsgCommand::PrivmsgCommand(const PrivmsgCommand &ref)
-{}
-
-PrivmsgCommand &PrivmsgCommand::operator=(const PrivmsgCommand &ref)
-{
-	return (*this);
-}
 
 PrivmsgCommand::~PrivmsgCommand()
 {}

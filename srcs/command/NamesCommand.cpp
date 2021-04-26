@@ -103,6 +103,10 @@ NamesCommand::NamesCommand(): Command()
 {
 }
 
+NamesCommand::~NamesCommand()
+{
+}
+
 std::vector<std::string> NamesCommand::get_user_list_who_not_join_any_channel(IrcServer &irc)
 {
 	std::map<std::string, Member *>::iterator	first;

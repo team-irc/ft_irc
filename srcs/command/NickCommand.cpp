@@ -198,17 +198,6 @@ NickCommand::~NickCommand()
 {
 }
 
-NickCommand::NickCommand(NickCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-NickCommand	&NickCommand::operator=(NickCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
-}
-
 bool NickCommand::check_nick(const std::string &nick)
 {
 	const char			special[] = {'-', '|', '\\', '`', '^', '{', '}', '\0'};

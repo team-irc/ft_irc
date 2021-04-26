@@ -5,14 +5,10 @@
 
 class VersionCommand : public Command
 {
-private:
-
 public:
 	VersionCommand();
-	virtual ~VersionCommand();
-	VersionCommand(VersionCommand const &copy);
-	VersionCommand	&operator=(VersionCommand const &ref);
-
+	~VersionCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

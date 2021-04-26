@@ -1,9 +1,5 @@
 #include "TopicCommand.hpp"
 
-/*
-
-*/
-
 void	TopicCommand::run(IrcServer &irc)
 {
 	Socket			*socket;
@@ -57,15 +53,4 @@ TopicCommand::TopicCommand() : Command()
 
 TopicCommand::~TopicCommand()
 {
-}
-
-TopicCommand::TopicCommand(TopicCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-TopicCommand	&TopicCommand::operator=(TopicCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

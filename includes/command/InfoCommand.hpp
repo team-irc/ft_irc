@@ -7,6 +7,7 @@ class InfoCommand: public Command
 {
 public:
     InfoCommand();
+    ~InfoCommand();
 public:
     void run(IrcServer &irc);
 };

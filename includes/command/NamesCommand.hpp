@@ -9,6 +9,7 @@ class NamesCommand: public Command
 {
 public:
 	NamesCommand();
+	~NamesCommand();
 public:
 	void run(IrcServer &irc);
 private:
