@@ -119,6 +119,7 @@ public:
 	std::set<Member *>		&get_invited_member();
 
 	void					send_msg_to_members(const char *msg);
+	bool					is_valid_key(std::string const &key);
 };
 
 #endif
