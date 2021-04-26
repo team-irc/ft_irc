@@ -317,8 +317,8 @@ void		IrcServer::fd_event_loop()
 	static bool		remember[OPEN_MAX];
 	fd_set	fds;
 	
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 50;
 	fds = _socket_set.get_read_fds_copy();
 	if (select(_fd_max + 1, &fds, 0 ,0, &timeout) == -1)
 		throw (Error(strerror(errno)));
