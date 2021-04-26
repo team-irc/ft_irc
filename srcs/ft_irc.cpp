@@ -101,10 +101,13 @@ void	IrcServer::ssl_connect()
 	Socket	*accepted_socket;
 
 	accepted_socket = _ssl_listen_socket->accept(_accept_ctx);
-	accepted_socket->set_type(UNKNOWN);
-	_socket_set.add_socket(accepted_socket);
-	if (_fd_max < accepted_socket->get_fd())
-		_fd_max = accepted_socket->get_fd();
+	if (accepted_socket)
+	{
+		accepted_socket->set_type(UNKNOWN);
+		_socket_set.add_socket(accepted_socket);
+		if (_fd_max < accepted_socket->get_fd())
+			_fd_max = accepted_socket->get_fd();
+	}
 }
 
 void	IrcServer::client_connect()
@@ -223,91 +226,87 @@ void	IrcServer::client_msg(int fd)
 	Command			*cmd;
 
 	update_last_time();
-	do
+	memset(buf, 0, BUFFER_SIZE);
+	result = _current_sock->read(fd, buf, &str_len);
+	if (result == -1)
 	{
-		memset(buf, 0, BUFFER_SIZE);
-		result = _current_sock->read(fd, buf, &str_len);
-		if (result == -1)
-		{
-			std::cout << "read_until_crlf return -1" << std::endl;
-			return ;
-		}
-		if (result == 2)
-			return ;
-		Message msg(buf);
-		if (buf[0] == 0 || msg.get_size() >= 512 || msg.get_param_size() > 15) // 클라이언트에서 Ctrl + C 입력한 경우
-		{
-			// 해당 클라이언트와 연결 종료
-			// 512자를 넘은거면 ERROR를 실행하고 SQUIT, QUIT 처리
-			std::string message;
+		std::cout << "read_until_crlf return -1" << std::endl;
+		return ;
+	}
+	if (result == 2)
+		return ;
+	Message msg(buf);
+	if (buf[0] == 0 || msg.get_size() >= 512 || msg.get_param_size() > 15) // 클라이언트에서 Ctrl + C 입력한 경우
+	{
+		// 해당 클라이언트와 연결 종료
+		// 512자를 넘은거면 ERROR를 실행하고 SQUIT, QUIT 처리
+		std::string message;
 
-			if (msg.get_size() >= 512 || msg.get_param_size() > 15)
-			{
-				message = "ERROR :Request too long\n";
-				_current_sock->write(message.c_str());
-			}
-			if (_current_sock->get_type() == SERVER)
-			{
-				cmd = _cmd_creator.get_command("SQUIT");
-				cmd->set_message(NULL);
-			}
-			else
-			{
-				cmd = _cmd_creator.get_command("QUIT");
-				Member *member = find_member(_current_sock->get_fd());
-				if (member)
-				{
-					if (!message.empty())
-						message = "QUIT :" + message;
-					else
-						message = "QUIT :" + member->get_nick() + "\n";
-				}
-				else
-					message = "QUIT\n";
-				cmd->set_message(Message(message.c_str()));
-			}
-			cmd->execute(*this);
-			while (result)
-				result = ft::read_until_crlf(fd, buf, &str_len);
-			return ;
-		}
-		msg.set_source_fd(fd);
-		cmd = _cmd_creator.get_command(msg.get_command());
-		if (cmd)
+		if (msg.get_size() >= 512 || msg.get_param_size() > 15)
 		{
-			cmd->set_message(msg);
-			cmd->execute(*this);
+			message = "ERROR :Request too long\n";
+			_current_sock->write(message.c_str());
+		}
+		if (_current_sock->get_type() == SERVER)
+		{
+			cmd = _cmd_creator.get_command("SQUIT");
 			cmd->set_message(NULL);
-			show_global_server();
-			show_global_user();
-			show_global_channel();
 		}
 		else
 		{
-			if (is_reply_code(msg.get_command())) // 451
+			cmd = _cmd_creator.get_command("QUIT");
+			Member *member = find_member(_current_sock->get_fd());
+			if (member)
 			{
-				Member		*member;
-				member = get_member(msg.get_param(0));
-				member->get_socket()->write(msg.get_msg());
-			}
-			else if (buf[0] != '\n')
-			{
-				Reply::set_servername(_si.SERVER_NAME);
-				if (find_member(_current_sock->get_fd()))
-					Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+				if (!message.empty())
+					message = "QUIT :" + message;
 				else
-					Reply::set_username("");
-				_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
+					message = "QUIT :" + member->get_nick() + "\n";
 			}
+			else
+				message = "QUIT\n";
+			cmd->set_message(Message(message.c_str()));
 		}
-		if (_current_sock == NULL)
+		cmd->execute(*this);
+		while (result)
+			result = ft::read_until_crlf(fd, buf, &str_len);
+		return ;
+	}
+	msg.set_source_fd(fd);
+	cmd = _cmd_creator.get_command(msg.get_command());
+	if (cmd)
+	{
+		cmd->set_message(msg);
+		cmd->execute(*this);
+		cmd->set_message(NULL);
+		show_global_server();
+		show_global_user();
+		show_global_channel();
+	}
+	else
+	{
+		if (is_reply_code(msg.get_command())) // 451
 		{
-			while (result)
-				result = ft::read_until_crlf(fd, buf, &str_len);
-			return ;
+			Member		*member;
+			member = get_member(msg.get_param(0));
+			member->get_socket()->write(msg.get_msg());
 		}
-			
-	} while (result);
+		else if (buf[0] != '\n')
+		{
+			Reply::set_servername(_si.SERVER_NAME);
+			if (find_member(_current_sock->get_fd()))
+				Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
+			else
+				Reply::set_username("");
+			_current_sock->write(Reply(ERR::UNKNOWNCOMMAND(), msg.get_command()));
+		}
+	}
+	if (_current_sock == NULL)
+	{
+		while (result)
+			result = ft::read_until_crlf(fd, buf, &str_len);
+		return ;
+	}
 }
 
 void		IrcServer::fd_event_loop()
@@ -578,7 +577,7 @@ std::map<std::string, Server *>		&IrcServer::get_global_server()
 	return (_global_server);
 }
 
-void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
+void		IrcServer::add_channel(std::string const &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
 }

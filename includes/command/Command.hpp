@@ -56,6 +56,9 @@ public:
 	void execute(IrcServer &irc);
 	virtual void run(IrcServer &irc) = 0;
 	size_t		get_count();
+
+private:
+	void		set_reply_header(IrcServer &irc);
 };
 
 # include "ft_irc.hpp"
