@@ -8,6 +8,7 @@ class UserhostCommand: public Command
 {
 public:
     UserhostCommand();
+    ~UserhostCommand();
 public:
     void run(IrcServer &irc);
 };

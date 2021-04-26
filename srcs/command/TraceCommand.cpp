@@ -1,5 +1,4 @@
 #include "TraceCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
    Command: TRACE
@@ -203,15 +202,4 @@ TraceCommand::TraceCommand() : Command()
 
 TraceCommand::~TraceCommand()
 {
-}
-
-TraceCommand::TraceCommand(TraceCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-TraceCommand	&TraceCommand::operator=(TraceCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

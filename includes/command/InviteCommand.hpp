@@ -9,10 +9,8 @@ private:
 
 public:
 	InviteCommand();
-	virtual ~InviteCommand();
-	InviteCommand(InviteCommand const &copy);
-	InviteCommand	&operator=(InviteCommand const &ref);
-
+	~InviteCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

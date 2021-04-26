@@ -29,10 +29,8 @@ private:
 
 public:
 	PartCommand();
-	virtual ~PartCommand();
-	PartCommand(PartCommand const &copy);
-	PartCommand	&operator=(PartCommand const &ref);
-
+	~PartCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

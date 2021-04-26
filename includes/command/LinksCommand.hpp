@@ -9,10 +9,8 @@ private:
 	bool	transfer_message(IrcServer &irc, std::string const &server_name, std::string const &mask);
 public:
 	LinksCommand();
-	virtual ~LinksCommand();
-	LinksCommand(LinksCommand const &copy);
-	LinksCommand	&operator=(LinksCommand const &ref);
-
+	~LinksCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

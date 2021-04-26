@@ -1,5 +1,4 @@
 #include "NamesCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 
@@ -101,6 +100,10 @@ void	NamesCommand::reply_specific_channel(IrcServer &irc)
 }
 
 NamesCommand::NamesCommand(): Command()
+{
+}
+
+NamesCommand::~NamesCommand()
 {
 }
 

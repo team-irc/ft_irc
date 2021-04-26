@@ -1,5 +1,4 @@
 #include "ServerCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 	Command: SERVER
@@ -117,15 +116,4 @@ ServerCommand::ServerCommand() : Command()
 
 ServerCommand::~ServerCommand()
 {
-}
-
-ServerCommand::ServerCommand(ServerCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-ServerCommand	&ServerCommand::operator=(ServerCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

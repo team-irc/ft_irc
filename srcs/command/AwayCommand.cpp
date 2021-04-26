@@ -42,3 +42,7 @@ void AwayCommand::run(IrcServer &irc)
 AwayCommand::AwayCommand(): Command()
 {
 }
+
+AwayCommand::~AwayCommand()
+{
+}

@@ -5,15 +5,12 @@
 
 class StatsCommand : public Command
 {
-private:
-
 public:
 	StatsCommand();
-	virtual ~StatsCommand();
-	StatsCommand(StatsCommand const &copy);
-	StatsCommand	&operator=(StatsCommand const &ref);
-
+	~StatsCommand();
+public:
 	void	run(IrcServer &irc);
+private:
 	void	stats(IrcServer &irc, Socket *socket, char flag);
 };
 

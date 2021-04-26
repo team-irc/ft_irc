@@ -61,6 +61,6 @@ private:
 	void		set_reply_header(IrcServer &irc);
 };
 
-# include "ft_irc.hpp"
+# include "IrcServer.hpp"
 
 #endif

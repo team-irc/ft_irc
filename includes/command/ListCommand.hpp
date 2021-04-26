@@ -7,6 +7,7 @@ class ListCommand: public Command
 {
 public:
 	ListCommand();
+	~ListCommand();
 public:
 	void run(IrcServer &irc);
 private:

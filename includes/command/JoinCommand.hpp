@@ -10,10 +10,8 @@ private:
 
 public:
 	JoinCommand();
-	virtual ~JoinCommand();
-	JoinCommand(JoinCommand const &copy);
-	JoinCommand	&operator=(JoinCommand const &ref);
-
+	~JoinCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

@@ -11,9 +11,8 @@ private:
 	void  insert_info(Member *member, IrcServer &irc);
 public:
 	UserCommand();
-	virtual ~UserCommand();
-	UserCommand(UserCommand const &copy);
-	UserCommand	&operator=(UserCommand const &ref);
+	~UserCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

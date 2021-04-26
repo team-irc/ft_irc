@@ -1,21 +1,10 @@
 #include "ErrorCommand.hpp"
-#include "ft_irc.hpp"
 
-ErrorCommand::ErrorCommand()
+ErrorCommand::ErrorCommand(): Command()
 {}
 
 ErrorCommand::~ErrorCommand()
 {}
-
-ErrorCommand::ErrorCommand(ErrorCommand const &ref)
-{}
-
-ErrorCommand    &ErrorCommand::operator=(ErrorCommand const &ref)
-{
-	if (this != &ref)
-		_msg = ref._msg;
-	return (*this);
-}
 
 /*
 ** ERROR :Server *.fi already exists; ERROR message to the other server

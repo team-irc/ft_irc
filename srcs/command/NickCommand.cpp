@@ -1,5 +1,4 @@
 #include "NickCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 ** 	ERR_NICKCOLLISION 처리 안함
@@ -197,17 +196,6 @@ NickCommand::NickCommand() : Command()
 
 NickCommand::~NickCommand()
 {
-}
-
-NickCommand::NickCommand(NickCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-NickCommand	&NickCommand::operator=(NickCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }
 
 bool NickCommand::check_nick(const std::string &nick)

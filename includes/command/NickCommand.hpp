@@ -7,9 +7,8 @@ class NickCommand : public Command
 {
 public:
 	NickCommand();
-	virtual ~NickCommand();
-	NickCommand(NickCommand const &copy);
-	NickCommand	&operator=(NickCommand const &ref);
+	~NickCommand();
+public:
 	void	run(IrcServer &irc);
 private:
 	bool check_nick(const std::string &nick);

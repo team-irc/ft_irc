@@ -5,13 +5,11 @@
 
 class TimeCommand: public Command
 {
-	public:
-		TimeCommand();
-		virtual ~TimeCommand();
-		TimeCommand(TimeCommand const &ref);
-		TimeCommand	&operator=(TimeCommand const &ref);
-	public:
-		void run(IrcServer &irc);
+public:
+	TimeCommand();
+	~TimeCommand();
+public:
+	void run(IrcServer &irc);
 };
 
 #endif

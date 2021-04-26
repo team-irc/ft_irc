@@ -38,6 +38,10 @@ clean :
 fclean : clean
 	@echo "${_RED}REMOVE PROGRAM...${_END}"
 	@rm -f $(NAME)
+	@rm -f ./chatbot
 	@rm -rf server.dSYM
+
+bonus : 
+	@clang++ tmp/chatbot.cpp -o ./chatbot
 
 re : fclean all

@@ -60,3 +60,7 @@ void IsonCommand::run(IrcServer &irc)
 IsonCommand::IsonCommand(): Command()
 {
 }
+
+IsonCommand::~IsonCommand()
+{
+}

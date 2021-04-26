@@ -10,9 +10,8 @@ private:
 
 public:
 	ServerCommand();
-	virtual ~ServerCommand();
-	ServerCommand(ServerCommand const &copy);
-	ServerCommand	&operator=(ServerCommand const &ref);
+	~ServerCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

@@ -96,3 +96,7 @@ void ListCommand::print_list(IrcServer &irc, std::string *channel_list, int spli
 ListCommand::ListCommand(): Command()
 {
 }
+
+ListCommand::~ListCommand()
+{
+}

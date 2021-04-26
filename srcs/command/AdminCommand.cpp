@@ -1,23 +1,10 @@
 #include "AdminCommand.hpp"
-#include "ft_irc.hpp"
 
 AdminCommand::AdminCommand() : Command()
 {}
 
 AdminCommand::~AdminCommand()
 {}
-
-AdminCommand::AdminCommand(AdminCommand const &ref)
-{
-	_msg = ref._msg;
-}
-
-AdminCommand	&AdminCommand::operator= (AdminCommand const &ref)
-{
-	if (this != &ref)
-		_msg = ref._msg;
-	return (*this);
-}
 
 static void		send_info(IrcServer &irc, int fd, const std::string &user)
 {
