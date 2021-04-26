@@ -122,7 +122,7 @@ public:
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
-	void				client_msg(int fd);
+	int					client_msg(int fd);
 	void				unknown_msg(int fd);
 	void				client_connect();
 	void				ssl_connect();

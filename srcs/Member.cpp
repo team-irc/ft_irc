@@ -138,6 +138,6 @@ void				Member::set_socket(Socket *socket) { _socket = socket; }
 bool				Member::is_server_operator()
 {
 	if (check_mode('o', 1))
-		return (true);
-	return (false);
+		return (false);
+	return (true);
 }

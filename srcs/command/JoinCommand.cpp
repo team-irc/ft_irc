@@ -75,7 +75,7 @@ int		JoinCommand::join(IrcServer &irc, Member *member, std::string const &channe
 	socket = irc.get_current_socket();
 	if (channel == NULL)
 	{
-		channel = new Channel(channel_name, member);
+		channel = new Channel(channel_name, channel_key, member);
 		irc.add_channel(channel->get_name(), channel);
 		channel->add_operator(member);
 		channel->set_mode(2048);
@@ -109,18 +109,16 @@ int		JoinCommand::join(IrcServer &irc, Member *member, std::string const &channe
 			throw (Reply(ERR::CHANNELISFULL(), channel->get_name()));
 		if (channel->check_mode('i', 0) && !channel->is_invited_member(member))
 			throw (Reply(ERR::INVITEONLYCHAN(), channel->get_name()));
+		if (!channel->is_valid_key(channel_key))
+			throw (Reply(ERR::BADCHANNELKEY(), channel->get_name()));
 		else
 		{
 			member->add_channel(channel);
 			channel->add_member(member);
+			send_join_reply(socket, channel); // 클라이언트에 전송
+			msg = ":" + member->get_nick() + " JOIN " + channel->get_name() + "\n"; // 서버에 전송
+			irc.send_msg_server(socket->get_fd(), msg.c_str());
 		}
-
-		// 클라이언트에 전송
-		send_join_reply(socket, channel);
-
-		// 서버에 전송
-		msg = ":" + member->get_nick() + " JOIN " + channel->get_name() + "\n";
-		irc.send_msg_server(socket->get_fd(), msg.c_str());
 	}
 	return (0);
 }
@@ -159,14 +157,18 @@ void	JoinCommand::run(IrcServer &irc)
 	else if (socket->get_type() == SERVER)
 	{
 		// :t1 join #a (서버측으론 ,로 넘어오지 않는다.)
-		std::string		channel_name = _msg.get_param(0);
+		std::string		channel_name;
+		std::string		channel_key;
 		Channel			*channel;
 
+		channel_name = _msg.get_param(0);
+		if (_msg.get_param_size() == 2)
+			channel_key = _msg.get_param(1);
 		member = irc.get_member(_msg.get_prefix());
 		channel = irc.get_channel(channel_name);
 		if (channel == 0) // 채널 새로 생성시
 		{
-			channel = new Channel(channel_name, member);
+			channel = new Channel(channel_name, channel_key, member);
 			irc.add_channel(channel->get_name(), channel);
 			member->add_channel(channel);
 		}

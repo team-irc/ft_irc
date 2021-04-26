@@ -218,7 +218,7 @@ void	IrcServer::update_last_time()
 	}
 }
 
-void	IrcServer::client_msg(int fd)
+int		IrcServer::client_msg(int fd)
 {
 	char			buf[BUFFER_SIZE];
 	int				str_len = 0;
@@ -231,10 +231,10 @@ void	IrcServer::client_msg(int fd)
 	if (result == -1)
 	{
 		std::cout << "read_until_crlf return -1" << std::endl;
-		return ;
+		return (0);
 	}
 	if (result == 2)
-		return ;
+		return (0);
 	Message msg(buf);
 	if (buf[0] == 0 || msg.get_size() >= 512 || msg.get_param_size() > 15) // 클라이언트에서 Ctrl + C 입력한 경우
 	{
@@ -270,7 +270,7 @@ void	IrcServer::client_msg(int fd)
 		cmd->execute(*this);
 		while (result)
 			result = ft::read_until_crlf(fd, buf, &str_len);
-		return ;
+		return (0);
 	}
 	msg.set_source_fd(fd);
 	cmd = _cmd_creator.get_command(msg.get_command());
@@ -305,26 +305,28 @@ void	IrcServer::client_msg(int fd)
 	{
 		while (result)
 			result = ft::read_until_crlf(fd, buf, &str_len);
-		return ;
 	}
+	if (result == 1)
+		return (1);
+	return (0);
 }
 
 void		IrcServer::fd_event_loop()
 {
 	struct timeval	timeout;
+	static bool		remember[OPEN_MAX];
 	fd_set	fds;
-	int		fd_num;
-
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
+	
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 50;
 	fds = _socket_set.get_read_fds_copy();
-	if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
+	if (select(_fd_max + 1, &fds, 0 ,0, &timeout) == -1)
 		throw (Error(strerror(errno)));
-	else if (fd_num != 0)
+	else
 	{
 		for (int i = 0; i < _fd_max + 1; i++)
 		{
-			if (FD_ISSET(i, &fds))
+			if (FD_ISSET(i, &fds) || remember[i])
 			{
 				_current_sock = _socket_set.find_socket(i);
 				if (_current_sock->get_type() == LISTEN)
@@ -338,10 +340,15 @@ void		IrcServer::fd_event_loop()
 					continue;
 				}
 				else
-					client_msg(i);
+				{
+					if (client_msg(i) == 1)
+						remember[i] = true;
+					else
+						remember[i] = false;
+				}
 			}
 		}
-	}
+	}	
 }
 
 SocketSet	&IrcServer::get_socket_set()
@@ -639,7 +646,10 @@ void		IrcServer::show_global_user()
 	std::cout.width(10);
 	std::cout << "fd";
 	std::cout.width(10);
-	std::cout << "away\n";
+	std::cout << "away";
+	std::cout.width(10);
+	std::cout << "mode\n";
+
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
@@ -650,7 +660,9 @@ void		IrcServer::show_global_user()
 		std::cout.width(10);
 		std::cout << member->get_fd();
 		std::cout.width(10);
-		std::cout << member->get_away() << "\n";
+		std::cout << member->get_away();
+		std::cout.width(10);
+		std::cout << std::bitset<16>(member->get_mode()) << "\n"; // 사용 금지?
 		iter++;
 	}
 	return ;
