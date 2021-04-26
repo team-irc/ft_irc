@@ -577,7 +577,7 @@ std::map<std::string, Server *>		&IrcServer::get_global_server()
 	return (_global_server);
 }
 
-void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
+void		IrcServer::add_channel(std::string const &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
 }
