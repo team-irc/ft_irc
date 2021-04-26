@@ -123,14 +123,15 @@ int		JoinCommand::join(IrcServer &irc, Member *member, std::string const &channe
 		msg = ":" + member->get_nick() + " JOIN " + channel->get_name() + "\n";
 		irc.send_msg_server(socket->get_fd(), msg.c_str());
 	}
+	return (0);
 }
 
 void	JoinCommand::run(IrcServer &irc)
 {
 	int				number_of_channel;
 	int				number_of_key;
-	std::string		*channel_names;
-	std::string		*channel_keys;
+	std::string		*channel_names = 0;
+	std::string		*channel_keys = 0;
 	Socket			*socket;
 	Member			*member;
 
@@ -153,7 +154,8 @@ void	JoinCommand::run(IrcServer &irc)
 				join(irc, member, channel_names[i]);
 		}
 		delete[] channel_names;
-		delete[] channel_keys;
+		if (channel_keys)
+			delete[] channel_keys;
 	}
 	else if (socket->get_type() == SERVER)
 	{
