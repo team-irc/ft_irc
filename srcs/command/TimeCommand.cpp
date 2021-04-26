@@ -1,5 +1,4 @@
 #include "TimeCommand.hpp"
-#include "ft_irc.hpp"
 
 TimeCommand::TimeCommand() : Command()
 {}

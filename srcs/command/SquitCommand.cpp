@@ -1,5 +1,4 @@
 #include "SquitCommand.hpp"
-#include "ft_irc.hpp"
 
 void	SquitCommand::send_quit_user(int fd, IrcServer &irc)
 {

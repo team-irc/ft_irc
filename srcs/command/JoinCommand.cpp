@@ -1,5 +1,4 @@
 #include "JoinCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 Command: JOIN

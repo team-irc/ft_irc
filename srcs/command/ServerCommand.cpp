@@ -1,5 +1,4 @@
 #include "ServerCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 	Command: SERVER

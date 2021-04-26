@@ -1,5 +1,4 @@
 #include "TopicCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 

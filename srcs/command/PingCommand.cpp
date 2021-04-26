@@ -1,5 +1,4 @@
 #include "PingCommand.hpp"
-#include "ft_irc.hpp"
 
 PingCommand::PingCommand()
 {}

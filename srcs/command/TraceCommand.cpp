@@ -1,5 +1,4 @@
 #include "TraceCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
    Command: TRACE

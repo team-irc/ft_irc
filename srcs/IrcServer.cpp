@@ -1,4 +1,4 @@
-#include "ft_irc.hpp"
+#include "IrcServer.hpp"
 
 IrcServer::IrcServer(int argc, char **argv)
 {

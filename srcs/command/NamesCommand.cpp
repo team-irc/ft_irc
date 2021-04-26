@@ -1,5 +1,4 @@
 #include "NamesCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 

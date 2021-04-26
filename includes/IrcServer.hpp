@@ -1,5 +1,5 @@
-#ifndef FT_IRC_HPP
-# define FT_IRC_HPP
+#ifndef IRCSERVER_HPP
+# define IRCSERVER_HPP
 
 #include <iostream>
 #include <unistd.h>

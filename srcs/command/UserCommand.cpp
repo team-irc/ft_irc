@@ -1,5 +1,4 @@
 #include "UserCommand.hpp"
-#include "ft_irc.hpp"
 
 // user 메시지 수신
 // 0. prefix가 있다면 다른 서버에서 전송된 상태

@@ -1,5 +1,4 @@
 #include "NickCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 ** 	ERR_NICKCOLLISION 처리 안함

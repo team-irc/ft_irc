@@ -1,5 +1,4 @@
 #include "PrivmsgCommand.hpp"
-#include "ft_irc.hpp"
 
 PrivmsgCommand::PrivmsgCommand()
 {}

@@ -1,5 +1,4 @@
 #include "PongCommand.hpp"
-#include "ft_irc.hpp"
 
 PongCommand::PongCommand()
 {}

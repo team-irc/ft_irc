@@ -1,5 +1,4 @@
 #include "ErrorCommand.hpp"
-#include "ft_irc.hpp"
 
 ErrorCommand::ErrorCommand()
 {}

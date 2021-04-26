@@ -1,5 +1,4 @@
 #include "OperCommand.hpp"
-#include "ft_irc.hpp"
 
 // 1. 에러처리 필요
 // 1-1. 패스워드 불일치

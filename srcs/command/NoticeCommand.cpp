@@ -1,5 +1,4 @@
 #include "NoticeCommand.hpp"
-#include "ft_irc.hpp"
 
 NoticeCommand::NoticeCommand()
 {}

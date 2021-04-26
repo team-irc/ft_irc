@@ -1,6 +1,4 @@
 #include "PartCommand.hpp"
-#include "ft_irc.hpp"
-#include "Reply.hpp"
 
 void	PartCommand::run(IrcServer &irc)
 {

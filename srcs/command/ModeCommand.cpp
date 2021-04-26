@@ -1,5 +1,4 @@
 # include "ModeCommand.hpp"
-#include "ft_irc.hpp"
 
 ModeCommand::ModeCommand() : _param_idx(2)
 {}

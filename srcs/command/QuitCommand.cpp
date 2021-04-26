@@ -1,5 +1,4 @@
 #include "QuitCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
       Command: QUIT

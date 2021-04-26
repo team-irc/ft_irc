@@ -1,5 +1,4 @@
 #include "AdminCommand.hpp"
-#include "ft_irc.hpp"
 
 AdminCommand::AdminCommand() : Command()
 {}

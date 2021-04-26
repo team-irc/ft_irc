@@ -1,5 +1,4 @@
 #include "PassCommand.hpp"
-#include "ft_irc.hpp"
 
 void	PassCommand::run(IrcServer &irc)
 {

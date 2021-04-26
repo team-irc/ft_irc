@@ -1,6 +1,6 @@
 #include "Socket.hpp"
 #include "Reply.hpp"
-#include "ft_irc.hpp"
+#include "IrcServer.hpp"
 #include <fcntl.h>
 
 Socket::Socket() : _recv_bytes(0), _sent_bytes(0), _recv_cnt(0), _sent_cnt(0)
