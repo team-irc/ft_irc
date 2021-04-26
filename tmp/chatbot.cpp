@@ -5,14 +5,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <fcntl.h>
 #include <algorithm>
 
 #define BUFFER_SIZE 512
-
-const std::string command_list[] = { "ADMIN", "AWAY", "CONNECT", "ERROR", "INFO", "INVITE", "ISON", "JOIN", "KICK", "KILL", "LINKS", "LIST", \
-									"MODE", "NAMES", "NICK", "NOTICE", "OPER", "PART", "PASS", "PING", "PONG", "PRIVMSG", "QUIT", "REHASH", \
-									"SERVER", "SQUIT", "STATS", "TIME", "TOPIC", "TRACE", "USER", "USERHOST", "VERSION", "WHOIS", "WHO", "WHOWAS", ""};
 
 static std::string		remember_to_buf(std::string &remember)
 {
@@ -221,13 +216,8 @@ void	help_command(int sock, std::string target, std::string message)
 		delete[] split_ret;
 		if (split(command, ' ', split_ret) == 1)
 		{
-			tmp = privmsg + "---COMMAND_LIST---\n";
+			tmp = privmsg + "USAGE: privmsg bot :/help <command>\n";
 			write(sock, tmp.c_str(), tmp.length());
-			for (int i = 0; !command_list[i].empty(); ++i)
-			{
-				tmp = privmsg + "   " + command_list[i] + '\n';
-				write(sock, tmp.c_str(), tmp.length());
-			}
 			return ;
 		}
 		else
@@ -239,41 +229,85 @@ void	help_command(int sock, std::string target, std::string message)
 			std::transform(command.begin(), command.end(), command.begin(), ::toupper);
 			if (command == "ADMIN")
 				tmp = privmsg + "USAGE: ADMIN [<server>]\n";
-			if (command == "AWAY")
+			else if (command == "AWAY")
 				tmp = privmsg + "USAGE: AWAY [message]\n";
-			if (command == "CONNECT")
+			else if (command == "CONNECT")
 				tmp = privmsg + "USAGE: CONNECT <target server> [<port> [<remote server>]]\n";
-			if (command == "ERROR")
+			else if (command == "ERROR")
 				tmp = privmsg + "USAGE: ERROR <error message>\n";
-			if (command == "INFO")
+			else if (command == "INFO")
 				tmp = privmsg + "USAGE: INFO [<server>]\n";
-			if (command == "INVITE")
+			else if (command == "INVITE")
 				tmp = privmsg + "USAGE: INVITE <nickname> <channel>\n";
-			if (command == "ISON")
+			else if (command == "ISON")
 				tmp = privmsg + "USAGE: ISON <nickname>{<space><nickanem>}\n";
-			if (command == "JOIN")
+			else if (command == "JOIN")
 				tmp = privmsg + "USAGE: JOIN <channel>{,<channel>} [<key>,{<key>}]\n";
-			if (command == "KICK")
+			else if (command == "KICK")
 				tmp = privmsg + "USAGE: KICK <channel> <user> [<comment>]\n";
-			if (command == "KILL")
+			else if (command == "KILL")
 				tmp = privmsg + "USAGE: KILL <nickname> <comment>\n";
-			if (command == "LINKS")
+			else if (command == "LINKS")
 				tmp = privmsg + "USAGE: LINKS [[<remote server>] <server mask>]\n";
-			if (command == "LIST")
+			else if (command == "LIST")
 				tmp = privmsg + "USAGE: LIST [<channel>,{<channel>} [<server]\n";
+			else if (command == "MODE")
+				tmp = privmsg + "USAGE: MODE <channel> {[+|-]|o|p|s|i|t|n|b|v} [<limit>] [<user>] [<ban mask>] OR MODE <nickname> {[+|-]|i|w|s|o}\n";
+			else if (command == "NAMES")
+				tmp = privmsg + "USAGE: NAMES [<channel>{,<channel>}]\n";
+			else if (command == "NICK")
+				tmp = privmsg + "USAGE: NICK <nickname> [ <hopcount> ]\n";
+			else if (command == "NOTICE")
+				tmp = privmsg + "USAGE: NOTICE <nickname> <text>\n";
+			else if (command == "OPER")
+				tmp = privmsg + "USAGE: OPER <user> <password>\n";
+			else if (command == "PART")
+				tmp = privmsg + "USAGE: PART <channel>{,<channel>}\n";
+			else if (command == "PASS")
+				tmp = privmsg + "USAGE: PASS <password>\n";
+			else if (command == "PING")
+				tmp = privmsg + "USAGE: PING <server1> [<server2>]\n";
+			else if (command == "PONG")
+				tmp = privmsg + "USAGE: PONG <daemon> [<daemon2>]\n";
+			else if (command == "PRIVMSG")
+				tmp = privmsg + "USAGE: PRIVMSG <receiver>{,<receiver>} <text to be sent>\n";
+			else if (command == "QUIT")
+				tmp = privmsg + "USAGE: QUIT [<Quit message>]\n";
+			else if (command == "REHASH")
+				tmp = privmsg + "USAGE: REHASH\n";
+			else if (command == "SERVER")
+				tmp = privmsg + "USAGE: SERVER <servername> <hopcount> <info>\n";
+			else if (command == "SQUIT")
+				tmp = privmsg + "USAGE: SQUIT <server> <comment>\n";
+			else if (command == "STATS")
+				tmp = privmsg + "USAGE: STATS [<query> [<server>]]\n";
+			else if (command == "TIME")
+				tmp = privmsg + "USAGE: TIME [<server>]\n";
+			else if (command == "TOPIC")
+				tmp = privmsg + "USAGE: TOPIC <channel> [<topic>]\n";
+			else if (command == "TRACE")
+				tmp = privmsg + "USAGE: TRACE [<server>]\n";
+			else if (command == "USER")
+				tmp = privmsg + "USAGE: USER <username> <hostname> <servername> <realname>\n";
+			else if (command == "USERHOST")
+				tmp = privmsg + "USAGE: USERHOST <nickname>{<space><nickname>}\n";
+			else if (command == "VERSION")
+				tmp = privmsg + "USAGE: VERSION [<server>]\n";
+			else if (command == "WHOIS")
+				tmp = privmsg + "USAGE: WHOIS [<server>] <nickmask>[,<nickmask>[,...]]\n";
+			else if (command == "WHO")
+				tmp = privmsg + "USAGE: WHO [<name> [<o>]]\n";
+			else if (command == "WHOWAS")
+				tmp = privmsg + "USAGE: WHOWAS <nickname> [<count> [<server>]]\n";
+			else
+				tmp = privmsg + "unknown command: " + command + '\n';
 		}
 		write(sock, tmp.c_str(), tmp.length());
 	}
 	else
 	{
-		std::string tmp;
-		tmp = privmsg + "---COMMAND_LIST---\n";
+		std::string tmp = privmsg + "USAGE: privmsg bot :/help <command>\n";
 		write(sock, tmp.c_str(), tmp.length());
-		for (int i = 0; !command_list[i].empty(); ++i)
-		{
-			tmp = privmsg + "   " + command_list[i] + '\n';
-			write(sock, tmp.c_str(), tmp.length());
-		}
 	}
 }
 
@@ -302,7 +336,6 @@ void connect_to_server(int &sock, int argc, char **argv)
 
 	if (connect(sock, (struct sockaddr *)&serv_adr, sizeof(serv_adr)) == -1)
 		error("connect error");
-	fcntl(sock, O_NONBLOCK, F_SETFL);
 }
 
 void send_user_info(int &sock, int argc, char **argv)
@@ -323,18 +356,13 @@ void run(int &sock)
 {
 	char message[512];
 	std::string	*split_ret;
+	int len;
 
 	std::cout << "run" << std::endl;
 	while (1)
     {
 		memset(message, 0, 512);
-        if (read(sock, message, 512) < 0)
-		{
-			if (errno == EAGAIN)
-				continue ;
-			else
-				std::cout << "error" << std::endl;
-		}
+        read_until_crlf(sock, message, &len);
 		split(std::string(message), ' ', split_ret);
 		std::cout << "[RECV] " << message;
 		std::string message_type = split_ret[1]; // PRIVMSG
@@ -361,7 +389,9 @@ int main(int argc, char **argv)
 
 	connect_to_server(sock, argc, argv);
 	send_user_info(sock, argc, argv);
+	sleep(1);
 	ignore_motd(sock);
+	sleep(1);
     run(sock);
 	close(sock);
 	return (0);
