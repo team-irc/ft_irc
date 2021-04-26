@@ -28,19 +28,28 @@ SSL_Socket  *SSL_Socket::accept(SSL_CTX *ctx)
 	SSL_Socket				*accepted_socket;
 	struct sockaddr_in		accepted_addr;
 	socklen_t				addr_size;
+	int						set = 1;
 
 	fd = ::accept(_fd, (struct sockaddr *)&accepted_addr, &addr_size);
 	if (fd <= 0)
 		throw ("SSL Socket accept error");
 	accepted_socket = new SSL_Socket(ctx);
+	setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 	accepted_socket->_fd = fd;
 	memcpy(&(accepted_socket->_addr), &accepted_addr, addr_size);
 	SSL_set_fd(accepted_socket->_ssl, accepted_socket->_fd);
-	int ret;
-	while ((ret = SSL_accept(accepted_socket->_ssl)) < 0)
+	int ret = SSL_accept(accepted_socket->_ssl);
+	// int error = ret;
+	if (ret < 0)
 	{
-		
+		if (SSL_get_error(_ssl, ret) != SSL_ERROR_WANT_ACCEPT &&
+			SSL_get_error(_ssl, ret) != SSL_ERROR_SYSCALL)
+		{
+			delete (accepted_socket);
+			return (NULL);
+		}
 	}
+
 	std::cout << "SSL accepted\n";
 	fcntl(accepted_socket->_fd, F_SETFL, O_NONBLOCK);
 	return (accepted_socket);
@@ -51,6 +60,7 @@ SSL_Socket	*SSL_Socket::connect(const char *connect_srv, SSL_CTX *ctx)
 	SSL_Socket				*connect_socket;
 	struct sockaddr_in		connect_addr;
 	std::pair<struct sockaddr_in, std::string>	pair;
+	int						set = 1;
 
 	memset(&connect_addr, 0, sizeof(connect_addr));
 	pair = parsing_host_info(connect_srv);
@@ -60,6 +70,7 @@ SSL_Socket	*SSL_Socket::connect(const char *connect_srv, SSL_CTX *ctx)
 	connect_socket->_fd = socket(AF_INET, SOCK_STREAM, 0);
 	connect_socket->_addr = connect_addr;
 	connect_socket->set_pass(pair.second);
+	setsockopt(connect_socket->_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
     SSL_set_fd(connect_socket->_ssl, connect_socket->_fd);
 	if (connect_socket->_fd == -1)
 		throw(Error("connect socket create error"));
