@@ -6,8 +6,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
+#include <signal.h>
 
 #define BUFFER_SIZE 512
+
+int sock;
+
+void error(std::string err)
+{
+    std::cout << err << std::endl;
+    exit(1);
+}
 
 static std::string		remember_to_buf(std::string &remember)
 {
@@ -53,9 +62,9 @@ int	read_until_crlf(int fd, char *buffer, int *len)
 		if (remember[fd].empty())
 		{
 			if ((read_size = read(fd, buf + insert_idx, BUFFER_SIZE - insert_idx)) == -1)
-				break;
+				error ("read -1");
 			else if (read_size == 0)
-				break;
+				exit(0);
 			buf[insert_idx + read_size] = 0;
 		}
 		else
@@ -110,12 +119,6 @@ int	read_until_crlf(int fd, char *buffer, int *len)
 		return (0);
 	else
 		return (1);
-}
-
-void error(std::string err)
-{
-    std::cout << err << std::endl;
-    exit(1);
 }
 
 int split(const std::string str, char c, std::string *& ret)
@@ -383,10 +386,15 @@ void run(int &sock)
     }
 }
 
+void sigint(int sig)
+{
+	close(sock);
+	exit(0);
+}
+
 int main(int argc, char **argv)
 {
-	int sock;
-
+	signal(SIGINT, sigint);
 	connect_to_server(sock, argc, argv);
 	send_user_info(sock, argc, argv);
 	sleep(1);

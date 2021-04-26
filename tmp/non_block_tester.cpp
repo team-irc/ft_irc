@@ -6,9 +6,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
-#include <fcntl.h>
+#include <signal.h>
 
 #define BUFFER_SIZE 512
+
+int sock;
+
+void error(std::string err)
+{
+    std::cout << err << std::endl;
+    exit(1);
+}
 
 static std::string		remember_to_buf(std::string &remember)
 {
@@ -54,9 +62,9 @@ int	read_until_crlf(int fd, char *buffer, int *len)
 		if (remember[fd].empty())
 		{
 			if ((read_size = read(fd, buf + insert_idx, BUFFER_SIZE - insert_idx)) == -1)
-				break;
+				error ("read -1");
 			else if (read_size == 0)
-				break;
+				exit(0);
 			buf[insert_idx + read_size] = 0;
 		}
 		else
@@ -111,12 +119,6 @@ int	read_until_crlf(int fd, char *buffer, int *len)
 		return (0);
 	else
 		return (1);
-}
-
-void error(std::string err)
-{
-    std::cout << err << std::endl;
-    exit(1);
 }
 
 int split(const std::string str, char c, std::string *& ret)
@@ -194,10 +196,9 @@ void send_user_info(int &sock, int argc, char **argv)
     	write(sock, pass.c_str(), pass.length());
 		sleep(1);
 	}
-    write(sock, "nick non\n", 9);
+    write(sock, "nick nonblock\n", 9);
 	sleep(1);
-    write(sock, "user b b b b\n", 13);
-	sleep(1);
+    write(sock, "user n n n n\n", 13);
 }
 
 void run(int &sock)
@@ -205,19 +206,24 @@ void run(int &sock)
 	std::cout << "run" << std::endl;
 	while (1)
     {
-		write(sock, "privmsg bot hi\n", 15);
+		write(sock, "list\n", 5);
     }
 }
 
+void sigint(int sig)
+{
+	close(sock);
+	exit(0);
+}
 
 int main(int argc, char **argv)
 {
-	int sock;
-	std::string message;
-
+	signal(SIGINT, sigint);
 	connect_to_server(sock, argc, argv);
 	send_user_info(sock, argc, argv);
+	sleep(1);
 	ignore_motd(sock);
+	sleep(1);
     run(sock);
 	close(sock);
 	return (0);
