@@ -785,8 +785,11 @@ void				IrcServer::print_motd()
 	_current_sock->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	for (int i = 0; i < split_size - 1; ++i)
 	{
-		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
-		split_ret[i] += "\33[m";
+		size_t pos;
+		if ((pos = split_ret[i].find("${_INVERT}")) != std::string::npos)
+			split_ret[i].replace(pos, 10, "\33[38;5;0;48;5;255m");
+		if ((pos = split_ret[i].find("${_END}")) != std::string::npos)
+			split_ret[i].replace(pos, 7, "\33[m");
 		_current_sock->write(Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str());
 	}
 	_current_sock->write(Reply(RPL::ENDOFMOTD()));
