@@ -42,6 +42,7 @@ fclean : clean
 	@rm -rf server.dSYM
 
 bonus : 
+	@echo "${_GREEN}MAKING CHATBOT...${_END}"
 	@clang++ tmp/chatbot.cpp -o ./chatbot
 
 re : fclean all
