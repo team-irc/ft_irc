@@ -1,3 +1,19 @@
+ifneq ($(words $(MAKECMDGOALS)),1)
+.DEFAULT_GOAL = all
+%:
+	@$(MAKE) $@ --no-print-directory -rRf $(firstword $(MAKEFILE_LIST))
+else
+ifndef ECHO
+T := $(shell $(MAKE) $(MAKECMDGOALS) --no-print-directory \
+      -nrRf $(firstword $(MAKEFILE_LIST)) \
+      ECHO="COUNTTHIS" | grep -c "COUNTTHIS")
+
+N := x
+C = $(words $N)$(eval N := x $N)
+ECHO = python3 srcs/progressbar.py --stepno=$C --nsteps=$T
+
+endif
+
 .PHONY: all clean fclean re
 
 _END		=	\033[0;0m
@@ -26,7 +42,9 @@ $(NAME) : $(OBJS)
 	@echo "${_GREEN}COMPILE COMPLETE${_END}"
 
 %.o : %.cpp
-	@echo "${_GREEN}COMPILING...${_END}"
+	@printf "${_GREEN}"
+	@$(ECHO) Compiling $@
+	@printf "${_END}"
 	@$(CXX) -o $@ -c $^ $(CXXFLAGS)
 
 all : $(NAME)
@@ -46,3 +64,5 @@ bonus :
 	@clang++ tmp/chatbot.cpp -o ./chatbot
 
 re : fclean all
+
+endif
