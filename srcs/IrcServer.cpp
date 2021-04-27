@@ -268,6 +268,9 @@ int		IrcServer::client_msg(int fd)
 			cmd->set_message(Message(message.c_str()));
 		}
 		cmd->execute(*this);
+		show_global_server();
+		show_global_user();
+		show_global_channel();
 		while (result)
 			result = ft::read_until_crlf(fd, buf, &str_len);
 		return (0);
@@ -389,7 +392,12 @@ void	IrcServer::check_connection()
 					cmd->set_message(Message(msg.c_str()));
 				}
 				if (cmd)
+				{
 					cmd->execute(*this);
+					show_global_server();
+					show_global_user();
+					show_global_channel();
+				}
 			}
 			else if (diff_time > _si.PING_TIMEOUT && !((*begin)->is_ping_check()))
 			{
