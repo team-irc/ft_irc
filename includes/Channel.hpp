@@ -69,10 +69,6 @@ private:
 	int								_mode;
 	size_t							_limit;
 	std::string						_servername;
-	//								_properties.op_members;
-	//								_properties.create_member;
-	//								...
-	//								_properties.mode;
 	
 public:
 	Channel(const std::string channel_name, const std::string key, Member *first_member);
@@ -80,25 +76,15 @@ public:
 	Channel(const Channel & other);
 	Channel & operator = (const Channel & other);
 	~Channel();
+
 public:
 	void					add_member(Member *member);
 	int						delete_member(Member *member);
 	bool					is_member(Member *member);
 
-	std::vector<ChanMember>	&get_members();
-	std::vector<std::string>	get_member_list();
-	const std::string 		&get_name();
 	bool					find_member(Member * member);
-	bool					set_topic(std::string const &topic);
-	std::string				get_topic();
 	bool					check_mode(char mode, bool is_set);
-	int						get_mode();
-	void					set_mode(int mode);
-	std::string				&get_servername();
-	void					set_servername(std::string & name);
 
-	size_t					get_limit();
-	void					set_limit(size_t limit);
 
 	bool					is_operator(Member *member);
 	void					add_operator(Member *member);
@@ -107,19 +93,34 @@ public:
 	bool					is_ban_list(std::string const &mask);
 	void					add_ban_list(std::string const &mask);
 	void					delete_ban_list(std::string const &mask);
-	std::vector<std::string> &get_ban_list();
 
 	bool					is_voice(Member *member);
 	void					add_voice(Member *member);
 	void					delete_voice(Member *member);
-	void					set_key(std::string const &key);
 
 	bool					is_invited_member(Member *member);
 	bool					add_invited_member(Member *member);
-	std::set<Member *>		&get_invited_member();
 
 	void					send_msg_to_members(const char *msg);
 	bool					is_valid_key(std::string const &key);
+
+public: /* GETTER */
+	std::vector<ChanMember>		&get_members();
+	std::vector<std::string>	get_member_list();
+	const std::string 			&get_name();
+	std::string					get_topic();
+	int							get_mode();
+	std::string					&get_servername();
+	size_t						get_limit();
+	std::vector<std::string> 	&get_ban_list();
+	std::set<Member *>			&get_invited_member();
+
+public: /* SETTER */
+	void						set_topic(std::string const &topic);
+	void						set_mode(int mode);
+	void						set_servername(std::string & name);
+	void						set_limit(size_t limit);
+	void						set_key(std::string const &key);
 };
 
 #endif
