@@ -131,8 +131,6 @@ bool	IrcServer::check_pass(Socket *socket)
 
 void	IrcServer::send_msg(int send_fd, const char *msg)
 {
-	if (DEBUG)
-		std::cout << "send_msg(int, const char *) called." << std::endl;
 	Socket	*socket = _socket_set.find_socket(send_fd);
 	socket->write(msg);
 }
@@ -160,11 +158,7 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 		// 현재 서버의 이름을 메시지의 경로에 추가
 		Socket	*socket = _socket_set.find_socket(i);
 		if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd && socket->get_type() != LISTEN && socket->get_type() != UNKNOWN)
-		{
-			if (DEBUG)
-				std::cout << "echo_msg to fd: " << i << ", msg: " << buf << std::endl;
 			socket->write(buf);
-		}
 	}
 	write(1, buf, len);
 }
