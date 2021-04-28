@@ -94,7 +94,7 @@ static void		kill_member(IrcServer &irc, Member *target, Member *oper, Message m
 	{
 		if (irc.get_current_socket()->get_type() == CLIENT)
 		{
-			target->get_socket()->write(std::string("ERROR :KILLed by " + oper->get_nick() + message.get_param(1)).c_str());
+			target->get_socket()->write(std::string("ERROR :KILLed by " + oper->get_nick() + " " + message.get_param(1) + "\n").c_str());
 			msg = ":" + target->get_nick() + " QUIT " + message.get_param(1) + " :" + irc.get_serverinfo().SERVER_NAME + "\n"; 
 		}
 		else if (irc.get_current_socket()->get_type() == SERVER)

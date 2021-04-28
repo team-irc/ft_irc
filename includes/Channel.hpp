@@ -52,31 +52,34 @@ struct	ChanMember
 	Member		*_member;
 	bool		_is_operator;
 	bool		_is_voice;
+	bool		_is_creator;
 
-	ChanMember(Member *member, bool is_oper, bool is_voice) :
-		_member(member), _is_operator(is_oper), _is_voice(is_voice) {}
+	ChanMember(Member *member, bool is_oper, bool is_voice, bool is_creator) :
+		_member(member), _is_operator(is_oper), _is_voice(is_voice), _is_creator(is_creator) {}
 };
 
 class Channel
 {
 private:
-	const std::string				_name;
-	std::string						_key;
-	std::string						_topic;
-	std::vector<ChanMember>			_member;
-	std::set<Member *>				_invited_member;
-	std::vector<std::string>		_ban_list;
-	int								_mode;
-	size_t							_limit;
+	const std::string				_name; // 채널 이름
+	std::string						_key; // 채널 비밀번호
+	std::string						_topic; // 주제
+	std::vector<ChanMember>			_member; // 현재 채널에 참여중인 멤버들
+	std::set<Member *>				_invited_member; // +i 모드인 경우 초대된 멤버들
+	std::vector<std::string>		_ban_list; // 밴당한 멤버
+	int								_mode; // 채널의 현재 모드
+	size_t							_limit; // 채널에 참여 가능한 최대 사용자 수
 	std::string						_servername;
+
 	//								_properties.op_members;
 	//								_properties.create_member;
 	//								...
 	//								_properties.mode;
 	
 public:
-	Channel(const std::string channel_name, const std::string key, Member *first_member);
+	Channel(const std::string channel_name);
 	Channel(const std::string channel_name, Member *first_member);
+	Channel(const std::string channel_name, Member *first_member, const std::string key);
 	Channel(const Channel & other);
 	Channel & operator = (const Channel & other);
 	~Channel();
@@ -103,6 +106,8 @@ public:
 	bool					is_operator(Member *member);
 	void					add_operator(Member *member);
 	void					delete_operator(Member *member);
+	
+	void					add_creator(Member *member);
 
 	bool					is_ban_list(std::string const &mask);
 	void					add_ban_list(std::string const &mask);
