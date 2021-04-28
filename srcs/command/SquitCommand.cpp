@@ -1,6 +1,26 @@
 #include "SquitCommand.hpp"
 
 // 해당 fd값을 가진 멤버를 제거 + 모든 서버에 QUIT 메세지 전달
+
+static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
+{
+	std::set<Channel *>::iterator	channel_iter;
+	Channel		*channel;
+
+	channel_iter = member->get_joined_channels().begin();
+	while (channel_iter != member->get_joined_channels().end())
+	{
+		channel = (*channel_iter);
+		channel->delete_member(member); // 채널의 멤버 목록에서 제거
+		if (channel->get_members().empty()) 
+		{
+			irc.delete_channel(channel->get_name()); // _global_channel에서 제거
+			delete channel; // 채널 인스턴스 제거
+		}
+		++channel_iter;
+	}
+}
+
 void	SquitCommand::send_quit_user(int fd, IrcServer &irc)
 {
 	Member			*member;
@@ -10,12 +30,16 @@ void	SquitCommand::send_quit_user(int fd, IrcServer &irc)
 	{
 		msg = ":" + member->get_nick() + " QUIT :server connect out\n";
 		irc.send_msg_server(fd, msg.c_str());
+
+		irc.delete_member(member->get_nick());
+		quit_from_joined_channel(irc, member);
+		irc.get_user_history().push_back(*member);
 		irc.delete_member(member->get_nick());
 		delete (member);
 	}
 }
 
-// 해당 fd값을 가진 서버에 SQUIT 전송 및 해당 fd 연결된 멤버 제거
+// 해당 fd값을 가진 서버 제거 후 SQUIT 전송
 void	SquitCommand::delete_server(int fd, IrcServer &irc)
 {
 	std::map<std::string, Server *>::iterator	begin = irc.get_global_server().begin();
