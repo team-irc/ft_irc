@@ -142,7 +142,7 @@ void	SquitCommand::run(IrcServer &irc)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		if (member)
 		{
-			if (!member->is_server_operator())
+			if (member->check_mode('o', true))
 				throw (Reply(ERR::NOPRIVILEGES()));
 			std::string		servername = _msg.get_param(0);
 

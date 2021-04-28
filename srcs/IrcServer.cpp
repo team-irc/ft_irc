@@ -131,8 +131,6 @@ bool	IrcServer::check_pass(Socket *socket)
 
 void	IrcServer::send_msg(int send_fd, const char *msg)
 {
-	if (DEBUG)
-		std::cout << "send_msg(int, const char *) called." << std::endl;
 	Socket	*socket = _socket_set.find_socket(send_fd);
 	socket->write(msg);
 }
@@ -160,11 +158,7 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 		// 현재 서버의 이름을 메시지의 경로에 추가
 		Socket	*socket = _socket_set.find_socket(i);
 		if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd && socket->get_type() != LISTEN && socket->get_type() != UNKNOWN)
-		{
-			if (DEBUG)
-				std::cout << "echo_msg to fd: " << i << ", msg: " << buf << std::endl;
 			socket->write(buf);
-		}
 	}
 	write(1, buf, len);
 }
@@ -227,6 +221,17 @@ void	IrcServer::send_channel_data(int fd)
 		}
 		msg += "\n";
 		send_msg(fd, msg.c_str());
+		//
+		if (channel->check_mode('i', false))
+		{
+			msg = ":" + _si.SERVER_NAME + " MODE " + channel->get_name() + " +i\n";
+			send_msg(fd, msg.c_str());
+		}
+		else if (channel->check_mode('k', false))
+		{
+			msg = ":" + _si.SERVER_NAME + " MODE " + channel->get_name() + " +k " + channel->get_key() + "\n";
+			send_msg(fd, msg.c_str());
+		}
 		iter++;
 	}
 }
@@ -735,7 +740,7 @@ void		IrcServer::show_global_channel()
 	std::cout << "mode";
 	std::cout.width(10);
 	std::cout << "users\n";
-	while (iter != _global_channel.end())
+	while (iter != _global_channel.end() && !_global_channel.empty())
 	{
 		std::cout.width(10);
 		std::cout << (*iter).first;
@@ -785,18 +790,6 @@ int			IrcServer::get_server_token()
 	return (token);
 }
 
-// void				IrcServer::sigint_handler(int type)
-// {
-// 	std::string		msg;
-// 	Command			*cmd;
-
-// 	msg = "SQUIT" + _si.SERVER_NAME + " :SIGINT\n";
-// 	cmd = _cmd_creator.get_command("SQUIT");
-// 	cmd->set_message(Message(msg.c_str()));
-// 	cmd->run(*this);
-// 	// 사용한 메모리들 정리 작업 추가
-// }
-
 bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 {
 	if (_si.OPERNAME == id && _si.OPERPWD == pwd)
@@ -836,8 +829,11 @@ void				IrcServer::print_motd()
 	_current_sock->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	for (int i = 0; i < split_size - 1; ++i)
 	{
-		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
-		split_ret[i] += "\33[m";
+		size_t pos;
+		if ((pos = split_ret[i].find("${_INVERT}")) != std::string::npos)
+			split_ret[i].replace(pos, 10, "\33[38;5;0;48;5;255m");
+		if ((pos = split_ret[i].find("${_END}")) != std::string::npos)
+			split_ret[i].replace(pos, 7, "\33[m");
 		_current_sock->write(Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str());
 	}
 	_current_sock->write(Reply(RPL::ENDOFMOTD()));

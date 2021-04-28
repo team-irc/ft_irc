@@ -137,7 +137,7 @@ void	KillCommand::run(IrcServer &irc)
 		if (_msg.get_param_size() != 1 && _msg.get_param_size() != 2)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		oper = irc.find_member(socket->get_fd());
-		if (!oper->is_server_operator())
+		if (oper->check_mode('o', true))
 			throw (Reply(ERR::NOPRIVILEGES()));
 		target = irc.get_member(_msg.get_param(0));
 		if (target == NULL)

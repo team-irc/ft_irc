@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <signal.h>
+#include <fcntl.h>
 
 #define BUFFER_SIZE 512
 
@@ -62,7 +63,7 @@ int	read_until_crlf(int fd, char *buffer, int *len)
 		if (remember[fd].empty())
 		{
 			if ((read_size = read(fd, buf + insert_idx, BUFFER_SIZE - insert_idx)) == -1)
-				error ("read -1");
+				break ;
 			else if (read_size == 0)
 				exit(0);
 			buf[insert_idx + read_size] = 0;
@@ -150,23 +151,6 @@ int split(const std::string str, char c, std::string *& ret)
 	}
 	ret += 0;
 	return (size);
-}
-
-void ignore_motd(int sock)
-{
-	char		buf[512] = {0, };
-	std::string	tmp;
-	std::string	*split_ret;
-	int len;
-
-	do
-	{
-		read_until_crlf(sock, buf, &len);
-		split(std::string(buf), ' ', split_ret);
-		tmp = split_ret[1];
-		delete[] split_ret;
-	} while (tmp != "376");
-	std::cout << "end of ignore_motd\n";
 }
 
 std::string get_command(char *message)
@@ -339,6 +323,7 @@ void connect_to_server(int &sock, int argc, char **argv)
 
 	if (connect(sock, (struct sockaddr *)&serv_adr, sizeof(serv_adr)) == -1)
 		error("connect error");
+	fcntl(sock, F_SETFL, O_NONBLOCK);
 }
 
 void send_user_info(int &sock, int argc, char **argv)
@@ -348,10 +333,8 @@ void send_user_info(int &sock, int argc, char **argv)
 		std::string pass;
 		pass = "pass " + std::string(argv[3]) + "\n";
     	write(sock, pass.c_str(), pass.length());
-		sleep(1);
 	}
     write(sock, "nick bot\n", 9);
-	sleep(1);
     write(sock, "user b b b b\n", 13);
 }
 
@@ -366,6 +349,8 @@ void run(int &sock)
     {
 		memset(message, 0, 512);
         read_until_crlf(sock, message, &len);
+		if (std::string(message).empty())
+			continue ;
 		split(std::string(message), ' ', split_ret);
 		std::cout << "[RECV] " << message;
 		std::string message_type = split_ret[1]; // PRIVMSG
@@ -397,9 +382,6 @@ int main(int argc, char **argv)
 	signal(SIGINT, sigint);
 	connect_to_server(sock, argc, argv);
 	send_user_info(sock, argc, argv);
-	sleep(1);
-	ignore_motd(sock);
-	sleep(1);
     run(sock);
 	close(sock);
 	return (0);
