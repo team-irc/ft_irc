@@ -2,12 +2,14 @@
 
 Channel::Channel(const std::string channel_name) : _name(channel_name), _key(), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
+	set_mode(1024);
 }
 
 Channel::Channel(const std::string channel_name, Member *first_member)
 	: _name(channel_name), _key(), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
+	set_mode(1024);
 	_member.push_back(ChanMember(first_member, false, true, true));
 };
 
@@ -15,6 +17,9 @@ Channel::Channel(const std::string channel_name, Member *first_member, const std
 	: _name(channel_name), _key(key), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
+	set_mode(1024);
+	if (!key.empty())
+		set_mode(1025);
 	_member.push_back(ChanMember(first_member, false, true, true));
 };
 
@@ -356,6 +361,7 @@ std::string					&Channel::get_servername()						{ return (_servername); }
 size_t						Channel::get_limit()							{ return (_limit); }
 std::set<Member *>			&Channel::get_invited_member()					{ return (_invited_member); }
 std::vector<std::string>	&Channel::get_ban_list()						{ return (_ban_list); }
+std::string			&Channel::get_key()										{ return (_key); }
 std::vector<std::string>	Channel::get_member_list()
 {
 	std::vector<std::string>			ret;

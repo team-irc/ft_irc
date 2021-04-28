@@ -118,6 +118,7 @@ public: /* GETTER */
 	size_t						get_limit();
 	std::vector<std::string> 	&get_ban_list();
 	std::set<Member *>			&get_invited_member();
+	std::string					&get_key();
 
 public: /* SETTER */
 	void						set_topic(std::string const &topic);

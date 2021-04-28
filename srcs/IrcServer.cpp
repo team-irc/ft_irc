@@ -223,6 +223,17 @@ void	IrcServer::send_channel_data(int fd)
 		}
 		msg += "\n";
 		send_msg(fd, msg.c_str());
+		//
+		if (channel->check_mode('i', false))
+		{
+			msg = ":" + _si.SERVER_NAME + " MODE " + channel->get_name() + " +i\n";
+			send_msg(fd, msg.c_str());
+		}
+		else if (channel->check_mode('k', false))
+		{
+			msg = ":" + _si.SERVER_NAME + " MODE " + channel->get_name() + " +k " + channel->get_key() + "\n";
+			send_msg(fd, msg.c_str());
+		}
 		iter++;
 	}
 }
@@ -731,7 +742,7 @@ void		IrcServer::show_global_channel()
 	std::cout << "mode";
 	std::cout.width(10);
 	std::cout << "users\n";
-	while (iter != _global_channel.end())
+	while (iter != _global_channel.end() && !_global_channel.empty())
 	{
 		std::cout.width(10);
 		std::cout << (*iter).first;
