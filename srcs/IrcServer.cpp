@@ -182,6 +182,49 @@ void	IrcServer::send_map_data(int fd)
 	}
 }
 
+void	IrcServer::send_channel_data(int fd)
+{
+	std::map<std::string, Channel *>::iterator	iter;
+	std::map<std::string, Channel *>::iterator	end;
+	Channel										*channel;
+	std::string									msg;
+
+	std::vector<ChanMember>						channel_members;
+	std::vector<ChanMember>::iterator			member_iter;
+	size_t										i;
+	Member										*member;
+
+	i = 0;
+	iter = _global_channel.begin();
+	end = _global_channel.end();
+	while (iter != end)
+	{
+		channel = iter->second;
+		msg = ":" + _si.SERVER_NAME + " NJOIN " + channel->get_name() + " ";
+		channel_members = channel->get_members();
+		member_iter = channel_members.begin();
+		while (member_iter != channel_members.end())
+		{
+			member = member_iter->_member;
+			if (member_iter->_is_creator)
+				msg += "@@" + member->get_nick();
+			else if (member_iter->_is_operator)
+				msg += "@" + member->get_nick();
+			else if (member_iter->_is_voice)
+				msg += "+" + member->get_nick();
+			else
+				msg += member->get_nick();
+			if (channel_members.size() != 1 && i + 1 != channel_members.size())
+				msg += ",";
+			member_iter++;
+			i++;
+		}
+		msg += "\n";
+		send_msg(fd, msg.c_str());
+		iter++;
+	}
+}
+
 bool	IrcServer::is_reply_code(std::string const &command)
 {
 	int		num;
@@ -262,6 +305,9 @@ int		IrcServer::client_msg(int fd)
 			cmd->set_message(Message(message.c_str()));
 		}
 		cmd->execute(*this);
+		show_global_server();
+		show_global_user();
+		show_global_channel();
 		while (result)
 			result = ft::read_until_crlf(fd, buf, &str_len);
 		return (0);
@@ -383,7 +429,12 @@ void	IrcServer::check_connection()
 					cmd->set_message(Message(msg.c_str()));
 				}
 				if (cmd)
+				{
 					cmd->execute(*this);
+					show_global_server();
+					show_global_user();
+					show_global_channel();
+				}
 			}
 			else if (diff_time > _si.PING_TIMEOUT && !((*begin)->is_ping_check()))
 			{
@@ -689,14 +740,14 @@ void		IrcServer::show_global_channel()
 		std::cout.width(20);
 		std::cout << std::bitset<16>((*iter).second->get_mode()); // 사용 금지?
 
-		member_vector = (*iter).second->get_members();
+		member_vector = iter->second->get_members();
 		std::vector<ChanMember>::iterator		member_iter;
 		member_iter = member_vector.begin();
 		while (member_iter != member_vector.end())
 		{
 			std::cout.width(10);
 			std::string		temp;
-			temp = (*member_iter)._member->get_nick();
+			temp = member_iter->_member->get_nick();
 			if ((*member_iter)._is_operator)
 				temp += "(op)";
 			std::cout << temp;

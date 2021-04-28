@@ -98,6 +98,7 @@ public:
 
 	void						send_map_data(int my_fd);
 	void						send_user_data(int fd);
+	void						send_channel_data(int fd);
 	Member						*get_member(std::string nick);
 	Member						*get_member(int fd);
 	std::map<std::string, Channel *>	&get_global_channel();

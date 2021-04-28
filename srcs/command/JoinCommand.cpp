@@ -75,10 +75,9 @@ int		JoinCommand::join(IrcServer &irc, Member *member, std::string const &channe
 	socket = irc.get_current_socket();
 	if (channel == NULL)
 	{
-		channel = new Channel(channel_name, channel_key, member);
+		channel = new Channel(channel_name, member, channel_key);
 		irc.add_channel(channel->get_name(), channel);
 		channel->add_operator(member);
-		channel->set_mode(2048);
 		if (!channel_key.empty())
 			channel->set_key(channel_key);
 		member->add_channel(channel);
@@ -168,7 +167,7 @@ void	JoinCommand::run(IrcServer &irc)
 		channel = irc.get_channel(channel_name);
 		if (channel == 0) // 채널 새로 생성시
 		{
-			channel = new Channel(channel_name, channel_key, member);
+			channel = new Channel(channel_name, member, channel_key);
 			irc.add_channel(channel->get_name(), channel);
 			member->add_channel(channel);
 		}
