@@ -71,10 +71,11 @@ void	SquitCommand::delete_connected_server(IrcServer &irc, Server *server)
 {
 	if (server->get_hopcount() == 1) // 직접 연결된 서버라면
 	{
+		Socket *tmp = server->get_socket();
 		irc.get_socket_set().remove_socket(server->get_socket()); // 1. 소켓셋에서 제거
 		send_quit_user(server->get_socket()->get_fd(), irc);
 		delete_server(server->get_socket()->get_fd(), irc); // 2. 다른곳에도 메세지 전달 + global_server에서 제거 + 소켓 인스턴스 제거 + 그쪽 서버에 연결된 유저 제거
-		delete server->get_socket();
+		delete tmp;
 	}
 	else
 	{
