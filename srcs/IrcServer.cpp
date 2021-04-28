@@ -10,6 +10,8 @@ IrcServer::IrcServer(int argc, char **argv)
 	}
 	if (argc == 3 || argc == 4)
 	{
+		if (ft::atoi(argv[argc == 4 ? 2 : 1]) % 2 == 0)
+			throw (Error("Invalid Port: only odd port enable"));
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
 		_listen_socket->set_type(LISTEN);
 		_fd_max = _socket_set.add_socket(_listen_socket);
