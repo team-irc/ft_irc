@@ -69,7 +69,6 @@ public:
 	void				set_away(const std::string &away);
 	std::set<Channel *>	&get_joined_channels();
 	bool				check_mode(char mode, bool is_set);
-	const bool			is_setting() const;
 	bool				add_channel(Channel *channel);
 	bool				delete_channel(Channel *channel);
 	bool				is_server_operator();

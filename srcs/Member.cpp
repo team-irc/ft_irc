@@ -46,18 +46,6 @@ bool				Member::add_channel(Channel *channel)
 	return ((_joined_channels.insert(channel)).second);
 }
 
-const bool			Member::is_setting() const
-{
-	if (!_nick.empty() && !_username.empty() && !_hostname.empty()
-		&& !_servername.empty() && !_realname.empty())
-	{
-		if (std::isdigit(_nick.at(0)))
-			return (false);
-		return (true);
-	}
-	return (false);
-}
-
 const std::string	&Member::get_nick()										{ return (_nick); }
 void				Member::set_nick(const std::string &nick)				{ _nick = nick; }
 const std::string	&Member::get_username()									{ return (_username); }
