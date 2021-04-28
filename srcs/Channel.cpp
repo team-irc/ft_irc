@@ -302,9 +302,6 @@ void			Channel::add_creator(Member *member)
 	}
 }
 
-void			Channel::set_key(std::string const &key)
-{ _key = key; }
-
 bool				Channel::add_invited_member(Member *member)
 {
 	std::pair<std::set<Member *>::iterator, bool> ret;
