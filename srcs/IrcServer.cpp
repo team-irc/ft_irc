@@ -734,18 +734,6 @@ int			IrcServer::get_server_token()
 	return (token);
 }
 
-// void				IrcServer::sigint_handler(int type)
-// {
-// 	std::string		msg;
-// 	Command			*cmd;
-
-// 	msg = "SQUIT" + _si.SERVER_NAME + " :SIGINT\n";
-// 	cmd = _cmd_creator.get_command("SQUIT");
-// 	cmd->set_message(Message(msg.c_str()));
-// 	cmd->run(*this);
-// 	// 사용한 메모리들 정리 작업 추가
-// }
-
 bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 {
 	if (_si.OPERNAME == id && _si.OPERPWD == pwd)
