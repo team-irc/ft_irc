@@ -11,7 +11,8 @@ ReadConf::~ReadConf()
 
 void        ReadConf::open_file(const std::string & file_name)
 {
-    _fd = open(file_name.c_str(), O_RDONLY);
+    if ((_fd = open(file_name.c_str(), O_RDONLY)) < 0)
+        throw (Error("Cannot open CONF: " + file_name));
 }
 
 void	    ReadConf::read_config(ServerInfo & si)
@@ -74,7 +75,8 @@ std::string	ReadConf::read_motd(const std::string & file_name)
     char        buf[BUFFER_SIZE];
     std::string ret;
 
-    motd_fd = open(file_name.c_str(), O_RDONLY);
+    if ((motd_fd = open(file_name.c_str(), O_RDONLY)) < 0)
+        throw (Error("Cannot open MOTD: " + file_name));
     while (1)
     {
         int result = ft::read_until_crlf(motd_fd, buf, &str_len);
