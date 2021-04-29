@@ -115,7 +115,7 @@ void	UserCommand::insert_info(Member *member, IrcServer &irc)
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), _msg.get_msg());
 		irc.get_socket_set().change_socket_type(irc.get_current_socket()->get_fd(), CLIENT);
 		irc.print_motd();
-		irc.get_current_socket()->set_linkname(member->get_nick() + "~!" + member->get_username() + "@" + member->get_hostname());
+		irc.get_current_socket()->set_linkname(member->get_nick() + "!~" + member->get_username() + "@" + member->get_hostname());
 		if (irc.get_current_socket()->get_pass().empty())
 		{
 			// pass가 비어있는 경우 역시 pass가 틀린 경우로 취급, 해당 소켓 연결 끊어야 함

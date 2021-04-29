@@ -35,7 +35,6 @@ private:
 	Socket							*_listen_socket;
 	SSL_Socket						*_ssl_listen_socket;
 
-	// std::vector<Socket *>		_socket_vector;
 	SocketSet						_socket_set;
 	int								_fd_max;
 	Socket							*_current_sock;

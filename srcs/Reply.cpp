@@ -663,18 +663,12 @@ Reply::Reply(RPL::TRACEUSER rpl, const std::string &class_str, const std::string
 }
 
 Reply::Reply(RPL::TRACESERVER rpl, const std::string &class_str, int s, int c, 
-			const std::string &server, const std::string &nick, const std::string &user, const std::string &host)
+			const std::string &server, const std::string &linkname)
 {
 	_errnum = ft::itos(rpl.ERRNO);
 	_msg = "Serv " + class_str + " " + ft::itos(s) + "S " + ft::itos(c) + "C " + server;
-	_msg += nick.empty() ? "*" : nick;
-	_msg += "!";
-	_msg += user.empty() ? "*" : user;
-	_msg += "@";
-	if (host.empty())
-		_msg += server;
-	else
-		_msg += host;
+	_msg += " ";
+	_msg += linkname;
 }
 
 Reply::Reply(RPL::TRACENEWTYPE rpl, const std::string &newtype, const std::string &client_name)

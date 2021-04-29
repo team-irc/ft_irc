@@ -263,7 +263,7 @@ public:
 
 	explicit Reply(RPL::TRACEOPERATOR, const std::string &, const std::string &);
 	explicit Reply(RPL::TRACEUSER, const std::string &, const std::string &);
-	explicit Reply(RPL::TRACESERVER, const std::string &, int, int, const std::string &, const std::string &, const std::string &, const std::string &);
+	explicit Reply(RPL::TRACESERVER, const std::string &, int, int, const std::string &, const std::string &);
 	explicit Reply(RPL::TRACENEWTYPE, const std::string &, const std::string &);
 	explicit Reply(RPL::TRACELOG, const std::string &, const std::string &);
 	// MOTD
