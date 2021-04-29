@@ -18,7 +18,7 @@ class	SocketSet
 		fd_set					&get_read_fds();
 		fd_set					get_read_fds_copy();
 		fd_set const			&get_read_fds() const;
-		std::vector<Socket *>	get_connect_sockets();
+		std::vector<Socket *>	&get_connect_sockets();
 		void					show_info();
 	private:
 		std::vector<Socket *>	_vec;

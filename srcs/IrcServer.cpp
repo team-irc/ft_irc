@@ -410,9 +410,10 @@ SocketSet	&IrcServer::get_socket_set()
 void	IrcServer::check_connection()
 {
 	std::vector<Socket *>	connects = _socket_set.get_connect_sockets();
+	if (connects.empty())
+		return ;
 	std::vector<Socket *>::iterator	begin = connects.begin();
 	std::vector<Socket *>::iterator	end = connects.end();
-
 	while (begin != end)
 	{
 		if ((*begin)->get_type() != LISTEN && (*begin)->get_type() != SSL_LISTEN)
