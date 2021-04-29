@@ -10,6 +10,7 @@ void WhoisQuery::run(IrcServer &irc)
     std::map<std::string, Member *>::iterator   first;
     std::map<std::string, Member *>::iterator   last;
 
+    socket = irc.get_current_socket();
     if (socket->get_type() == UNKNOWN)
 		throw (Reply(ERR::NOTREGISTERED()));
     param_size = _msg.get_param_size();
@@ -25,7 +26,6 @@ void WhoisQuery::run(IrcServer &irc)
         if ((server = irc.get_server(_msg.get_param(0))) == NULL)
 			throw (Reply(ERR::NOSUCHSERVER(), _msg.get_param(0)));
     }
-    socket = irc.get_current_socket();
     for (int i = 0; i < split_size; ++i)
     {
         first = irc.get_global_user().begin();

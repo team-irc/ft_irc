@@ -57,7 +57,7 @@ static void		send_join_reply(Socket *socket, Channel *channel)
 {
 	std::string		join_msg;
 
-	join_msg = ":" + channel->get_name() + " JOIN " + socket->get_linkname() + "\n";
+	join_msg = ":" + socket->get_linkname() + " JOIN " + channel->get_name() + "\n";
 	channel->send_msg_to_members(join_msg.c_str());
 	if (!channel->get_topic().empty())
 		socket->write(Reply(RPL::TOPIC(), channel->get_name(), channel->get_topic()));
