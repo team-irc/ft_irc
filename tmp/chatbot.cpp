@@ -203,7 +203,7 @@ void	help_command(int sock, std::string target, std::string message)
 		delete[] split_ret;
 		if (split(command, ' ', split_ret) == 1)
 		{
-			tmp = privmsg + "USAGE: privmsg bot :/help <command>\n";
+			tmp = privmsg + "USAGE: privmsg bot :~help <command>\n";
 			write(sock, tmp.c_str(), tmp.length());
 			return ;
 		}
@@ -293,7 +293,7 @@ void	help_command(int sock, std::string target, std::string message)
 	}
 	else
 	{
-		std::string tmp = privmsg + "USAGE: privmsg bot :/help <command>\n";
+		std::string tmp = privmsg + "USAGE: privmsg bot :~help <command>\n";
 		write(sock, tmp.c_str(), tmp.length());
 	}
 }
@@ -356,11 +356,11 @@ void run(int &sock)
 		std::string message_type = split_ret[1]; // PRIVMSG
 		if (message_type == "PRIVMSG")
 		{
-			std::string command = get_command(message); // /help
+			std::string command = get_command(message); // ~help
 			std::string target = get_target(message); // yochoi
-			if (command == "/hello")
+			if (command == "~hello")
 				hello_command(sock, target);
-			if (command == "/help")
+			if (command == "~help")
 				help_command(sock, target, message);
 			else
 				unknown_command(sock, target, command);
