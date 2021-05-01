@@ -270,6 +270,10 @@ public:
 	explicit Reply(RPL::MOTDSTART, std::string &);
 	explicit Reply(RPL::MOTD, std::string &);
 	explicit Reply(RPL::ENDOFMOTD);
+
+	//MODE
+	explicit Reply(RPL::BANLIST, std::string const &, std::string const &);
+	explicit Reply(RPL::ENDOFBANLIST, std::string const &);
 public:
 	~Reply();
 	Reply();

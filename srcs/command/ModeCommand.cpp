@@ -16,8 +16,8 @@ ModeCommand::~ModeCommand()
 
 void		ModeCommand::check_target(IrcServer &irc)
 {
-	Channel				*channel = irc.get_channel(_msg.get_param(0));
-	Member				*member = irc.get_member(_msg.get_param(0));
+	Channel				*channel;
+	Member				*member;
 	struct ServerInfo	si = irc.get_serverinfo();
 	std::string			param;
 	std::string			msg;
@@ -28,6 +28,8 @@ void		ModeCommand::check_target(IrcServer &irc)
 	set.is_set = true;
 	if (_msg.get_param_size() < 2)
 		throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
+	channel = irc.get_channel(_msg.get_param(0));
+	member = irc.get_member(_msg.get_param(0));
 	param = _msg.get_param(1);
 	if (param.at(0) == ':')
 		param = param.substr(1);
@@ -62,8 +64,13 @@ void		ModeCommand::check_target(IrcServer &irc)
 			}
 			else
 			{
-				result += parse_chan_mode(channel, irc, param.at(i), set);
-				set.mode = NONE;
+				std::string		parse_result;
+				parse_result = parse_chan_mode(channel, irc, param.at(i), set);
+				if (!parse_result.empty())
+				{
+					result += parse_result;
+					set.mode = NONE;
+				}
 			}
 		}
 		if (!result.empty())
@@ -106,15 +113,20 @@ void		ModeCommand::check_target(IrcServer &irc)
 			}
 			else
 			{
-				result += parse_user_mode(member, irc, param.at(i), set);
-				set.mode = NONE;
+				std::string		parse_result;
+				parse_result = parse_user_mode(member, irc, param.at(i), set);
+				if (!parse_result.empty())
+				{
+					result += parse_result;
+					set.mode = NONE;
+				}
 			}
 		}
 		if (!result.empty())
 			msg += result + "\n";
 	}
 	else
-		msg = ":" + si.SERVER_NAME + " " + Reply(ERR::NOSUCHNICK(), _msg.get_param(0)).get_msg();
+		throw (Reply(ERR::NOSUCHNICK(), _msg.get_param(0)));
 	if (!result.empty())
 	{
 		irc.send_msg_server(irc.get_current_socket()->get_fd(), msg.c_str());
@@ -340,14 +352,10 @@ std::string	ModeCommand::parse_chan_mode(Channel *channel, IrcServer &irc, char 
 
 			while (begin != end)
 			{
-				// 해당 ban 리스트를 출력
-				std::string msg = channel->get_name() + " " + (*begin) + "\n";
-				irc.get_current_socket()->write(msg.c_str());
+				irc.get_current_socket()->write(Reply(RPL::BANLIST(), channel->get_name(), (*begin)));
 				begin++;
 			}
-			// end of ban list 출력
-			std::string msg = channel->get_name() + " " + ": End of channel ban list\n";
-			irc.get_current_socket()->write(msg.c_str());
+			irc.get_current_socket()->write(Reply(RPL::ENDOFBANLIST(), channel->get_name()));
 		}
 	}
 	else if (mode == 'v')
