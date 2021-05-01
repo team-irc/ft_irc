@@ -1,5 +1,4 @@
 #include "QuitCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
       Command: QUIT
@@ -128,15 +127,4 @@ QuitCommand::QuitCommand() : Command()
 
 QuitCommand::~QuitCommand()
 {
-}
-
-QuitCommand::QuitCommand(QuitCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-QuitCommand	&QuitCommand::operator=(QuitCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

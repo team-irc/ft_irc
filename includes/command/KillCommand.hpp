@@ -9,10 +9,8 @@ private:
 
 public:
 	KillCommand();
-	virtual ~KillCommand();
-	KillCommand(KillCommand const &copy);
-	KillCommand	&operator=(KillCommand const &ref);
-
+	~KillCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

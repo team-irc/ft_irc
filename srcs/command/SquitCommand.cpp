@@ -1,5 +1,25 @@
 #include "SquitCommand.hpp"
-#include "ft_irc.hpp"
+
+// 해당 fd값을 가진 멤버를 제거 + 모든 서버에 QUIT 메세지 전달
+
+static void		quit_from_joined_channel(IrcServer &irc, Member	*member)
+{
+	std::set<Channel *>::iterator	channel_iter;
+	Channel		*channel;
+
+	channel_iter = member->get_joined_channels().begin();
+	while (channel_iter != member->get_joined_channels().end())
+	{
+		channel = (*channel_iter);
+		channel->delete_member(member); // 채널의 멤버 목록에서 제거
+		if (channel->get_members().empty()) 
+		{
+			irc.delete_channel(channel->get_name()); // _global_channel에서 제거
+			delete channel; // 채널 인스턴스 제거
+		}
+		++channel_iter;
+	}
+}
 
 void	SquitCommand::send_quit_user(int fd, IrcServer &irc)
 {
@@ -10,11 +30,16 @@ void	SquitCommand::send_quit_user(int fd, IrcServer &irc)
 	{
 		msg = ":" + member->get_nick() + " QUIT :server connect out\n";
 		irc.send_msg_server(fd, msg.c_str());
+
+		irc.delete_member(member->get_nick());
+		quit_from_joined_channel(irc, member);
+		irc.get_user_history().push_back(*member);
 		irc.delete_member(member->get_nick());
 		delete (member);
 	}
 }
 
+// 해당 fd값을 가진 서버 제거 후 SQUIT 전송
 void	SquitCommand::delete_server(int fd, IrcServer &irc)
 {
 	std::map<std::string, Server *>::iterator	begin = irc.get_global_server().begin();
@@ -40,43 +65,41 @@ void	SquitCommand::delete_server(int fd, IrcServer &irc)
 		else if (begin != end)
 			begin++;
 	}
-	send_quit_user(fd, irc);
 }
 
 void	SquitCommand::delete_connected_server(IrcServer &irc, Server *server)
 {
-	std::vector<Socket *>	connect_socks = irc.get_socket_set().get_connect_sockets();
-	std::vector<Socket *>::iterator		begin = connect_socks.begin();
-	std::vector<Socket *>::iterator		end = connect_socks.end();
-
-	while (begin != end)
+	if (server->get_hopcount() == 1) // 직접 연결된 서버라면
 	{
-		if (*begin == server->get_socket())
-		{
-			irc.get_socket_set().remove_socket(server->get_socket());
-			delete_server(server->get_socket()->get_fd(), irc);
-			delete server->get_socket();
-			return ;
-		}
-		begin++;
+		Socket *tmp = server->get_socket();
+		irc.get_socket_set().remove_socket(server->get_socket()); // 1. 소켓셋에서 제거
+		send_quit_user(server->get_socket()->get_fd(), irc);
+		delete_server(server->get_socket()->get_fd(), irc); // 2. 다른곳에도 메세지 전달 + global_server에서 제거 + 소켓 인스턴스 제거 + 그쪽 서버에 연결된 유저 제거
+		delete tmp;
+	}
+	else
+	{
+		irc.delete_server(server->get_name());
 	}
 }
 
 void	SquitCommand::run(IrcServer &irc)
 {
+	Server				*server;
 	Socket				*sock = irc.get_current_socket();
 	std::string			servername;
 	int					fd = sock->get_fd();
 
-	// squit은 서버 혹으 ㄴ관리자가 보냄
+	// squit은 서버 혹은 관리자가 보냄
 	if (sock->get_type() == UNKNOWN)
 		throw (Reply(ERR::NOTREGISTERED()));
-	else if (sock->get_type() == SERVER)
+	else if (sock->get_type() == SERVER) // :servername SQUIT servername comment
 	{
 		if (_msg.get_param_size() == 0)
 		{
 			// 해당 서버와 연결이 끊겨서 메시지가 넘어오질 않은 경우
 			irc.get_socket_set().remove_socket(sock);
+			send_quit_user(fd, irc);
 			delete_server(fd, irc);
 			delete sock;
 			return ;
@@ -90,18 +113,28 @@ void	SquitCommand::run(IrcServer &irc)
 			// 2. _global_server에서 제거(같은 fd를 가지는 서버도 제거 필요(해당 SQUIT를 전송하는 방향으로 처리))
 			// 2. 다른 서버에 프리픽스 추가해서 SQUIT 전송
 			irc.get_socket_set().remove_socket(sock);
+			send_quit_user(fd, irc);
 			delete_server(fd, irc);
 			delete sock;
 		}
-		else // 다른 서버를 통해 연결되는 경우
+		else // 다른 서버를 통해 연결되는 경우 (:test4001.com SQUIT test4007.com bye)
 		{
 			servername = _msg.get_param(0);
-			irc.delete_server(servername);
-			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
-			irc.send_msg_server(fd, _msg.get_msg());
+			if (servername == irc.get_serverinfo().SERVER_NAME)
+			{
+				server = irc.get_server(_msg.get_prefix());
+				send_quit_user(server->get_socket()->get_fd(), irc);
+				delete_server(server->get_socket()->get_fd(), irc);
+				exit(0);
+			}
+			else
+			{
+				irc.delete_server(servername);
+				irc.send_msg_server(fd, _msg.get_msg());
+			}
 		}
 	}
-	else
+	else // CLIENT
 	{
 		// 관리자가 아니라면 noprivilege error
 		Member	*member = irc.find_member(sock->get_fd());
@@ -122,10 +155,10 @@ void	SquitCommand::run(IrcServer &irc)
 				throw (Reply(ERR::NOSUCHSERVER(), servername));
 			if (servername == irc.get_serverinfo().SERVER_NAME)
 				throw (Reply(ERR::NOPRIVILEGES()));
-			// 직접 연결 된 서버라면 여기서 제거해야 함
-			delete_connected_server(irc, server);
 			_msg.set_prefix(irc.get_serverinfo().SERVER_NAME);
 			irc.send_msg_server(fd, _msg.get_msg());
+			// 직접 연결 된 서버라면 여기서 제거해야 함
+			delete_connected_server(irc, server); // 메세지 보낸 후에 제거?
 		}
 	}
 }
@@ -136,15 +169,4 @@ SquitCommand::SquitCommand() : Command()
 
 SquitCommand::~SquitCommand()
 {
-}
-
-SquitCommand::SquitCommand(SquitCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-SquitCommand	&SquitCommand::operator=(SquitCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

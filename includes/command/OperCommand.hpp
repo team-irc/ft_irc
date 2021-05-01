@@ -32,10 +32,9 @@
 class OperCommand : public Command
 {
 public:
-	OperCommand();
-	virtual ~OperCommand();
-	OperCommand(OperCommand const &copy);
-	OperCommand	&operator=(OperCommand const &ref);
+        OperCommand();
+        ~OperCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

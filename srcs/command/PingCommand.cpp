@@ -1,23 +1,10 @@
 #include "PingCommand.hpp"
-#include "ft_irc.hpp"
 
-PingCommand::PingCommand()
+PingCommand::PingCommand(): Command()
 {}
 
 PingCommand::~PingCommand()
 {}
-
-PingCommand::PingCommand(PingCommand const &ref)
-{
-	_msg = ref._msg;
-}
-
-PingCommand	&PingCommand::operator=(PingCommand const &ref)
-{
-	if (this != &ref)
-		_msg = ref._msg;
-	return (*this);
-}
 
 void		PingCommand::run(IrcServer &irc)
 {

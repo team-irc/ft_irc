@@ -44,35 +44,35 @@ public:
 	Member & operator = (const Member & other);
 	~Member();
 public:
-	const std::string	&get_nick();
-	void				set_nick(const std::string &nick);
-	const std::string	&get_username();
-	void				set_username(const std::string &username);
-	const std::string	&get_hostname();
-	void				set_hostname(const std::string &hostname);
-	const std::string	&get_servername();
-	void				set_servername(const std::string &servername);
-	const std::string	&get_realname();
-	void				set_realname(const std::string &realname);
-	const time_t		&get_last_action();
-	void				set_last_action();
-	int					get_fd();
-	void				set_fd(int fd);
-	int					get_hopcount();
-	void				set_hopcount(int cnt);
-	Socket				*get_socket();
-	void				set_socket(Socket *socket);
-	char				get_mode();
-	std::string const	&get_mode_str();
-	void				set_mode(char mode);
-	const std::string	&get_away();
-	void				set_away(const std::string &away);
-	std::set<Channel *>	&get_joined_channels();
 	bool				check_mode(char mode, bool is_set);
-	const bool			is_setting() const;
 	bool				add_channel(Channel *channel);
 	bool				delete_channel(Channel *channel);
-	bool				is_server_operator();
+public: /* GETTER */
+	const std::string	&get_nick();
+	const std::string	&get_username();
+	const std::string	&get_hostname();
+	const std::string	&get_servername();
+	const std::string	&get_realname();
+	const time_t		&get_last_action();
+	int					get_fd();
+	int					get_hopcount();
+	Socket				*get_socket();
+	char				get_mode();
+	const std::string	&get_mode_str();
+	const std::string	&get_away();
+	std::set<Channel *>	&get_joined_channels();
+public: /* SETTER */
+	void				set_nick(const std::string &nick);
+	void				set_username(const std::string &username);
+	void				set_hostname(const std::string &hostname);
+	void				set_servername(const std::string &servername);
+	void				set_realname(const std::string &realname);
+	void				set_last_action();
+	void				set_fd(int fd);
+	void				set_hopcount(int cnt);
+	void				set_socket(Socket *socket);
+	void				set_mode(char mode);
+	void				set_away(const std::string &away);
 };
 
 #endif

@@ -35,6 +35,7 @@
 #include "StatsCommand.hpp"
 #include "ErrorCommand.hpp"
 #include "KillCommand.hpp"
+#include "NjoinCommand.hpp"
 
 CommandFactory::CommandFactory()
 {
@@ -44,6 +45,7 @@ CommandFactory::CommandFactory()
 	_map.insert(std::pair<std::string, Command *>("USER", new UserCommand()));
 	_map.insert(std::pair<std::string, Command *>("NICK", new NickCommand()));
 	_map.insert(std::pair<std::string, Command *>("JOIN", new JoinCommand()));
+	_map.insert(std::pair<std::string, Command *>("NJOIN", new NjoinCommand()));
 	_map.insert(std::pair<std::string, Command *>("QUIT", new QuitCommand()));
 	_map.insert(std::pair<std::string, Command *>("NAMES", new NamesCommand()));
 	_map.insert(std::pair<std::string, Command *>("PART", new PartCommand()));

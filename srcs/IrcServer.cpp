@@ -1,4 +1,4 @@
-#include "ft_irc.hpp"
+#include "IrcServer.hpp"
 
 IrcServer::IrcServer(int argc, char **argv)
 {
@@ -10,6 +10,8 @@ IrcServer::IrcServer(int argc, char **argv)
 	}
 	if (argc == 3 || argc == 4)
 	{
+		if (ft::atoi(argv[argc == 4 ? 2 : 1]) % 2 == 0)
+			throw (Error("Invalid Port: only odd port enable"));
 		_listen_socket = new Socket(htons(ft::atoi(argv[argc == 4 ? 2 : 1])));
 		_listen_socket->set_type(LISTEN);
 		_fd_max = _socket_set.add_socket(_listen_socket);
@@ -131,8 +133,6 @@ bool	IrcServer::check_pass(Socket *socket)
 
 void	IrcServer::send_msg(int send_fd, const char *msg)
 {
-	if (DEBUG)
-		std::cout << "send_msg(int, const char *) called." << std::endl;
 	Socket	*socket = _socket_set.find_socket(send_fd);
 	socket->write(msg);
 }
@@ -160,11 +160,7 @@ void IrcServer::echo_msg(int my_fd, const char *buf, int len)
 		// 현재 서버의 이름을 메시지의 경로에 추가
 		Socket	*socket = _socket_set.find_socket(i);
 		if (FD_ISSET(i, &(_socket_set.get_read_fds())) && i != my_fd && socket->get_type() != LISTEN && socket->get_type() != UNKNOWN)
-		{
-			if (DEBUG)
-				std::cout << "echo_msg to fd: " << i << ", msg: " << buf << std::endl;
 			socket->write(buf);
-		}
 	}
 	write(1, buf, len);
 }
@@ -185,6 +181,60 @@ void	IrcServer::send_map_data(int fd)
 		msg = ":" + _si.SERVER_NAME + " SERVER " + server->get_name() + " " + ft::itos(server->get_hopcount() + 1) + " " + server->get_info() + "\n";
 		send_msg(fd, msg.c_str());
 		begin++;
+	}
+}
+
+void	IrcServer::send_channel_data(int fd)
+{
+	std::map<std::string, Channel *>::iterator	iter;
+	std::map<std::string, Channel *>::iterator	end;
+	Channel										*channel;
+	std::string									msg;
+
+	std::vector<ChanMember>						channel_members;
+	std::vector<ChanMember>::iterator			member_iter;
+	size_t										i;
+	Member										*member;
+
+	i = 0;
+	iter = _global_channel.begin();
+	end = _global_channel.end();
+	while (iter != end)
+	{
+		channel = iter->second;
+		msg = ":" + _si.SERVER_NAME + " NJOIN " + channel->get_name() + " ";
+		channel_members = channel->get_members();
+		member_iter = channel_members.begin();
+		while (member_iter != channel_members.end())
+		{
+			member = member_iter->_member;
+			if (member_iter->_is_creator)
+				msg += "@@" + member->get_nick();
+			else if (member_iter->_is_operator)
+				msg += "@" + member->get_nick();
+			else if (member_iter->_is_voice)
+				msg += "+" + member->get_nick();
+			else
+				msg += member->get_nick();
+			if (channel_members.size() != 1 && i + 1 != channel_members.size())
+				msg += ",";
+			member_iter++;
+			i++;
+		}
+		msg += "\n";
+		send_msg(fd, msg.c_str());
+		//
+		if (channel->check_mode('i', false))
+		{
+			msg = ":" + _si.SERVER_NAME + " MODE " + channel->get_name() + " +i\n";
+			send_msg(fd, msg.c_str());
+		}
+		else if (channel->check_mode('k', false))
+		{
+			msg = ":" + _si.SERVER_NAME + " MODE " + channel->get_name() + " +k " + channel->get_key() + "\n";
+			send_msg(fd, msg.c_str());
+		}
+		iter++;
 	}
 }
 
@@ -218,7 +268,7 @@ void	IrcServer::update_last_time()
 	}
 }
 
-void	IrcServer::client_msg(int fd)
+int		IrcServer::client_msg(int fd)
 {
 	char			buf[BUFFER_SIZE];
 	int				str_len = 0;
@@ -231,10 +281,10 @@ void	IrcServer::client_msg(int fd)
 	if (result == -1)
 	{
 		std::cout << "read_until_crlf return -1" << std::endl;
-		return ;
+		return (0);
 	}
 	if (result == 2)
-		return ;
+		return (0);
 	Message msg(buf);
 	if (buf[0] == 0 || msg.get_size() >= 512 || msg.get_param_size() > 15) // 클라이언트에서 Ctrl + C 입력한 경우
 	{
@@ -268,9 +318,12 @@ void	IrcServer::client_msg(int fd)
 			cmd->set_message(Message(message.c_str()));
 		}
 		cmd->execute(*this);
+		show_global_server();
+		show_global_user();
+		show_global_channel();
 		while (result)
 			result = ft::read_until_crlf(fd, buf, &str_len);
-		return ;
+		return (0);
 	}
 	msg.set_source_fd(fd);
 	cmd = _cmd_creator.get_command(msg.get_command());
@@ -305,26 +358,28 @@ void	IrcServer::client_msg(int fd)
 	{
 		while (result)
 			result = ft::read_until_crlf(fd, buf, &str_len);
-		return ;
 	}
+	if (result == 1)
+		return (1);
+	return (0);
 }
 
 void		IrcServer::fd_event_loop()
 {
 	struct timeval	timeout;
+	static bool		remember[OPEN_MAX];
 	fd_set	fds;
-	int		fd_num;
-
-	timeout.tv_sec = 1;
-	timeout.tv_usec = 0;
+	
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 50;
 	fds = _socket_set.get_read_fds_copy();
-	if((fd_num = select(_fd_max + 1, &fds, 0 ,0, &timeout)) == -1)
+	if (select(_fd_max + 1, &fds, 0 ,0, &timeout) == -1)
 		throw (Error(strerror(errno)));
-	else if (fd_num != 0)
+	else
 	{
 		for (int i = 0; i < _fd_max + 1; i++)
 		{
-			if (FD_ISSET(i, &fds))
+			if (FD_ISSET(i, &fds) || remember[i])
 			{
 				_current_sock = _socket_set.find_socket(i);
 				if (_current_sock->get_type() == LISTEN)
@@ -338,10 +393,15 @@ void		IrcServer::fd_event_loop()
 					continue;
 				}
 				else
-					client_msg(i);
+				{
+					if (client_msg(i) == 1)
+						remember[i] = true;
+					else
+						remember[i] = false;
+				}
 			}
 		}
-	}
+	}	
 }
 
 SocketSet	&IrcServer::get_socket_set()
@@ -349,10 +409,11 @@ SocketSet	&IrcServer::get_socket_set()
 
 void	IrcServer::check_connection()
 {
-	std::vector<Socket *>	connects = _socket_set.get_connect_sockets();
+	std::vector<Socket *>	&connects = _socket_set.get_connect_sockets();
+	if (connects.empty())
+		return ;
 	std::vector<Socket *>::iterator	begin = connects.begin();
 	std::vector<Socket *>::iterator	end = connects.end();
-
 	while (begin != end)
 	{
 		if ((*begin)->get_type() != LISTEN && (*begin)->get_type() != SSL_LISTEN)
@@ -382,7 +443,12 @@ void	IrcServer::check_connection()
 					cmd->set_message(Message(msg.c_str()));
 				}
 				if (cmd)
+				{
 					cmd->execute(*this);
+					show_global_server();
+					show_global_user();
+					show_global_channel();
+				}
 			}
 			else if (diff_time > _si.PING_TIMEOUT && !((*begin)->is_ping_check()))
 			{
@@ -577,7 +643,7 @@ std::map<std::string, Server *>		&IrcServer::get_global_server()
 	return (_global_server);
 }
 
-void		IrcServer::add_channel(std::string &channel_name, Channel *channel)
+void		IrcServer::add_channel(std::string const &channel_name, Channel *channel)
 {
 	_global_channel.insert(std::pair<std::string, Channel *>(channel_name, channel));
 }
@@ -639,7 +705,10 @@ void		IrcServer::show_global_user()
 	std::cout.width(10);
 	std::cout << "fd";
 	std::cout.width(10);
-	std::cout << "away\n";
+	std::cout << "away";
+	std::cout.width(10);
+	std::cout << "mode\n";
+
 	while (iter != _global_user.end())
 	{
 		Member	*member = (*iter).second;
@@ -650,7 +719,9 @@ void		IrcServer::show_global_user()
 		std::cout.width(10);
 		std::cout << member->get_fd();
 		std::cout.width(10);
-		std::cout << member->get_away() << "\n";
+		std::cout << member->get_away();
+		std::cout.width(10);
+		std::cout << std::bitset<16>(member->get_mode()) << "\n"; // 사용 금지?
 		iter++;
 	}
 	return ;
@@ -672,7 +743,7 @@ void		IrcServer::show_global_channel()
 	std::cout << "mode";
 	std::cout.width(10);
 	std::cout << "users\n";
-	while (iter != _global_channel.end())
+	while (iter != _global_channel.end() && !_global_channel.empty())
 	{
 		std::cout.width(10);
 		std::cout << (*iter).first;
@@ -683,14 +754,14 @@ void		IrcServer::show_global_channel()
 		std::cout.width(20);
 		std::cout << std::bitset<16>((*iter).second->get_mode()); // 사용 금지?
 
-		member_vector = (*iter).second->get_members();
+		member_vector = iter->second->get_members();
 		std::vector<ChanMember>::iterator		member_iter;
 		member_iter = member_vector.begin();
 		while (member_iter != member_vector.end())
 		{
 			std::cout.width(10);
 			std::string		temp;
-			temp = (*member_iter)._member->get_nick();
+			temp = member_iter->_member->get_nick();
 			if ((*member_iter)._is_operator)
 				temp += "(op)";
 			std::cout << temp;
@@ -721,18 +792,6 @@ int			IrcServer::get_server_token()
 	}
 	return (token);
 }
-
-// void				IrcServer::sigint_handler(int type)
-// {
-// 	std::string		msg;
-// 	Command			*cmd;
-
-// 	msg = "SQUIT" + _si.SERVER_NAME + " :SIGINT\n";
-// 	cmd = _cmd_creator.get_command("SQUIT");
-// 	cmd->set_message(Message(msg.c_str()));
-// 	cmd->run(*this);
-// 	// 사용한 메모리들 정리 작업 추가
-// }
 
 bool		IrcServer::check_oper(const std::string & id, const std::string & pwd)
 {
@@ -773,8 +832,11 @@ void				IrcServer::print_motd()
 	_current_sock->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	for (int i = 0; i < split_size - 1; ++i)
 	{
-		split_ret[i].insert(0, "\33[38;5;0;48;5;255m");
-		split_ret[i] += "\33[m";
+		size_t pos;
+		if ((pos = split_ret[i].find("${_INVERT}")) != std::string::npos)
+			split_ret[i].replace(pos, 10, "\33[38;5;0;48;5;255m");
+		if ((pos = split_ret[i].find("${_END}")) != std::string::npos)
+			split_ret[i].replace(pos, 7, "\33[m");
 		_current_sock->write(Reply(RPL::MOTD(), split_ret[i]).get_msg().c_str());
 	}
 	_current_sock->write(Reply(RPL::ENDOFMOTD()));

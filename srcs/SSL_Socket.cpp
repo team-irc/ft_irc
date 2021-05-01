@@ -32,7 +32,7 @@ SSL_Socket  *SSL_Socket::accept(SSL_CTX *ctx)
 
 	fd = ::accept(_fd, (struct sockaddr *)&accepted_addr, &addr_size);
 	if (fd <= 0)
-		throw ("SSL Socket accept error");
+		throw (Error("SSL Socket accept error"));
 	accepted_socket = new SSL_Socket(ctx);
 	setsockopt(_fd, SOL_SOCKET, SO_NOSIGPIPE, (void *)&set, sizeof(int));
 	accepted_socket->_fd = fd;
@@ -82,7 +82,7 @@ SSL_Socket	*SSL_Socket::connect(const char *connect_srv, SSL_CTX *ctx)
 	if (SSL_connect(connect_socket->_ssl) <= 0)
 	{
 		if (errno != EINPROGRESS)
-			throw ("SSL_connect Error\n");
+			throw (Error("SSL_connect Error\n"));
 	}
 	fcntl(connect_socket->_fd, F_SETFL, O_NONBLOCK);
 	return (connect_socket);

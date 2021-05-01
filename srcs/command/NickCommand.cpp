@@ -1,5 +1,4 @@
 #include "NickCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 ** 	ERR_NICKCOLLISION 처리 안함
@@ -100,7 +99,7 @@ void	NickCommand::run(IrcServer &irc)
 		member->set_nick(nickname); // 3. member 닉네임 변경
 		irc.add_member(nickname, member); // 4. global_user에 새로 추가
 		irc.send_msg_server(socket->get_fd(), _msg.get_msg()); 
-		socket->set_linkname(member->get_nick() + "~!" + member->get_username() + "@" + member->get_hostname());
+		socket->set_linkname(member->get_nick() + "!~" + member->get_username() + "@" + member->get_hostname());
 	}
 	else if (socket->get_type() == UNKNOWN) // UNKNOWN에서 온 경우(추가)
 	{
@@ -136,7 +135,7 @@ void	NickCommand::run(IrcServer &irc)
 				user_msg.set_prefix(nickname);
 				irc.send_msg_server(socket->get_fd(), user_msg.get_msg());
 				irc.print_motd();
-				socket->set_linkname(member->get_nick() + "~!" + member->get_username() + "@" + member->get_hostname());
+				socket->set_linkname(member->get_nick() + "!~" + member->get_username() + "@" + member->get_hostname());
 			}
 			else
 			{
@@ -197,17 +196,6 @@ NickCommand::NickCommand() : Command()
 
 NickCommand::~NickCommand()
 {
-}
-
-NickCommand::NickCommand(NickCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-NickCommand	&NickCommand::operator=(NickCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }
 
 bool NickCommand::check_nick(const std::string &nick)

@@ -137,22 +137,6 @@
 
 // u - returns a string showing how long the server has been up.
 
-static void		stats_c(IrcServer &irc, Socket *socket)
-{
-	std::map<std::string ,Server *>::iterator		iter;
-	Server											*server;
-	
-	iter = irc.get_global_server().begin();
-	while (iter != irc.get_global_server().end())
-	{
-		server = iter->second;
-		//	if (연결 대기중인 서버이면)
-		//		socket->write(Reply(RPL::STATSCLINE(), server->get_hostname(), server->get_name(), server->ger_port(), ""));
-		iter++;
-	}
-	socket->write(Reply(RPL::ENDOFSTATS(), "c"));
-}
-
 static void		stats_l(IrcServer &irc, Socket *socket)
 {
 	std::map<std::string ,Server *>::iterator		iter;
@@ -197,12 +181,15 @@ static void		stats_m(IrcServer &irc, Socket *socket)
 {
 	std::map<std::string, Command *>::iterator		iter;
 	std::map<std::string, Command *>::iterator		end;
+	size_t											count;
 
 	iter = irc.get_command_factory().get_command_map().begin();
 	end = irc.get_command_factory().get_command_map().end();
 	while (iter != end)
 	{
-		socket->write(Reply(RPL::STATSCOMMANDS(), iter->first, ft::itos(iter->second->get_count())));
+		count = iter->second->get_count();
+		if (count != 0)
+			socket->write(Reply(RPL::STATSCOMMANDS(), iter->first, ft::itos(count)));
 		iter++;	
 	}
 }

@@ -94,7 +94,7 @@ static void		kill_member(IrcServer &irc, Member *target, Member *oper, Message m
 	{
 		if (irc.get_current_socket()->get_type() == CLIENT)
 		{
-			target->get_socket()->write(std::string("ERROR :KILLed by " + oper->get_nick() + message.get_param(1)).c_str());
+			target->get_socket()->write(std::string("ERROR :KILLed by " + oper->get_nick() + " " + message.get_param(1) + "\n").c_str());
 			msg = ":" + target->get_nick() + " QUIT " + message.get_param(1) + " :" + irc.get_serverinfo().SERVER_NAME + "\n"; 
 		}
 		else if (irc.get_current_socket()->get_type() == SERVER)
@@ -137,7 +137,7 @@ void	KillCommand::run(IrcServer &irc)
 		if (_msg.get_param_size() != 1 && _msg.get_param_size() != 2)
 			throw (Reply(ERR::NEEDMOREPARAMS(), _msg.get_command()));
 		oper = irc.find_member(socket->get_fd());
-		if (oper->is_server_operator())
+		if (oper->check_mode('o', true))
 			throw (Reply(ERR::NOPRIVILEGES()));
 		target = irc.get_member(_msg.get_param(0));
 		if (target == NULL)
@@ -160,15 +160,4 @@ KillCommand::KillCommand() : Command()
 
 KillCommand::~KillCommand()
 {
-}
-
-KillCommand::KillCommand(KillCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-KillCommand	&KillCommand::operator=(KillCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

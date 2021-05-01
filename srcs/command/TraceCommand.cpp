@@ -1,5 +1,4 @@
 #include "TraceCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
    Command: TRACE
@@ -150,7 +149,7 @@ static void		send_connected_server_to_socket(IrcServer &irc, Socket *socket)
 		if (server->get_hopcount() == 1) // 홉카운트가 1이면 직접 연결되어 있는것
 		{
 			socket->write(Reply(RPL::TRACESERVER(), "class", get_server_count(irc.get_global_server()), get_client_count(irc.get_global_user()),
-							server->get_name(), "nick", "user", "host").get_msg().c_str());
+							server->get_name(), socket->get_linkname()).get_msg().c_str());
 		}
 		iter++;
 	}
@@ -203,15 +202,4 @@ TraceCommand::TraceCommand() : Command()
 
 TraceCommand::~TraceCommand()
 {
-}
-
-TraceCommand::TraceCommand(TraceCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-TraceCommand	&TraceCommand::operator=(TraceCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

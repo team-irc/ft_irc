@@ -1,17 +1,26 @@
 #include "Channel.hpp"
 
-Channel::Channel(const std::string channel_name, const std::string key, Member *first_member)
+Channel::Channel(const std::string channel_name) : _name(channel_name), _key(), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
+{
+	set_mode(1024);
+}
+
+Channel::Channel(const std::string channel_name, Member *first_member)
+	: _name(channel_name), _key(), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
+{
+	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
+	set_mode(1024);
+	_member.push_back(ChanMember(first_member, false, true, true));
+};
+
+Channel::Channel(const std::string channel_name, Member *first_member, const std::string key)
 	: _name(channel_name), _key(key), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
 {
 	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
-	_member.push_back(ChanMember(first_member, false, true));
-};
-
-Channel::Channel(const std::string channel_name, Member *first_member)
-	: _name(channel_name), _topic(), _mode(0), _limit(CHANNEL_CONST::DEFAULT_MEMBER_LIMIT)
-{
-	// MODE +o를 통해 네트워크에 새로운 운영자를 알림
-	_member.push_back(ChanMember(first_member, false, true));
+	set_mode(1024);
+	if (!key.empty())
+		set_mode(1025);
+	_member.push_back(ChanMember(first_member, false, true, true));
 };
 
 Channel::Channel(const Channel & other): _name(other._name), _member(other._member), _topic(other._topic), _mode(other._mode), _limit(other._limit)
@@ -34,7 +43,7 @@ Channel::~Channel()
 
 void Channel::add_member(Member *member)
 {
-	_member.push_back(ChanMember(member, false, false));
+	_member.push_back(ChanMember(member, false, false, false));
 };
 
 int	Channel::delete_member(Member *member)
@@ -69,28 +78,6 @@ bool					Channel::is_member(Member *member)
 	return (false);
 }
 
-std::vector<ChanMember>	&Channel::get_members()
-{ return (_member); }
-
-std::vector<std::string> Channel::get_member_list()
-{
-	std::vector<std::string>			ret;
-	std::vector<ChanMember>::iterator	first;
-	std::vector<ChanMember>::iterator	last;
-
-	first = _member.begin();
-	last = _member.end();
-	while (first != last)
-	{
-		ret.push_back(first->_is_operator == true ? "@" + (*first)._member->get_nick() : "" + (*first)._member->get_nick());
-		++first;
-	}
-	return (ret);
-}
-
-const std::string & 	Channel::get_name()
-{ return (_name); }
-
 bool Channel::find_member(Member * member)
 {
 	std::vector<ChanMember>::iterator first = _member.begin();
@@ -103,18 +90,6 @@ bool Channel::find_member(Member * member)
 		++first;
 	}
 	return (false);
-}
-
-bool			Channel::set_topic(std::string const &topic)
-{
-	// 모드 관련 명령 추가?
-	_topic = topic;
-	return (1);
-}
-
-std::string		Channel::get_topic()
-{
-	return (_topic);
 }
 
 // Channel mode: o(1024) p(512) s(256) i(128) t(64) n(32) m(16) l(8) b(4) v(2) k(1)
@@ -189,13 +164,6 @@ bool			Channel::check_mode(char mode, bool is_set)
 	}
 	return (false);
 }
-
-int				Channel::get_mode() { return (_mode); }
-void			Channel::set_mode(int mode) { _mode = mode; }
-std::string		&Channel::get_servername() { return (_servername); }
-void			Channel::set_servername(std::string & name) { _servername = name; }
-size_t			Channel::get_limit() { return (_limit); }
-void			Channel::set_limit(size_t val) { _limit = val; }
 
 bool			Channel::is_operator(Member *member)
 {
@@ -276,9 +244,6 @@ void			Channel::delete_ban_list(std::string const &mask)
 	}
 }
 
-std::vector<std::string>	&Channel::get_ban_list()
-{ return (_ban_list); }
-
 
 bool			Channel::is_voice(Member *member)
 {
@@ -326,8 +291,21 @@ void			Channel::delete_voice(Member *member)
 	}
 }
 
-void			Channel::set_key(std::string const &key)
-{ _key = key; }
+void			Channel::add_creator(Member *member)
+{
+	std::vector<ChanMember>::iterator		begin = _member.begin();
+	std::vector<ChanMember>::iterator		end = _member.end();
+
+	while (begin != end)
+	{
+		if ((*begin)._member == member)
+		{
+			(*begin)._is_creator = true;
+			return ;
+		}
+		begin++;
+	}
+}
 
 bool				Channel::add_invited_member(Member *member)
 {
@@ -348,11 +326,6 @@ bool				Channel::is_invited_member(Member *member)
 		return (true);
 }
 
-std::set<Member *>	&Channel::get_invited_member()
-{
-	return (_invited_member);
-}
-
 void				Channel::send_msg_to_members(const char *msg)
 {
 	std::vector<ChanMember>::iterator	member_iter;
@@ -367,3 +340,50 @@ void				Channel::send_msg_to_members(const char *msg)
 		member_iter++;
 	}
 }
+
+bool				Channel::is_valid_key(std::string const &key)
+{
+	if (_key == key)
+		return (true);
+	else
+		return (false);
+}
+
+/*
+** GETTER
+*/
+
+const std::string & 		Channel::get_name()								{ return (_name); }
+std::string					Channel::get_topic()							{ return (_topic); }
+std::vector<ChanMember>		&Channel::get_members()							{ return (_member); }
+int							Channel::get_mode()								{ return (_mode); }
+std::string					&Channel::get_servername()						{ return (_servername); }
+size_t						Channel::get_limit()							{ return (_limit); }
+std::set<Member *>			&Channel::get_invited_member()					{ return (_invited_member); }
+std::vector<std::string>	&Channel::get_ban_list()						{ return (_ban_list); }
+std::string			&Channel::get_key()										{ return (_key); }
+std::vector<std::string>	Channel::get_member_list()
+{
+	std::vector<std::string>			ret;
+	std::vector<ChanMember>::iterator	first;
+	std::vector<ChanMember>::iterator	last;
+
+	first = _member.begin();
+	last = _member.end();
+	while (first != last)
+	{
+		ret.push_back(first->_is_operator == true ? "@" + (*first)._member->get_nick() : "" + (*first)._member->get_nick());
+		++first;
+	}
+	return (ret);
+}
+
+/*
+** SETTER
+*/
+
+void						Channel::set_topic(std::string const &topic)	{ _topic = topic; }
+void						Channel::set_mode(int mode)						{ _mode = mode; }
+void						Channel::set_servername(std::string & name)		{ _servername = name; }
+void						Channel::set_limit(size_t val)					{ _limit = val; }
+void						Channel::set_key(std::string const &key)		{ _key = key; }

@@ -18,10 +18,8 @@ private:
 
 public:
 	TopicCommand();
-	virtual ~TopicCommand();
-	TopicCommand(TopicCommand const &copy);
-	TopicCommand	&operator=(TopicCommand const &ref);
-
+	~TopicCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

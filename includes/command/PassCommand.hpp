@@ -13,9 +13,8 @@ class PassCommand : public Command
 {
 public:
 	PassCommand();
-	virtual ~PassCommand();
-	PassCommand(PassCommand const &copy);
-	PassCommand	&operator=(PassCommand const &ref);
+	~PassCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

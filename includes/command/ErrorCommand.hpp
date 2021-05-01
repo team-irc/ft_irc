@@ -7,9 +7,7 @@ class	ErrorCommand : public Command
 {
 	public:
 		ErrorCommand();
-		virtual ~ErrorCommand();
-		ErrorCommand(ErrorCommand const &ref);
-		ErrorCommand	&operator=(ErrorCommand const &ref);
+		~ErrorCommand();
 	public:
 		void			run(IrcServer &irc);
 };

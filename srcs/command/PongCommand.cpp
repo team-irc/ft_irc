@@ -1,23 +1,10 @@
 #include "PongCommand.hpp"
-#include "ft_irc.hpp"
 
 PongCommand::PongCommand()
 {}
 
-PongCommand::PongCommand(PongCommand const &ref)
-{
-	_msg = ref._msg;
-}
-
 PongCommand::~PongCommand()
 {}
-
-PongCommand		&PongCommand::operator=(PongCommand const &ref)
-{
-	if (this != &ref)
-		_msg = ref._msg;
-	return (*this);
-}
 
 void			PongCommand::run(IrcServer &irc)
 {

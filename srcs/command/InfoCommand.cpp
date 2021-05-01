@@ -34,6 +34,8 @@ void InfoCommand::run(IrcServer &irc)
 	std::string         ret;
 
 	socket = irc.get_current_socket();
+	if (socket->get_type() == UNKNOWN)
+		throw (Reply(ERR::NOTREGISTERED()));
 	si = irc.get_serverinfo();
 	member = irc.find_member(socket->get_fd());
 	ret = si.SERVER_NAME + " VERSION: " + si.VERSION;
@@ -78,5 +80,9 @@ void InfoCommand::run(IrcServer &irc)
 }
 
 InfoCommand::InfoCommand(): Command()
+{
+}
+
+InfoCommand::~InfoCommand()
 {
 }

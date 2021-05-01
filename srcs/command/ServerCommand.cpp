@@ -1,5 +1,4 @@
 #include "ServerCommand.hpp"
-#include "ft_irc.hpp"
 
 /*
 	Command: SERVER
@@ -78,6 +77,7 @@ void	ServerCommand::run(IrcServer &irc)
 			ss.change_socket_type(_msg.get_source_fd(), SERVER); // 3. 소켓 타입 변경
 			irc.send_map_data(socket->get_fd()); // 4. 맵 데이터 전송
 			irc.send_user_data(socket->get_fd()); // 5. 유저 데이터 전송
+			irc.send_channel_data(socket->get_fd()); // 5.5 채널 데이터 전송
 			irc.add_server(_msg.get_param(0), _msg.get_param(1), token, _msg.get_param(2), socket); // 6. _global_server에 추가
 			int hopcount = ft::atoi(_msg.get_param(1).c_str());
 			hopcount++;
@@ -117,15 +117,4 @@ ServerCommand::ServerCommand() : Command()
 
 ServerCommand::~ServerCommand()
 {
-}
-
-ServerCommand::ServerCommand(ServerCommand const &copy)
-{
-	_msg = copy._msg;
-}
-
-ServerCommand	&ServerCommand::operator=(ServerCommand const &ref)
-{
-	_msg = ref._msg;
-	return (*this);
 }

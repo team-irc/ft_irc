@@ -136,6 +136,7 @@ void ConnectCommand::connect_to_target(IrcServer & irc, const std::string & targ
         new_socket->write(msg.c_str());
         irc.send_map_data(new_socket->get_fd());
         irc.send_user_data(new_socket->get_fd());
+        irc.send_channel_data(new_socket->get_fd());
     }
     catch(Error & e)
     {

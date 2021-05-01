@@ -9,10 +9,8 @@ private:
 
 public:
 	QuitCommand();
-	virtual ~QuitCommand();
-	QuitCommand(QuitCommand const &copy);
-	QuitCommand	&operator=(QuitCommand const &ref);
-
+	~QuitCommand();
+public:
 	void	run(IrcServer &irc);
 };
 

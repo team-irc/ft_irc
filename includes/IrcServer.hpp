@@ -1,5 +1,5 @@
-#ifndef FT_IRC_HPP
-# define FT_IRC_HPP
+#ifndef IRCSERVER_HPP
+# define IRCSERVER_HPP
 
 #include <iostream>
 #include <unistd.h>
@@ -35,7 +35,6 @@ private:
 	Socket							*_listen_socket;
 	SSL_Socket						*_ssl_listen_socket;
 
-	// std::vector<Socket *>		_socket_vector;
 	SocketSet						_socket_set;
 	int								_fd_max;
 	Socket							*_current_sock;
@@ -82,7 +81,7 @@ public:
 	void						send_msg(int send_fd, const char *msg);
 	void						send_msg_server(int fd, const char *msg);
 	
-	void						add_channel(std::string &channel_name, Channel *channel);
+	void						add_channel(std::string const &channel_name, Channel *channel);
 	void						delete_channel(const std::string &channel_name);
 	Channel						*get_channel(std::string channel_name);
 
@@ -98,6 +97,7 @@ public:
 
 	void						send_map_data(int my_fd);
 	void						send_user_data(int fd);
+	void						send_channel_data(int fd);
 	Member						*get_member(std::string nick);
 	Member						*get_member(int fd);
 	std::map<std::string, Channel *>	&get_global_channel();
@@ -122,7 +122,7 @@ public:
 private:
 
 	void				echo_msg(int my_fd, const char *buf, int len);
-	void				client_msg(int fd);
+	int					client_msg(int fd);
 	void				unknown_msg(int fd);
 	void				client_connect();
 	void				ssl_connect();
