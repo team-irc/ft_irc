@@ -828,6 +828,8 @@ void				IrcServer::print_motd()
 	Reply::set_servername(_si.SERVER_NAME);
 	Reply::set_username(find_member(_current_sock->get_fd())->get_nick());
 	print_serverinfo();
+	if (_si.MOTD.empty())
+		return ;
 	split_size = ft::split(_si.MOTD, '\n', split_ret);
 	_current_sock->write(Reply(RPL::MOTDSTART(), _si.SERVER_NAME));
 	for (int i = 0; i < split_size - 1; ++i)
